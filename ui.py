@@ -86,6 +86,92 @@ class Ui_ConfirmExit(object):
             "Dialog", "Действительно завершить текущую игру без сохранения?"))
 
 
+class Ui_ConfirmLeave(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.setFixedSize(400, 140)
+        font = QtGui.QFont()
+        font.setFamily("PT Sans")
+        Dialog.setFont(font)
+        self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
+        self.buttonBox.setGeometry(QtCore.QRect(30, 90, 341, 32))
+        font = QtGui.QFont()
+        font.setFamily("PT Sans")
+        font.setPointSize(9)
+        self.buttonBox.setFont(font)
+        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(
+            QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
+        self.buttonBox.setCenterButtons(True)
+        self.buttonBox.setObjectName("buttonBox")
+        self.label = QtWidgets.QLabel(Dialog)
+        self.label.setGeometry(QtCore.QRect(24, 20, 351, 50))
+        font = QtGui.QFont()
+        font.setFamily("PT Sans")
+        font.setPointSize(9)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label.setFont(font)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setWordWrap(True)
+        self.label.setObjectName("label")
+
+        self.retranslateUi(Dialog)
+        self.buttonBox.accepted.connect(Dialog.accept)
+        self.buttonBox.rejected.connect(Dialog.reject)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
+
+    def retranslateUi(self, Dialog):
+        _translate = QtCore.QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "Покинуть игру?"))
+        self.label.setText(_translate(
+            "Dialog", "Вы действительно хотите покинуть игру с суммой в {} руб?"))
+
+
+class Ui_WinLeave(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(400, 150)
+        font = QtGui.QFont()
+        font.setFamily("PT Sans")
+        Dialog.setFont(font)
+        self.horizontalLayout = QtWidgets.QHBoxLayout(Dialog)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.label = QtWidgets.QLabel(Dialog)
+        font = QtGui.QFont()
+        font.setFamily("PT Sans")
+        font.setPointSize(9)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label.setFont(font)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setObjectName("label")
+        self.verticalLayout.addWidget(self.label)
+        self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
+        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(
+            QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
+        self.buttonBox.setCenterButtons(True)
+        self.buttonBox.setObjectName("buttonBox")
+        self.verticalLayout.addWidget(self.buttonBox)
+        self.horizontalLayout.addLayout(self.verticalLayout)
+
+        self.retranslateUi(Dialog)
+        self.buttonBox.accepted.connect(Dialog.accept)
+        self.buttonBox.rejected.connect(Dialog.reject)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
+
+    def retranslateUi(self, Dialog):
+        _translate = QtCore.QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "Вы проиграли!"))
+        self.label.setText(_translate("Dialog", 
+                                      "Вы покинули эту игру! Правильный ответ на этот вопрос: {0}.\n"
+                                      "Ваш выигрыш составил {1} руб.\n"
+                                      "Начать новую игру?"))
+
+
 class Ui_ConfirmAgain(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
@@ -208,7 +294,7 @@ class Ui_DeleteResult(object):
             "Form", "Удалить (без подтверждений, сразу при нажатии)"))
 
 
-class Ui_ConfirmDeleteAll(object):
+class Ui_ConfirmClearAll(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(400, 140)

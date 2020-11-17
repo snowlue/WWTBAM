@@ -10,15 +10,15 @@ from PyQt5.QtGui import QPixmap, QMouseEvent
 from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QInputDialog,
                              QMainWindow, QTableWidget, QTableWidgetItem, QWidget)
 
-from ui import (Ui_About, Ui_ConfirmAgain, Ui_ConfirmDeleteAll, Ui_ConfirmExit,
-                Ui_DeleteResult, Ui_GameOver, Ui_ResultsTable)
+from ui import (Ui_About, Ui_ConfirmAgain, Ui_ConfirmClearAll, Ui_ConfirmExit, Ui_ConfirmLeave,
+                Ui_DeleteResult, Ui_GameOver, Ui_ResultsTable, Ui_WinLeave)
 
 PRICES = [
-    0, 500, 1000, 2000, 3000, 5000, 10000,
-    15000, 25000, 50000, 100000, 200000,
-    400000, 800000, 1500000, 3000000
+    '0', '500', '1 000', '2 000', '3 000', '5 000', '10 000',
+    '15 000', '25 000', '50 000', '100 000', '200 000',
+    '400 000', '800 000', '1 500 000', '3 000 000'
 ]
-GUARANTEED_PRICES = ['0'] * 5 + ['5,000'] * 5 + ['100,000'] * 5
+GUARANTEED_PRICES = ['0'] * 5 + ['5 000'] * 5 + ['100 000'] * 5
 
 
 def sql_request(request: str):
@@ -129,13 +129,20 @@ class GameWindow(QMainWindow):
         self.about.triggered.connect(self.openAbout)
         self.open_table.triggered.connect(self.openTable)
         self.clear_one.triggered.connect(self.openDeleteResultForm)
-        self.clear_all.triggered.connect(self.openConfirmDeleteAll)
+        self.clear_all.triggered.connect(self.openConfirmClearAll)
         self.setFixedSize(1100, 703)
 
     def showGameOver(self, data):
         self.game_over = GameOverWindow(self, data)
         self.game_over.move(169 + self.x(), 210 + self.y())
         self.game_over.show()
+
+    def openConfirmLeave(self):
+        num_to_let = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
+        letter = num_to_let[self.answers.index(self.correct_answer)]
+        self.confirm_wndw = ConfirmLeaveWindow(self, letter)
+        self.confirm_wndw.move(169 + self.x(), 210 + self.y())
+        self.confirm_wndw.show()
 
     def openConfirmAgain(self):
         self.confirm_wndw = ConfirmAgainWindow(self)
@@ -157,8 +164,8 @@ class GameWindow(QMainWindow):
         self.delete_form.move(150 + self.x(), 93 + self.y())
         self.delete_form.show()
 
-    def openConfirmDeleteAll(self):
-        self.confirm_wndw = ConfirmDeleteAll()
+    def openConfirmClearAll(self):
+        self.confirm_wndw = ConfirmClearAll()
         self.confirm_wndw.move(169 + self.x(), 210 + self.y())
         self.confirm_wndw.show()
 
@@ -169,6 +176,12 @@ class GameWindow(QMainWindow):
 
 
 class GameOverWindow(QDialog, Ui_GameOver):
+    '''
+    GameOverWindow\n
+    • type: QDialog\n
+    • target: asking about starting new game after loss
+    '''
+
     def __init__(self, parent, data):
         super().__init__()
         self.setupUi(self)
@@ -183,12 +196,49 @@ class GameOverWindow(QDialog, Ui_GameOver):
         self.results = ResultsTableWindow()
         self.results.move(169 + self.parent.x(), 93 + self.parent.y())
         self.results.show()
-    
+
     def exit(self):
         self.parent.close()
         self.close()
         self.results = ResultsTableWindow()
         self.results.show()
+
+
+class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
+    '''
+    ConfirmLeaveWindow\n
+    • type: QDialog\n
+    • target: сonfirm leaving current round
+    '''
+
+    def __init__(self, parent: GameWindow, letter):
+        super().__init__()
+        self.setupUi(self)
+        self.parent = parent
+        self.correct = letter
+        self.label.setText(self.label.text().replace('{}', self.parent.got_amount))
+        self.accepted.connect(self.leave)
+        self.rejected.connect(self.close)
+
+    def leave(self):
+        sql_request('''INSERT INTO results
+                       (name, result, date) 
+                       VALUES ("{}", "{}", "{}")
+                    '''.format(self.parent.name, self.parent.got_amount, self.parent.date))
+        self.windialog = WinLeaveWindow(self.parent, [self.correct, self.parent.got_amount])
+        self.windialog.move(169 + self.parent.x(), 210 + self.parent.y())
+        self.windialog.show()
+        self.close()
+
+
+class WinLeaveWindow(GameOverWindow, Ui_WinLeave):
+    '''
+    WinLeaveWindow\n
+    • type: QDialog\n
+    • target: сonfirm restarting game after leaving current round
+    '''
+
+    pass
 
 
 class ConfirmAgainWindow(QDialog, Ui_ConfirmAgain):
@@ -237,7 +287,7 @@ class ResultsTableWindow(QWidget, Ui_ResultsTable):
         self.setupUi(self)
 
         results = sql_request('SELECT * from results')
-        results = sorted(results, key=lambda x: int(str(x[2]).replace(',', '')), reverse=True)
+        results = sorted(results, key=lambda x: int(str(x[2]).replace(' ', '')), reverse=True)
         results = [list(map(str, i[1:])) for i in results]
 
         makeTable(self.tableWidget, ['Имя', 'Результат', 'Дата и время'], results)
@@ -260,7 +310,7 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
 
     def refreshTable(self):
         results = sql_request('SELECT * from results')
-        results = sorted(results, key=lambda x: int(str(x[2]).replace(',', '')), reverse=True)
+        results = sorted(results, key=lambda x: int(str(x[2]).replace(' ', '')), reverse=True)
         results = [list(map(str, i[1:])) for i in results]
         self.results = [list(map(str, [i + 1, results[i][2]])) for i in range(len(results))]
 
@@ -278,7 +328,7 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
         self.refreshTable()
 
 
-class ConfirmDeleteAll(QDialog, Ui_ConfirmDeleteAll):
+class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):
     '''
     ConfirmDeleteAll\n
     • type: QDialog\n
