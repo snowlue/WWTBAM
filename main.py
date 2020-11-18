@@ -1,3 +1,4 @@
+import functools
 import random
 import sqlite3
 import sys
@@ -121,7 +122,7 @@ class GameWindow(QMainWindow):
         self.control, self.name, self.date = False, name, datetime.today().strftime('%d.%m.%Y %H:%M')
 
         self.timer = 900
-        self.is_x2_now, self.non_active = False, []
+        self.is_x2_now, self.non_active_answers = False, []
         self.lifelines = [True, True, True]
 
         self.new_game.triggered.connect(self.openConfirmAgain)
@@ -131,6 +132,19 @@ class GameWindow(QMainWindow):
         self.clear_one.triggered.connect(self.openDeleteResultForm)
         self.clear_all.triggered.connect(self.openConfirmClearAll)
         self.setFixedSize(1100, 703)
+    def user_control(func):
+        def wrapper(self, *args, **kwargs):
+            def f(x): self.control = x
+            self.time_function(1, f, False)
+            func(self, *args, **kwargs)
+            self.time_function(1, f, True)
+
+        return wrapper
+
+    def time_function(self, time: int, func, *args):
+        QtCore.QTimer.singleShot(self.timer + time, functools.partial(func, *args))
+        self.timer += time
+
 
     def showGameOver(self, data):
         self.game_over = GameOverWindow(self, data)
