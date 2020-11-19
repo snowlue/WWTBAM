@@ -132,6 +132,8 @@ class GameWindow(QMainWindow):
         self.clear_one.triggered.connect(self.openDeleteResultForm)
         self.clear_all.triggered.connect(self.openConfirmClearAll)
         self.setFixedSize(1100, 703)
+        self.startGame()
+
     def user_control(func):
         def wrapper(self, *args, **kwargs):
             def f(x): self.control = x
@@ -144,6 +146,52 @@ class GameWindow(QMainWindow):
     def time_function(self, time: int, func, *args):
         QtCore.QTimer.singleShot(self.timer + time, functools.partial(func, *args))
         self.timer += time
+
+    @user_control
+    def startGame(self):
+        self.questions = get_questions()
+        self.current_number = 1
+
+        for i in range(1, 16):
+            self.time_function(
+                100, self.current_state_t.setPixmap,
+                QPixmap('images/money tree/{}.png'.format(i))
+            )
+        for i in 'A', 'B', 'C', 'D':
+            self.time_function(
+                400, self.current_state_q.setPixmap,
+                QPixmap('images/question field/chosen_{}.png'.format(i))
+            )
+
+        self.time_function(400, self.current_state_q.setPixmap, QPixmap())
+        self.time_function(
+            800, self.current_state_t.setPixmap,
+            QPixmap('images/money tree/{}.png'.format(self.current_number))
+        )
+
+        self.time_function(500, self.updateQuestionField)
+
+    def updateQuestionField(self, changer=False):
+        self.non_active_answers = []
+        text = self.questions[self.current_number - 1][int(changer)][0]
+        self.answers = self.questions[self.current_number - 1][int(changer)][2]
+        self.correct_answer = self.questions[self.current_number - 1][int(changer)][1]
+        self.got_amount = PRICES[self.current_number - 1]
+        self.question.setText(text)
+        self.answer_A.setText(self.answers[0])
+        self.answer_B.setText(self.answers[1])
+        self.answer_C.setText(self.answers[2])
+        self.answer_D.setText(self.answers[3])
+
+    def clear_all_labels(self):
+        self.time_function(0, self.question.setText, '')
+        self.time_function(0, self.answer_A.setText, '')
+        self.time_function(0, self.answer_B.setText, '')
+        self.time_function(0, self.answer_C.setText, '')
+        self.time_function(0, self.answer_D.setText, '')
+        self.time_function(0, self.current_state_q.setPixmap, QPixmap())
+        self.time_function(0, self.current_state_q_2.setPixmap, QPixmap())
+        self.time_function(0, self.current_state_q_3.setPixmap, QPixmap())
 
 
     def showGameOver(self, data):
