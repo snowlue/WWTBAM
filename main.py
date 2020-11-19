@@ -159,7 +159,7 @@ class GameWindow(QMainWindow):
             )
         for i in 'A', 'B', 'C', 'D':
             self.time_function(
-                400, self.current_state_q.setPixmap,
+                250, self.current_state_q.setPixmap,
                 QPixmap('images/question field/chosen_{}.png'.format(i))
             )
 
