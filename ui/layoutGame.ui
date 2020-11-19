@@ -896,6 +896,7 @@
      </property>
     </widget>
     <zorder>layout_q</zorder>
+    <zorder>amount_q</zorder>
     <zorder>current_state_q</zorder>
     <zorder>current_state_q_2</zorder>
     <zorder>current_state_q_3</zorder>
@@ -904,7 +905,6 @@
     <zorder>answer_B</zorder>
     <zorder>answer_C</zorder>
     <zorder>answer_D</zorder>
-    <zorder>amount_q</zorder>
    </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
