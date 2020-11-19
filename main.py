@@ -193,6 +193,75 @@ class GameWindow(QMainWindow):
         self.time_function(0, self.current_state_q_2.setPixmap, QPixmap())
         self.time_function(0, self.current_state_q_3.setPixmap, QPixmap())
 
+    @user_control
+    def checkAnswer(self, label, letter):
+        user_answer = label.text()
+        if user_answer != self.correct_answer:
+            num_to_let = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
+            letter = num_to_let[self.answers.index(self.correct_answer)]
+            x2_letter = num_to_let[self.answers.index(user_answer)]
+
+        if self.current_number in [5, 10]:
+            self.time_function(1500, lambda a: a, True)
+        elif self.current_number in [6, 7, 8]:
+            self.time_function(1000, lambda a: a, True)
+        elif self.current_number in [11, 12]:
+            self.time_function(1500, lambda a: a, True)
+        elif self.current_number in [13, 14, 15]:
+            self.time_function(2500, lambda a: a, True)
+
+        if not self.is_x2_now or user_answer == self.correct_answer:
+            if self.is_x2_now:
+                self.is_x2_now = False
+            for i in range(3):
+                self.time_function(400, self.current_state_q_2.setPixmap, QPixmap())
+                self.time_function(
+                    400, self.current_state_q_2.setPixmap,
+                    QPixmap('images/question field/correct_{}.png'.format(letter))
+                )
+        else:
+            self.time_function(
+                1500, self.current_state_q_3.setPixmap,
+                QPixmap('images/question field/wrong_{}.png'.format(x2_letter))
+            )
+            self.non_active_answers.append(x2_letter)
+
+        if user_answer == self.correct_answer:
+            if self.current_number in [5, 10]:
+                self.time_function(
+                    1500, self.amount_q.setText,
+                    PRICES[self.current_number]
+                )
+                self.clear_all_labels()
+                self.time_function(
+                    0, self.layout_q.setPixmap,
+                    QPixmap('images/sum/amount.png')
+                )
+                self.time_function(2250, self.amount_q.setText, '')
+                self.time_function(
+                    0, self.layout_q.setPixmap,
+                    QPixmap('images/question field/layout.png')
+                )
+            self.current_number += 1
+            self.time_function(
+                0, self.current_state_t.setPixmap,
+                QPixmap('images/money tree/{}.png'.format(self.current_number))
+            )
+            self.time_function(0, self.updateQuestionField)
+            self.time_function(0, self.current_state_q.setPixmap, QPixmap())
+            self.time_function(0, self.current_state_q_2.setPixmap, QPixmap())
+            self.time_function(0, self.current_state_q_3.setPixmap, QPixmap())
+
+        if user_answer != self.correct_answer and not self.is_x2_now:
+            result_game = GUARANTEED_PRICES[self.current_number]
+            self.time_function(0, self.showGameOver, [
+                               letter, result_game])
+            sql_request('''INSERT INTO results
+                           (name, result, date) 
+                           VALUES ("{}", "{}", "{}")
+                        '''.format(self.name, result_game, self.date))
+        if self.is_x2_now:
+            self.is_x2_now = False
 
     def showGameOver(self, data):
         self.game_over = GameOverWindow(self, data)
