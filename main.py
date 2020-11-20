@@ -263,6 +263,33 @@ class GameWindow(QMainWindow):
         if self.is_x2_now:
             self.is_x2_now = False
 
+    @user_control
+    def useLifeline(self, type_ll: str):
+        if type_ll == 'change' and self.lifelines[0]:
+            self.time_function(750, self.updateQuestionField, True)
+            self.time_function(0, self.current_state_q.setPixmap, QPixmap())
+            self.time_function(0, self.current_state_q_2.setPixmap, QPixmap())
+            self.time_function(0, self.current_state_q_3.setPixmap, QPixmap())
+            self.is_x2_now = False
+
+            self.lifelines[0] = False
+
+        elif type_ll == 'x2' and self.lifelines[1]:
+            self.is_x2_now = True
+            self.lifelines[1] = False
+
+        elif type_ll == '5050' and self.lifelines[2]:
+            answs = [self.answer_A, self.answer_B, self.answer_C, self.answer_D]
+            answ_letters = ['A', 'B', 'C', 'D']
+
+            indxs = list(set([0, 1, 2, 3]) - set([self.answers.index(self.correct_answer)]))
+            random.shuffle(indxs)
+            answs[indxs[0]].setText('')
+            answs[indxs[1]].setText('')
+            self.non_active_answers = [answ_letters[indxs[0]], answ_letters[indxs[1]]]
+
+            self.lifelines[2] = False
+
     def showGameOver(self, data):
         self.game_over = GameOverWindow(self, data)
         self.game_over.move(169 + self.x(), 210 + self.y())
