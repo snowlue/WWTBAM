@@ -183,6 +183,40 @@ class GameWindow(QMainWindow):
         self.answer_C.setText(self.answers[2])
         self.answer_D.setText(self.answers[3])
 
+    def mousePressEvent(self, event: QMouseEvent):
+        if self.control:
+            x, y = event.x(), event.y()
+            self.timer = 0
+
+            if 150 <= x <= 520 and 597 <= y <= 638:
+                if 'A' not in self.non_active_answers:
+                    self.current_state_q.setPixmap(QPixmap('images/question field/chosen_A.png'))
+                    self.checkAnswer(self.answer_A, 'A')
+            elif 570 <= x <= 950 and 597 <= y <= 638:
+                if 'B' not in self.non_active_answers:
+                    self.current_state_q.setPixmap(QPixmap('images/question field/chosen_B.png'))
+                    self.checkAnswer(self.answer_B, 'B')
+            elif 150 <= x <= 520 and 648 <= y <= 689:
+                if 'C' not in self.non_active_answers:
+                    self.current_state_q.setPixmap(QPixmap('images/question field/chosen_C.png'))
+                    self.checkAnswer(self.answer_C, 'C')
+            elif 570 <= x <= 950 and 648 <= y <= 689:
+                if 'D' not in self.non_active_answers:
+                    self.current_state_q.setPixmap(QPixmap('images/question field/chosen_D.png'))
+                    self.checkAnswer(self.answer_D, 'D')
+
+            if 765 <= x <= 805 and 101 <= y <= 126:
+                self.lost_change.show()
+                self.useLifeline('change')
+            elif 836 <= x <= 878 and 101 <= y <= 126:
+                self.lost_5050.show()
+                self.useLifeline('5050')
+            elif 909 <= x <= 949 and 101 <= y <= 126:
+                self.lost_x2.show()
+                self.useLifeline('x2')
+            elif 979 <= x <= 1018 and 101 <= y <= 126:
+                self.openConfirmLeave()
+
     def clear_all_labels(self):
         self.time_function(0, self.question.setText, '')
         self.time_function(0, self.answer_A.setText, '')
