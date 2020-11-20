@@ -290,6 +290,15 @@ class GameWindow(QMainWindow):
 
             self.lifelines[2] = False
 
+    def restartGame(self):
+        self.timer, self.is_x2_now = 900, False
+        self.lifelines = [True, True, True]
+        self.lost_change.hide()
+        self.lost_x2.hide()
+        self.lost_5050.hide()
+        self.clear_all_labels()
+        self.startGame()
+
     def showGameOver(self, data):
         self.game_over = GameOverWindow(self, data)
         self.game_over.move(169 + self.x(), 210 + self.y())
