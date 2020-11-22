@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QInputDialog,
                              QMainWindow, QTableWidget, QTableWidgetItem, QWidget)
 
 from ui import (Ui_About, Ui_ConfirmAgain, Ui_ConfirmClearAll, Ui_ConfirmExit, Ui_ConfirmLeave,
-                Ui_DeleteResult, Ui_GameOver, Ui_ResultsTable, Ui_WinLeave)
+                Ui_DeleteResult, Ui_GameOver, Ui_ResultsTable, Ui_Win, Ui_WinLeave)
 
 PRICES = [
     '0', '500', '1 000', '2 000', '3 000', '5 000', '10 000',
@@ -88,7 +88,6 @@ class StartWindow(QInputDialog):
 
     def getName(self, shown_text):
         name, is_accepted = self.getText(self, ' ', shown_text)
-        self.saveGeometry
         if is_accepted:
             if not name:
                 self.close()
@@ -261,7 +260,32 @@ class GameWindow(QMainWindow):
             self.non_active_answers.append(x2_letter)
 
         if user_answer == self.correct_answer:
-            if self.current_number in [5, 10]:
+            if self.current_number != 15:
+                if self.current_number in [5, 10]:
+                    self.time_function(
+                        3000, self.amount_q.setText,
+                        PRICES[self.current_number]
+                    )
+                    self.clear_all_labels()
+                    self.time_function(
+                        0, self.layout_q.setPixmap,
+                        QPixmap('images/sum/amount.png')
+                    )
+                    self.time_function(2250, self.amount_q.setText, '')
+                    self.time_function(
+                        0, self.layout_q.setPixmap,
+                        QPixmap('images/question field/layout.png')
+                    )
+                self.current_number += 1
+                self.time_function(
+                    800 * (self.current_number not in [6, 11]), self.current_state_t.setPixmap,
+                    QPixmap('images/money tree/{}.png'.format(self.current_number))
+                )
+                self.time_function(0, self.updateQuestionField)
+                self.time_function(0, self.current_state_q.setPixmap, QPixmap())
+                self.time_function(0, self.current_state_q_2.setPixmap, QPixmap())
+                self.time_function(0, self.current_state_q_3.setPixmap, QPixmap())
+            else:
                 self.time_function(
                     1500, self.amount_q.setText,
                     PRICES[self.current_number]
@@ -271,23 +295,14 @@ class GameWindow(QMainWindow):
                     0, self.layout_q.setPixmap,
                     QPixmap('images/sum/amount.png')
                 )
-                self.time_function(2250, self.amount_q.setText, '')
-                self.time_function(
-                    0, self.layout_q.setPixmap,
-                    QPixmap('images/question field/layout.png')
-                )
-            self.current_number += 1
-            self.time_function(
-                0, self.current_state_t.setPixmap,
-                QPixmap('images/money tree/{}.png'.format(self.current_number))
-            )
-            self.time_function(0, self.updateQuestionField)
-            self.time_function(0, self.current_state_q.setPixmap, QPixmap())
-            self.time_function(0, self.current_state_q_2.setPixmap, QPixmap())
-            self.time_function(0, self.current_state_q_3.setPixmap, QPixmap())
+                sql_request('''INSERT INTO results
+                            (name, result, date) 
+                            VALUES ("{}", "{}", "{}")
+                            '''.format(self.name, '3 000 000', self.date))
+                self.time_function(0, self.showWin)
 
         if user_answer != self.correct_answer and not self.is_x2_now:
-            result_game = GUARANTEED_PRICES[self.current_number]
+            result_game = GUARANTEED_PRICES[self.current_number - 1]
             self.time_function(0, self.showGameOver, [
                                letter, result_game])
             sql_request('''INSERT INTO results
@@ -325,20 +340,31 @@ class GameWindow(QMainWindow):
             self.lifelines[2] = False
 
     def restartGame(self):
+        self.control = True
         self.timer, self.is_x2_now = 900, False
         self.lifelines = [True, True, True]
         self.lost_change.hide()
         self.lost_x2.hide()
         self.lost_5050.hide()
         self.clear_all_labels()
+        self.layout_q.setPixmap(QPixmap('images/question field/layout.png'))
+        self.amount_q.setText('')
         self.startGame()
+
+    def showWin(self):
+        self.win = WinWindow(self)
+        self.control = False
+        self.win.move(169 + self.x(), 210 + self.y())
+        self.win.show()
 
     def showGameOver(self, data):
         self.game_over = GameOverWindow(self, data)
+        self.control = False
         self.game_over.move(169 + self.x(), 210 + self.y())
         self.game_over.show()
 
     def openConfirmLeave(self):
+        self.control = False
         num_to_let = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
         letter = num_to_let[self.answers.index(self.correct_answer)]
         self.confirm_wndw = ConfirmLeaveWindow(self, letter)
@@ -347,33 +373,67 @@ class GameWindow(QMainWindow):
 
     def openConfirmAgain(self):
         self.confirm_wndw = ConfirmAgainWindow(self)
+        self.control = False
         self.confirm_wndw.move(169 + self.x(), 210 + self.y())
         self.confirm_wndw.show()
 
     def openConfirmClose(self):
         self.confirm_wndw = ConfirmCloseWindow()
+        self.control = False
         self.confirm_wndw.move(169 + self.x(), 210 + self.y())
         self.confirm_wndw.show()
 
     def openTable(self):
         self.results_table = ResultsTableWindow()
+        self.control = False
         self.results_table.move(169 + self.x(), 93 + self.y())
         self.results_table.show()
 
     def openDeleteResultForm(self):
         self.delete_form = DeleteResultWindow()
+        self.control = False
         self.delete_form.move(150 + self.x(), 93 + self.y())
         self.delete_form.show()
 
     def openConfirmClearAll(self):
         self.confirm_wndw = ConfirmClearAll()
+        self.control = False
         self.confirm_wndw.move(169 + self.x(), 210 + self.y())
         self.confirm_wndw.show()
 
     def openAbout(self):
         self.about = AboutWindow()
+        self.control = False
         self.about.move(175 + self.x(), 180 + self.y())
         self.about.show()
+
+
+class WinWindow(QDialog, Ui_Win):
+    '''
+    WinWindow\n
+    • type: QDialog\n
+    • target: asking about starting new game after win (passed 15 question)
+    '''
+
+    def __init__(self, parent):
+        super().__init__()
+        self.setupUi(self)
+        self.parent = parent
+        self.buttonBox.accepted.connect(self.restart)
+        self.buttonBox.rejected.connect(self.exit)
+
+    def restart(self):
+        self.parent.restartGame()
+        self.close()
+        self.results = ResultsTableWindow()
+        self.results.move(169 + self.parent.x(), 93 + self.parent.y())
+        self.results.show()
+
+    def exit(self):
+        self.parent.close()
+        self.close()
+        self.results = ResultsTableWindow()
+        self.results.show()
 
 
 class GameOverWindow(QDialog, Ui_GameOver):
