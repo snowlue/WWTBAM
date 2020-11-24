@@ -895,6 +895,25 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
+    <widget class="QLabel" name="double_dip">
+     <property name="geometry">
+      <rect>
+       <x>518</x>
+       <y>129</y>
+       <width>66</width>
+       <height>36</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../images/double-dip.png</pixmap>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
     <zorder>layout_q</zorder>
     <zorder>amount_q</zorder>
     <zorder>current_state_q</zorder>
@@ -905,6 +924,7 @@
     <zorder>answer_B</zorder>
     <zorder>answer_C</zorder>
     <zorder>answer_D</zorder>
+    <zorder>double_dip</zorder>
    </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">

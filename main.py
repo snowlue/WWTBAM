@@ -6,13 +6,13 @@ import sys
 from datetime import datetime
 from typing import List
 
-from PyQt5 import QtCore, uic
-from PyQt5.QtGui import QPixmap, QMouseEvent
+from PyQt5 import QtCore
+from PyQt5.QtGui import QIcon, QKeyEvent, QPixmap, QMouseEvent
 from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QInputDialog,
                              QMainWindow, QTableWidget, QTableWidgetItem, QWidget)
 
 from ui import (Ui_About, Ui_ConfirmAgain, Ui_ConfirmClearAll, Ui_ConfirmExit, Ui_ConfirmLeave,
-                Ui_DeleteResult, Ui_GameOver, Ui_ResultsTable, Ui_Win, Ui_WinLeave)
+                Ui_DeleteResult, Ui_GameOver, Ui_MainWindow, Ui_ResultsTable, Ui_Win, Ui_WinLeave)
 
 PRICES = [
     '0', '500', '1 000', '2 000', '3 000', '5 000', '10 000',
@@ -84,12 +84,13 @@ class StartWindow(QInputDialog):
 
     def __init__(self):
         super().__init__()
+        self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.getName('Введите ваше имя:')
 
     def getName(self, shown_text):
-        name, is_accepted = self.getText(self, ' ', shown_text)
+        name, is_accepted = self.getText(self, 'КХСМ', shown_text)
         if is_accepted:
-            if not name:
+            if not name or any([(l in name) for l in '`~!@#$%^&*()_+{}|:"<>?[]\\;\',./№0123456789']):
                 self.close()
                 self.getName('Пожалуйста, введите имя:')
                 return 0
@@ -104,6 +105,7 @@ class StartWindow(QInputDialog):
         self.game.lost_change.hide()
         self.game.lost_5050.hide()
         self.game.lost_x2.hide()
+        self.game.double_dip.hide()
 
         self.close()
 
@@ -117,7 +119,8 @@ class GameWindow(QMainWindow):
 
     def __init__(self, name=''):
         super().__init__()
-        uic.loadUi('ui/layoutGame.ui', self)
+        self.setupUi(self)
+        self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.control, self.name, self.date = False, name, datetime.today().strftime('%d.%m.%Y %H:%M')
 
         self.timer = 900
@@ -169,6 +172,10 @@ class GameWindow(QMainWindow):
         )
 
         self.time_function(500, self.updateQuestionField)
+        self.time_function(0, self.question.startFadeIn)
+        for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
+            self.time_function(100, a.startFadeIn)
+            self.time_function(0, a.show)
 
     def updateQuestionField(self, changer=False):
         self.non_active_answers = []
@@ -176,44 +183,76 @@ class GameWindow(QMainWindow):
         self.answers = self.questions[self.current_number - 1][int(changer)][2]
         self.correct_answer = self.questions[self.current_number - 1][int(changer)][1]
         self.got_amount = PRICES[self.current_number - 1]
+        for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
+            a.hide()
         self.question.setText(text)
         self.answer_A.setText(self.answers[0])
         self.answer_B.setText(self.answers[1])
         self.answer_C.setText(self.answers[2])
         self.answer_D.setText(self.answers[3])
+    
+    def keyPressEvent(self, event: QKeyEvent):
+        if event.key() in [Qt.Key_Q, 91]:
+            self.checkPosition(285, 617)
+        if event.key() in [Qt.Key_W, 93]:
+            self.checkPosition(760, 617)
+        if event.key() in [Qt.Key_A, 59]:
+            self.checkPosition(285, 668)
+        if event.key() in [Qt.Key_S, 39]:
+            self.checkPosition(760, 668)
+        if event.key() == Qt.Key_1:
+            self.checkPosition(785, 113)
+        if event.key() == Qt.Key_2:
+            self.checkPosition(856, 113)
+        if event.key() == Qt.Key_3:
+            self.checkPosition(929, 113)
+        if event.key() == Qt.Key_4:
+            self.checkPosition(999, 113)
 
     def mousePressEvent(self, event: QMouseEvent):
+        self.checkPosition(event.x(), event.y())
+    
+    def checkPosition(self, x, y):
         if self.control:
-            x, y = event.x(), event.y()
             self.timer = 0
 
             if 150 <= x <= 520 and 597 <= y <= 638:
                 if 'A' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_A.png'))
+                    self.current_state_q.startFadeInImage()
                     self.checkAnswer(self.answer_A, 'A')
             elif 570 <= x <= 950 and 597 <= y <= 638:
                 if 'B' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_B.png'))
+                    self.current_state_q.startFadeInImage()
                     self.checkAnswer(self.answer_B, 'B')
             elif 150 <= x <= 520 and 648 <= y <= 689:
                 if 'C' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_C.png'))
+                    self.current_state_q.startFadeInImage()
                     self.checkAnswer(self.answer_C, 'C')
             elif 570 <= x <= 950 and 648 <= y <= 689:
                 if 'D' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_D.png'))
+                    self.current_state_q.startFadeInImage()
                     self.checkAnswer(self.answer_D, 'D')
 
             if 765 <= x <= 805 and 101 <= y <= 126:
                 self.lost_change.show()
+                self.lost_change.startFadeInImage()
                 self.useLifeline('change')
-            elif 836 <= x <= 878 and 101 <= y <= 126:
+            elif 836 <= x <= 876 and 101 <= y <= 126:
                 self.lost_5050.show()
+                self.lost_5050.startFadeInImage()
                 self.useLifeline('5050')
             elif 909 <= x <= 949 and 101 <= y <= 126:
                 self.lost_x2.show()
+                self.lost_x2.startFadeInImage()
+                if self.lifelines[1]:
+                    self.double_dip.show()
+                    self.double_dip.startFadeInImage()
                 self.useLifeline('x2')
-            elif 979 <= x <= 1018 and 101 <= y <= 126:
+            elif 979 <= x <= 1019 and 101 <= y <= 126:
                 self.openConfirmLeave()
 
     def clear_all_labels(self):
@@ -234,29 +273,35 @@ class GameWindow(QMainWindow):
             letter = num_to_let[self.answers.index(self.correct_answer)]
             x2_letter = num_to_let[self.answers.index(user_answer)]
 
-        if self.current_number in [5, 10]:
-            self.time_function(1500, lambda a: a, True)
-        elif self.current_number in [6, 7, 8]:
-            self.time_function(1000, lambda a: a, True)
-        elif self.current_number in [11, 12]:
-            self.time_function(1500, lambda a: a, True)
-        elif self.current_number in [13, 14, 15]:
+        if self.current_number == 5:
+            self.time_function(2000, lambda a: a, True)
+        elif self.current_number in [6, 7, 8, 9]:
             self.time_function(2500, lambda a: a, True)
+        elif self.current_number == 10:
+            self.time_function(3000, lambda a: a, True)
+        elif self.current_number in [11, 12]:
+            self.time_function(3500, lambda a: a, True)
+        elif self.current_number in [13, 14]:
+            self.time_function(4500, lambda a: a, True)
+        elif self.current_number == 15:
+            self.time_function(5500, lambda a: a, True)
 
         if not self.is_x2_now or user_answer == self.correct_answer:
             if self.is_x2_now:
                 self.is_x2_now = False
             for i in range(3):
-                self.time_function(400, self.current_state_q_2.setPixmap, QPixmap())
                 self.time_function(
-                    400, self.current_state_q_2.setPixmap,
+                    0, self.current_state_q_2.setPixmap,
                     QPixmap('images/question field/correct_{}.png'.format(letter))
                 )
+                self.time_function(400, self.current_state_q_2.startFadeOutImage)
+                self.time_function(400, self.current_state_q_2.startFadeInImage)
         else:
             self.time_function(
                 1500, self.current_state_q_3.setPixmap,
                 QPixmap('images/question field/wrong_{}.png'.format(x2_letter))
             )
+            self.time_function(0, self.double_dip.startFadeOutImage)
             self.non_active_answers.append(x2_letter)
 
         if user_answer == self.correct_answer:
@@ -276,25 +321,31 @@ class GameWindow(QMainWindow):
                         0, self.layout_q.setPixmap,
                         QPixmap('images/question field/layout.png')
                     )
+
                 self.current_number += 1
                 self.time_function(
-                    800 * (self.current_number not in [6, 11]), self.current_state_t.setPixmap,
+                    800 * (self.current_number - 1 not in [5, 10]), self.current_state_t.setPixmap,
                     QPixmap('images/money tree/{}.png'.format(self.current_number))
                 )
-                self.time_function(0, self.updateQuestionField)
+                self.clear_all_labels()
                 self.time_function(0, self.current_state_q.setPixmap, QPixmap())
                 self.time_function(0, self.current_state_q_2.setPixmap, QPixmap())
                 self.time_function(0, self.current_state_q_3.setPixmap, QPixmap())
+                self.time_function(8, self.updateQuestionField)
+                self.time_function(0, self.question.startFadeIn)
+                for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
+                    self.time_function(100, a.startFadeIn)
+                    self.time_function(0, a.show)
             else:
                 self.time_function(
                     1500, self.amount_q.setText,
                     PRICES[self.current_number]
                 )
-                self.clear_all_labels()
                 self.time_function(
                     0, self.layout_q.setPixmap,
                     QPixmap('images/sum/amount.png')
                 )
+                self.clear_all_labels()
                 sql_request('''INSERT INTO results
                             (name, result, date) 
                             VALUES ("{}", "{}", "{}")
@@ -315,7 +366,13 @@ class GameWindow(QMainWindow):
     @user_control
     def useLifeline(self, type_ll: str):
         if type_ll == 'change' and self.lifelines[0]:
-            self.time_function(750, self.updateQuestionField, True)
+            self.time_function(800, self.updateQuestionField, True)
+            if self.is_x2_now:
+                self.time_function(0, self.double_dip.startFadeOutImage)
+            self.time_function(0, self.question.startFadeIn)
+            for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
+                self.time_function(100, a.startFadeIn)
+                self.time_function(0, a.show)
             self.time_function(0, self.current_state_q.setPixmap, QPixmap())
             self.time_function(0, self.current_state_q_2.setPixmap, QPixmap())
             self.time_function(0, self.current_state_q_3.setPixmap, QPixmap())
@@ -330,12 +387,15 @@ class GameWindow(QMainWindow):
         elif type_ll == '5050' and self.lifelines[2]:
             answs = [self.answer_A, self.answer_B, self.answer_C, self.answer_D]
             answ_letters = ['A', 'B', 'C', 'D']
-
-            indxs = list(set([0, 1, 2, 3]) - set([self.answers.index(self.correct_answer)]))
+            if self.non_active_answers:
+                indxs = set([0, 1, 2, 3]) - set([answ_letters.index(self.non_active_answers[0])])
+            else:
+                indxs = set([0, 1, 2, 3])
+            indxs = list(indxs - set([self.answers.index(self.correct_answer)]))
             random.shuffle(indxs)
             answs[indxs[0]].setText('')
             answs[indxs[1]].setText('')
-            self.non_active_answers = [answ_letters[indxs[0]], answ_letters[indxs[1]]]
+            self.non_active_answers += [answ_letters[indxs[0]], answ_letters[indxs[1]]]
 
             self.lifelines[2] = False
 
@@ -343,9 +403,8 @@ class GameWindow(QMainWindow):
         self.control = True
         self.timer, self.is_x2_now = 900, False
         self.lifelines = [True, True, True]
-        self.lost_change.hide()
-        self.lost_x2.hide()
-        self.lost_5050.hide()
+        for ll in [self.lost_change, self.lost_x2, self.lost_5050]:
+            ll.hide()
         self.clear_all_labels()
         self.layout_q.setPixmap(QPixmap('images/question field/layout.png'))
         self.amount_q.setText('')
@@ -358,8 +417,8 @@ class GameWindow(QMainWindow):
         self.win.show()
 
     def showGameOver(self, data):
-        self.game_over = GameOverWindow(self, data)
         self.control = False
+        self.game_over = GameOverWindow(self, data)
         self.game_over.move(169 + self.x(), 210 + self.y())
         self.game_over.show()
 
@@ -373,39 +432,33 @@ class GameWindow(QMainWindow):
 
     def openConfirmAgain(self):
         self.confirm_wndw = ConfirmAgainWindow(self)
-        self.control = False
         self.confirm_wndw.move(169 + self.x(), 210 + self.y())
         self.confirm_wndw.show()
 
     def openConfirmClose(self):
         self.confirm_wndw = ConfirmCloseWindow()
-        self.control = False
         self.confirm_wndw.move(169 + self.x(), 210 + self.y())
         self.confirm_wndw.show()
 
     def openTable(self):
         self.results_table = ResultsTableWindow()
-        self.control = False
         self.results_table.move(169 + self.x(), 93 + self.y())
         self.results_table.show()
 
     def openDeleteResultForm(self):
         self.delete_form = DeleteResultWindow()
-        self.control = False
         self.delete_form.move(150 + self.x(), 93 + self.y())
         self.delete_form.show()
 
     def openConfirmClearAll(self):
         self.confirm_wndw = ConfirmClearAll()
-        self.control = False
         self.confirm_wndw.move(169 + self.x(), 210 + self.y())
         self.confirm_wndw.show()
 
     def openAbout(self):
-        self.about = AboutWindow()
-        self.control = False
-        self.about.move(175 + self.x(), 180 + self.y())
-        self.about.show()
+        self.about_wndw = AboutWindow(self)
+        self.about_wndw.move(175 + self.x(), 180 + self.y())
+        self.about_wndw.show()
 
 
 class WinWindow(QDialog, Ui_Win):
@@ -418,6 +471,8 @@ class WinWindow(QDialog, Ui_Win):
     def __init__(self, parent):
         super().__init__()
         self.setupUi(self)
+        self.setWindowIcon(QIcon('images/app_icon.ico'))
+
         self.parent = parent
         self.buttonBox.accepted.connect(self.restart)
         self.buttonBox.rejected.connect(self.exit)
@@ -446,6 +501,8 @@ class GameOverWindow(QDialog, Ui_GameOver):
     def __init__(self, parent, data):
         super().__init__()
         self.setupUi(self)
+        self.setWindowIcon(QIcon('images/app_icon.ico'))
+
         self.parent = parent
         self.buttonBox.accepted.connect(self.restart)
         self.buttonBox.rejected.connect(self.exit)
@@ -475,11 +532,13 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
     def __init__(self, parent: GameWindow, letter):
         super().__init__()
         self.setupUi(self)
+        self.setWindowIcon(QIcon('images/app_icon.ico'))
+
         self.parent = parent
         self.correct = letter
         self.label.setText(self.label.text().replace('{}', self.parent.got_amount))
         self.accepted.connect(self.leave)
-        self.rejected.connect(self.close)
+        self.rejected.connect(self.close_wndw)
 
     def leave(self):
         sql_request('''INSERT INTO results
@@ -489,10 +548,18 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         self.windialog = WinLeaveWindow(self.parent, [self.correct, self.parent.got_amount])
         self.windialog.move(169 + self.parent.x(), 210 + self.parent.y())
         self.windialog.show()
+        self.parent.current_state_q_2.setPixmap(
+            QPixmap('images/question field/correct_{}.png'.format(self.correct))
+        )
+
+        self.close()
+    
+    def close_wndw(self):
+        self.parent.control = True
         self.close()
 
 
-class WinLeaveWindow(GameOverWindow, Ui_WinLeave):
+class WinLeaveWindow(Ui_WinLeave, GameOverWindow):
     '''
     WinLeaveWindow\n
     • type: QDialog\n
@@ -512,6 +579,7 @@ class ConfirmAgainWindow(QDialog, Ui_ConfirmAgain):
     def __init__(self, parent: GameWindow):
         super().__init__()
         self.setupUi(self)
+        self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.parent = parent
         self.accepted.connect(self.restart)
         self.rejected.connect(self.close)
@@ -531,6 +599,7 @@ class ConfirmCloseWindow(QDialog, Ui_ConfirmExit):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.accepted.connect(sys.exit)
         self.rejected.connect(self.close)
         self.setFixedSize(400, 140)
@@ -546,6 +615,7 @@ class ResultsTableWindow(QWidget, Ui_ResultsTable):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.setWindowIcon(QIcon('images/app_icon.ico'))
 
         results = sql_request('SELECT * from results')
         results = sorted(results, key=lambda x: int(str(x[2]).replace(' ', '')), reverse=True)
@@ -565,7 +635,7 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-
+        self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.refreshTable()
         self.deleteButton.clicked.connect(self.deleteAction)
 
@@ -599,6 +669,7 @@ class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.accepted.connect(self.deleteAllData)
         self.rejected.connect(self.close)
         self.setFixedSize(400, 140)
@@ -617,10 +688,12 @@ class AboutWindow(QWidget, Ui_About):
     • target: tell about app's author
     '''
 
-    def __init__(self):
+    def __init__(self, parent: GameWindow):
         super().__init__()
         self.setupUi(self)
+        self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.enText.hide()
+        self.parent = parent
         self.ruButton.clicked.connect(self.showRuText)
         self.enButton.clicked.connect(self.showEnText)
         self.okButton.clicked.connect(self.hide)
