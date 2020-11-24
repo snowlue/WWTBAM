@@ -288,6 +288,7 @@ class GameWindow(QMainWindow):
 
         if not self.is_x2_now or user_answer == self.correct_answer:
             if self.is_x2_now:
+                self.time_function(0, self.double_dip.startFadeOutImage)
                 self.is_x2_now = False
             for i in range(3):
                 self.time_function(
