@@ -11,6 +11,9 @@ from PyQt5.QtGui import QIcon, QKeyEvent, QPixmap, QMouseEvent
 from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QInputDialog,
                              QMainWindow, QTableWidget, QTableWidgetItem, QWidget)
 
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt5.QtCore import QUrl, Qt
+
 from ui import (Ui_About, Ui_ConfirmAgain, Ui_ConfirmClearAll, Ui_ConfirmExit, Ui_ConfirmLeave,
                 Ui_DeleteResult, Ui_GameOver, Ui_MainWindow, Ui_ResultsTable, Ui_Win, Ui_WinLeave)
 
@@ -75,6 +78,12 @@ def makeTable(table: QTableWidget, header: List[str], data: List[List[str]]):
     table.setEditTriggers(QTableWidget.NoEditTriggers)
 
 
+def decorate_audio(file):
+    url = QUrl.fromLocalFile(file)
+    content = QMediaContent(url)
+    return content
+
+
 class StartWindow(QInputDialog):
     '''
     StartWindow\n
@@ -110,7 +119,7 @@ class StartWindow(QInputDialog):
         self.close()
 
 
-class GameWindow(QMainWindow):
+class GameWindow(QMainWindow, Ui_MainWindow):
     '''
     GameWindow\n
     • type: QMainWindow\n
@@ -126,7 +135,10 @@ class GameWindow(QMainWindow):
         self.timer = 900
         self.is_x2_now, self.non_active_answers = False, []
         self.lifelines = [True, True, True]
-
+        self.player1 = QMediaPlayer() # for bed and losing
+        self.player2 = QMediaPlayer() # for intro and correct answer
+        self.player3 = QMediaPlayer() # for lights down, 50:50 and change
+        self.player4 = QMediaPlayer() # for ×2-lifeline
         self.new_game.triggered.connect(self.openConfirmAgain)
         self.close_game.triggered.connect(self.openConfirmClose)
         self.about.triggered.connect(self.openAbout)
@@ -150,24 +162,27 @@ class GameWindow(QMainWindow):
         self.timer += time
 
     @user_control
-    def startGame(self):
+    def startGame(self, repeat=False):
+        self.player2.setMedia(decorate_audio('sounds/intro.mp3' if not repeat else 'sounds/new_start.mp3'))
+        self.player2.play()
+
         self.questions = get_questions()
         self.current_number = 1
 
         for i in range(1, 16):
             self.time_function(
-                100, self.current_state_t.setPixmap,
+                200, self.current_state_t.setPixmap,
                 QPixmap('images/money tree/{}.png'.format(i))
             )
         for i in 'A', 'B', 'C', 'D':
             self.time_function(
-                250, self.current_state_q.setPixmap,
+                400, self.current_state_q.setPixmap,
                 QPixmap('images/question field/chosen_{}.png'.format(i))
             )
 
-        self.time_function(400, self.current_state_q.setPixmap, QPixmap())
+        self.time_function(500, self.current_state_q.setPixmap, QPixmap())
         self.time_function(
-            800, self.current_state_t.setPixmap,
+            700, self.current_state_t.setPixmap,
             QPixmap('images/money tree/{}.png'.format(self.current_number))
         )
 
@@ -176,6 +191,11 @@ class GameWindow(QMainWindow):
         for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
             self.time_function(100, a.startFadeIn)
             self.time_function(0, a.show)
+        
+        n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
+        self.player1.setMedia(decorate_audio('sounds/{}/bed.mp3'.format(n)))
+        self.time_function(2500, self.player1.play)
+        
 
     def updateQuestionField(self, changer=False):
         self.non_active_answers = []
@@ -192,13 +212,13 @@ class GameWindow(QMainWindow):
         self.answer_D.setText(self.answers[3])
     
     def keyPressEvent(self, event: QKeyEvent):
-        if event.key() in [Qt.Key_Q, 91]:
+        if event.key() in [Qt.Key_Q, 91, 1049, 1061]:
             self.checkPosition(285, 617)
-        if event.key() in [Qt.Key_W, 93]:
+        if event.key() in [Qt.Key_W, 93, 1062, 1066]:
             self.checkPosition(760, 617)
-        if event.key() in [Qt.Key_A, 59]:
+        if event.key() in [Qt.Key_A, 59, 1060, 1046]:
             self.checkPosition(285, 668)
-        if event.key() in [Qt.Key_S, 39]:
+        if event.key() in [Qt.Key_S, 39, 1067, 1069]:
             self.checkPosition(760, 668)
         if event.key() == Qt.Key_1:
             self.checkPosition(785, 113)
@@ -214,27 +234,45 @@ class GameWindow(QMainWindow):
     
     def checkPosition(self, x, y):
         if self.control:
-            self.timer = 0
+            self.timer, n = 0, self.current_number
 
+            if len(self.non_active_answers) in [1, 3]:
+                self.player4.setMedia(decorate_audio('sounds/double/second_final.mp3'))
+            elif not self.is_x2_now and n not in [1, 2, 3, 4, 5]:
+                self.player4.setMedia(decorate_audio('sounds/{}/final_answer.mp3'.format(n)))
+            elif self.is_x2_now:
+                self.player4.setMedia(decorate_audio('sounds/double/first_final.mp3'))
             if 150 <= x <= 520 and 597 <= y <= 638:
                 if 'A' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_A.png'))
                     self.current_state_q.startFadeInImage()
+                    if n not in [1, 2, 3, 4, 5] or self.is_x2_now:
+                        self.player1.stop()
+                        self.time_function(0, self.player4.play)
                     self.checkAnswer(self.answer_A, 'A')
             elif 570 <= x <= 950 and 597 <= y <= 638:
                 if 'B' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_B.png'))
                     self.current_state_q.startFadeInImage()
+                    if n not in [1, 2, 3, 4, 5] or self.is_x2_now:
+                        self.player1.stop()
+                        self.time_function(0, self.player4.play)
                     self.checkAnswer(self.answer_B, 'B')
             elif 150 <= x <= 520 and 648 <= y <= 689:
                 if 'C' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_C.png'))
                     self.current_state_q.startFadeInImage()
+                    if n not in [1, 2, 3, 4, 5] or self.is_x2_now:
+                        self.player1.stop()
+                        self.time_function(0, self.player4.play)
                     self.checkAnswer(self.answer_C, 'C')
             elif 570 <= x <= 950 and 648 <= y <= 689:
                 if 'D' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_D.png'))
                     self.current_state_q.startFadeInImage()
+                    if n not in [1, 2, 3, 4, 5] or self.is_x2_now:
+                        self.player1.stop()
+                        self.time_function(0, self.player4.play)
                     self.checkAnswer(self.answer_D, 'D')
 
             if 765 <= x <= 805 and 101 <= y <= 126:
@@ -287,29 +325,45 @@ class GameWindow(QMainWindow):
             self.time_function(5500, lambda a: a, True)
 
         if not self.is_x2_now or user_answer == self.correct_answer:
+            n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
             if self.is_x2_now:
                 self.time_function(0, self.double_dip.startFadeOutImage)
                 self.is_x2_now = False
-            for i in range(3):
-                self.time_function(
-                    0, self.current_state_q_2.setPixmap,
-                    QPixmap('images/question field/correct_{}.png'.format(letter))
-                )
+            if user_answer == self.correct_answer:
+                self.player2.setMedia(decorate_audio('sounds/{}/correct.mp3'.format(n)))
+                self.time_function(0, self.player4.stop)
+                self.time_function(0, self.player2.play)
+            elif not self.is_x2_now:
+                self.player1.setMedia(decorate_audio('sounds/{}/lose.mp3'.format(n)))
+                self.time_function(0, self.player4.stop)
+                self.time_function(0, self.player1.play)
+            self.time_function(
+                0, self.current_state_q_2.setPixmap,
+                QPixmap('images/question field/correct_{}.png'.format(letter))
+            )
+            self.time_function(0, self.current_state_q_2.startFadeInImage)
+            self.time_function(0, self.current_state_q_2.show)
+            for i in range(2):
                 self.time_function(400, self.current_state_q_2.startFadeOutImage)
                 self.time_function(400, self.current_state_q_2.startFadeInImage)
+
         else:
             self.time_function(
                 1500, self.current_state_q_3.setPixmap,
                 QPixmap('images/question field/wrong_{}.png'.format(x2_letter))
             )
+            self.time_function(0, self.player4.stop)
+            self.player1.setMedia(decorate_audio('sounds/double/first_wrong.mp3'))
+            self.time_function(0, self.player1.play)
             self.time_function(0, self.double_dip.startFadeOutImage)
             self.non_active_answers.append(x2_letter)
 
         if user_answer == self.correct_answer:
             if self.current_number != 15:
                 if self.current_number in [5, 10]:
+                    self.time_function(0, self.player1.stop)
                     self.time_function(
-                        3000, self.amount_q.setText,
+                        5000, self.amount_q.setText,
                         PRICES[self.current_number]
                     )
                     self.clear_all_labels()
@@ -317,7 +371,9 @@ class GameWindow(QMainWindow):
                         0, self.layout_q.setPixmap,
                         QPixmap('images/sum/amount.png')
                     )
-                    self.time_function(2250, self.amount_q.setText, '')
+                    self.player3.setMedia(decorate_audio('sounds/lights_down.mp3'))
+                    self.time_function(0, self.player3.play)
+                    self.time_function(2000, self.amount_q.setText, '')
                     self.time_function(
                         0, self.layout_q.setPixmap,
                         QPixmap('images/question field/layout.png')
@@ -332,11 +388,22 @@ class GameWindow(QMainWindow):
                 self.time_function(0, self.current_state_q.setPixmap, QPixmap())
                 self.time_function(0, self.current_state_q_2.setPixmap, QPixmap())
                 self.time_function(0, self.current_state_q_3.setPixmap, QPixmap())
+                if self.current_number - 1 not in [1, 2, 3, 4]:
+                    self.time_function(
+                        0, self.player1.setMedia,
+                        decorate_audio('sounds/{}/bed.mp3'.format(self.current_number))
+                    )
+                    self.time_function(2500, self.player1.play)
+                elif not self.lifelines[1]:
+                    self.time_function(0, self.player1.setMedia, decorate_audio('sounds/1-4/bed.mp3'))
+                    self.time_function(8, self.player1.play)
                 self.time_function(8, self.updateQuestionField)
                 self.time_function(0, self.question.startFadeIn)
                 for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
                     self.time_function(100, a.startFadeIn)
                     self.time_function(0, a.show)
+                self.time_function(0, self.player2.stop)
+
             else:
                 self.time_function(
                     1500, self.amount_q.setText,
@@ -367,6 +434,8 @@ class GameWindow(QMainWindow):
     @user_control
     def useLifeline(self, type_ll: str):
         if type_ll == 'change' and self.lifelines[0]:
+            self.player3.setMedia(decorate_audio('sounds/change.mp3'))
+            self.time_function(750, self.player3.play)
             self.time_function(800, self.updateQuestionField, True)
             if self.is_x2_now:
                 self.time_function(0, self.double_dip.startFadeOutImage)
@@ -383,9 +452,13 @@ class GameWindow(QMainWindow):
 
         elif type_ll == 'x2' and self.lifelines[1]:
             self.is_x2_now = True
+            self.player1.setMedia(decorate_audio('sounds/double/start.mp3'))
+            self.player1.play()
             self.lifelines[1] = False
 
         elif type_ll == '5050' and self.lifelines[2]:
+            self.player3.setMedia(decorate_audio('sounds/50_50.mp3'))
+            self.time_function(0, self.player3.play)
             answs = [self.answer_A, self.answer_B, self.answer_C, self.answer_D]
             answ_letters = ['A', 'B', 'C', 'D']
             if self.non_active_answers:
@@ -407,9 +480,11 @@ class GameWindow(QMainWindow):
         for ll in [self.lost_change, self.lost_x2, self.lost_5050]:
             ll.hide()
         self.clear_all_labels()
+        for p in [self.player1, self.player2, self.player3, self.player4]:
+            p.stop()
         self.layout_q.setPixmap(QPixmap('images/question field/layout.png'))
         self.amount_q.setText('')
-        self.startGame()
+        self.startGame(True)
 
     def showWin(self):
         self.win = WinWindow(self)
@@ -458,6 +533,10 @@ class GameWindow(QMainWindow):
 
     def openAbout(self):
         self.about_wndw = AboutWindow(self)
+        for p in [self.player1, self.player2, self.player4]:
+            p.setVolume(20)
+        self.player3.setMedia(decorate_audio('sounds/about.mp3'))
+        self.player3.play()
         self.about_wndw.move(175 + self.x(), 180 + self.y())
         self.about_wndw.show()
 
@@ -488,6 +567,9 @@ class WinWindow(QDialog, Ui_Win):
     def exit(self):
         self.parent.close()
         self.close()
+        self.player = QMediaPlayer()
+        self.player.setMedia(decorate_audio('sounds/quit_game.mp3'))
+        self.player.play()
         self.results = ResultsTableWindow()
         self.results.show()
 
@@ -519,6 +601,9 @@ class GameOverWindow(QDialog, Ui_GameOver):
     def exit(self):
         self.parent.close()
         self.close()
+        self.player = QMediaPlayer()
+        self.player.setMedia(decorate_audio('sounds/quit_game.mp3'))
+        self.player.play()
         self.results = ResultsTableWindow()
         self.results.show()
 
@@ -549,9 +634,16 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         self.windialog = WinLeaveWindow(self.parent, [self.correct, self.parent.got_amount])
         self.windialog.move(169 + self.parent.x(), 210 + self.parent.y())
         self.windialog.show()
+        
+        for p in [self.parent.player1, self.parent.player2, self.parent.player3, self.parent.player4]:
+            p.stop()
+        self.parent.player1.setMedia(decorate_audio('sounds/walk_away.mp3'))
+        self.parent.player1.play()
         self.parent.current_state_q_2.setPixmap(
             QPixmap('images/question field/correct_{}.png'.format(self.correct))
         )
+        self.parent.current_state_q_2.startFadeInImage()
+        self.parent.current_state_q_2.show()
 
         self.close()
     
@@ -697,7 +789,7 @@ class AboutWindow(QWidget, Ui_About):
         self.parent = parent
         self.ruButton.clicked.connect(self.showRuText)
         self.enButton.clicked.connect(self.showEnText)
-        self.okButton.clicked.connect(self.hide)
+        self.okButton.clicked.connect(self.close_wndw)
         self.setFixedSize(380, 222)
 
     def showRuText(self):
@@ -707,6 +799,17 @@ class AboutWindow(QWidget, Ui_About):
     def showEnText(self):
         self.enText.show()
         self.ruText.hide()
+    
+    def close_wndw(self):
+        for p in [self.parent.player1, self.parent.player2, self.parent.player4]:
+            p.setVolume(100)
+        self.parent.player3.stop()
+        self.close()
+    
+    def closeEvent(self, a0):
+        for p in [self.parent.player1, self.parent.player2, self.parent.player4]:
+            p.setVolume(100)
+        self.parent.player3.stop()
 
 
 def main():
