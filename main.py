@@ -14,8 +14,8 @@ from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QInputDialog,
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl, Qt
 
-from ui import (Ui_About, Ui_ConfirmAgain, Ui_ConfirmClearAll, Ui_ConfirmExit, Ui_ConfirmLeave,
-                Ui_DeleteResult, Ui_GameOver, Ui_MainWindow, Ui_ResultsTable, Ui_Win, Ui_WinLeave)
+from ui import (Ui_About, Ui_ConfirmAgain, Ui_ConfirmClearAll, Ui_ConfirmExit, Ui_ConfirmLeave, Ui_DeleteResult,
+                Ui_GameOver, Ui_MainWindow, Ui_ResultsTable, Ui_StartDialog, Ui_Win, Ui_WinLeave)
 
 PRICES = [
     '0', '500', '1 000', '2 000', '3 000', '5 000', '10 000',
@@ -84,7 +84,7 @@ def decorate_audio(file):
     return content
 
 
-class StartWindow(QInputDialog):
+class StartWindow(QDialog, Ui_StartDialog):
     '''
     StartWindow\n
     • type: QInputDialog\n
@@ -93,19 +93,19 @@ class StartWindow(QInputDialog):
 
     def __init__(self):
         super().__init__()
+        self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
-        self.getName('Введите ваше имя:')
+        self.setFixedSize(361, 140)
+        self.ok_button.clicked.connect(self.getName)
+        self.exit_button.clicked.connect(sys.exit)
 
-    def getName(self, shown_text):
-        name, is_accepted = self.getText(self, 'КХСМ', shown_text)
-        if is_accepted:
-            if not name or any([(l in name) for l in '`~!@#$%^&*()_+{}|:"<>?[]\\;\',./№0123456789']):
-                self.close()
-                self.getName('Пожалуйста, введите имя:')
-                return 0
-            self.startGame(name)
+    def getName(self):
+        name = self.lineEdit.text()
+        if not name or any([(l in name) for l in '`~!@#$%^&*()_+{}|:"<>?[]\\;\',./№0123456789']):
+            self.label.setText('Пожалуйста, введите корректное имя:')
+            self.lineEdit.setText('')
         else:
-            sys.exit()
+            self.startGame(name)
 
     def startGame(self, name):
         self.game = GameWindow(name)
@@ -812,11 +812,12 @@ class AboutWindow(QWidget, Ui_About):
         self.parent.player3.stop()
 
 
-def main():
-    app = QApplication(sys.argv)
-    wndw = StartWindow()
-    sys.exit(app.exec())
 
 
 if __name__ == '__main__':
-    main()
+    app = QApplication(sys.argv)
+    logging.info(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ': Session start')
+    wndw = StartWindow()
+    wndw.show()
+
+    app.exec()

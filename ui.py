@@ -45,6 +45,57 @@ class AnimationLabel(QLabel):
         self.animation.start()
 
 
+class Ui_StartDialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(361, 186)
+        font = QtGui.QFont()
+        font.setFamily("PT Sans")
+        font.setPointSize(8)
+        Dialog.setFont(font)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(Dialog)
+        self.horizontalLayout_2.setContentsMargins(10, 10, 10, 10)
+        self.horizontalLayout_2.setSpacing(0)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.verticalLayout.setSpacing(10)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.formLayout = QtWidgets.QFormLayout()
+        self.formLayout.setFormAlignment(
+            QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.formLayout.setHorizontalSpacing(10)
+        self.formLayout.setVerticalSpacing(0)
+        self.formLayout.setObjectName("formLayout")
+        self.label = QtWidgets.QLabel(Dialog)
+        self.label.setObjectName("label")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label)
+        self.lineEdit = QtWidgets.QLineEdit(Dialog)
+        self.lineEdit.setObjectName("lineEdit")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.lineEdit)
+        self.verticalLayout.addLayout(self.formLayout)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setSpacing(10)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.ok_button = QtWidgets.QPushButton(Dialog)
+        self.ok_button.setObjectName("pushButton_2")
+        self.horizontalLayout.addWidget(self.ok_button)
+        self.exit_button = QtWidgets.QPushButton(Dialog)
+        self.exit_button.setObjectName("pushButton")
+        self.horizontalLayout.addWidget(self.exit_button)
+        self.verticalLayout.addLayout(self.horizontalLayout)
+        self.horizontalLayout_2.addLayout(self.verticalLayout)
+
+        self.retranslateUi(Dialog)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
+
+    def retranslateUi(self, Dialog):
+        _translate = QtCore.QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "Начало игры"))
+        self.label.setText(_translate("Dialog", "Введите ваше имя:"))
+        self.ok_button.setText(_translate("Dialog", "Начать игру"))
+        self.exit_button.setText(_translate("Dialog", "Выйти"))
+
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
