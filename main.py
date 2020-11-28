@@ -3,13 +3,16 @@ import random
 import sqlite3
 import sys
 
+import logging
+import traceback
+
 from datetime import datetime
 from typing import List
 
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon, QKeyEvent, QPixmap, QMouseEvent
-from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QInputDialog,
-                             QMainWindow, QTableWidget, QTableWidgetItem, QWidget)
+from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QMainWindow,
+                             QMessageBox, QTableWidget, QTableWidgetItem, QWidget)
 
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl, Qt
@@ -23,6 +26,8 @@ PRICES = [
     '400 000', '800 000', '1 500 000', '3 000 000'
 ]
 GUARANTEED_PRICES = ['0'] * 5 + ['5 000'] * 5 + ['100 000'] * 5
+logging.basicConfig(filename='logs.txt', level=logging.DEBUG,
+                    format='%(levelname)s: %(message)s')
 
 
 def sql_request(request: str):
@@ -59,6 +64,7 @@ def get_questions():
 
         questions.append(questions_set)
 
+    logging.info('Qs are gotten')
     return questions
 
 
@@ -195,7 +201,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
         self.player1.setMedia(decorate_audio('sounds/{}/bed.mp3'.format(n)))
         self.time_function(2500, self.player1.play)
-        
+        logging.info('Game is OK')
 
     def updateQuestionField(self, changer=False):
         self.non_active_answers = []
@@ -210,8 +216,11 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.answer_B.setText(self.answers[1])
         self.answer_C.setText(self.answers[2])
         self.answer_D.setText(self.answers[3])
+        logging.info('Q{} set'.format(self.current_number))
     
     def keyPressEvent(self, event: QKeyEvent):
+        if event.key() < 1500:
+            logging.info('KP {}'.format(event.key()))
         if event.key() in [Qt.Key_Q, 91, 1049, 1061]:
             self.checkPosition(285, 617)
         if event.key() in [Qt.Key_W, 93, 1062, 1066]:
@@ -233,6 +242,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.checkPosition(event.x(), event.y())
     
     def checkPosition(self, x, y):
+        logging.info('MP ({}, {})'.format(x, y))
         if self.control:
             self.timer, n = 0, self.current_number
 
@@ -249,6 +259,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     if n not in [1, 2, 3, 4, 5] or self.is_x2_now:
                         self.player1.stop()
                         self.time_function(0, self.player4.play)
+                    logging.info('Answ[A]')
                     self.checkAnswer(self.answer_A, 'A')
             elif 570 <= x <= 950 and 597 <= y <= 638:
                 if 'B' not in self.non_active_answers:
@@ -257,6 +268,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     if n not in [1, 2, 3, 4, 5] or self.is_x2_now:
                         self.player1.stop()
                         self.time_function(0, self.player4.play)
+                    logging.info('Answ[B]')
                     self.checkAnswer(self.answer_B, 'B')
             elif 150 <= x <= 520 and 648 <= y <= 689:
                 if 'C' not in self.non_active_answers:
@@ -265,6 +277,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     if n not in [1, 2, 3, 4, 5] or self.is_x2_now:
                         self.player1.stop()
                         self.time_function(0, self.player4.play)
+                    logging.info('Answ[C]')
                     self.checkAnswer(self.answer_C, 'C')
             elif 570 <= x <= 950 and 648 <= y <= 689:
                 if 'D' not in self.non_active_answers:
@@ -273,6 +286,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     if n not in [1, 2, 3, 4, 5] or self.is_x2_now:
                         self.player1.stop()
                         self.time_function(0, self.player4.play)
+                    logging.info('Answ[D]')
                     self.checkAnswer(self.answer_D, 'D')
 
             if 765 <= x <= 805 and 101 <= y <= 126:
@@ -329,14 +343,17 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             if self.is_x2_now:
                 self.time_function(0, self.double_dip.startFadeOutImage)
                 self.is_x2_now = False
+                logging.info('Answ incorrect (dd used)')
             if user_answer == self.correct_answer:
                 self.player2.setMedia(decorate_audio('sounds/{}/correct.mp3'.format(n)))
                 self.time_function(0, self.player4.stop)
                 self.time_function(0, self.player2.play)
+                logging.info('Answ correct')
             elif not self.is_x2_now:
                 self.player1.setMedia(decorate_audio('sounds/{}/lose.mp3'.format(n)))
                 self.time_function(0, self.player4.stop)
                 self.time_function(0, self.player1.play)
+                logging.info('Answ incorrect')
             self.time_function(
                 0, self.current_state_q_2.setPixmap,
                 QPixmap('images/question field/correct_{}.png'.format(letter))
@@ -378,6 +395,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                         0, self.layout_q.setPixmap,
                         QPixmap('images/question field/layout.png')
                     )
+                    logging.info('{} got'.format(self.current_number))
 
                 self.current_number += 1
                 self.time_function(
@@ -449,12 +467,14 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.is_x2_now = False
 
             self.lifelines[0] = False
+            logging.info('- Change-ll')
 
         elif type_ll == 'x2' and self.lifelines[1]:
             self.is_x2_now = True
             self.player1.setMedia(decorate_audio('sounds/double/start.mp3'))
             self.player1.play()
             self.lifelines[1] = False
+            logging.info('- x2-ll')
 
         elif type_ll == '5050' and self.lifelines[2]:
             self.player3.setMedia(decorate_audio('sounds/50_50.mp3'))
@@ -472,6 +492,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.non_active_answers += [answ_letters[indxs[0]], answ_letters[indxs[1]]]
 
             self.lifelines[2] = False
+            logging.info('- 50:50-ll')
 
     def restartGame(self):
         self.control = True
@@ -491,12 +512,14 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.control = False
         self.win.move(169 + self.x(), 210 + self.y())
         self.win.show()
+        logging.info('Game over — player won')
 
     def showGameOver(self, data):
         self.control = False
         self.game_over = GameOverWindow(self, data)
         self.game_over.move(169 + self.x(), 210 + self.y())
         self.game_over.show()
+        logging.info('Game over — player lost')
 
     def openConfirmLeave(self):
         self.control = False
@@ -520,6 +543,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.results_table = ResultsTableWindow()
         self.results_table.move(169 + self.x(), 93 + self.y())
         self.results_table.show()
+        logging.info('Results table open')
 
     def openDeleteResultForm(self):
         self.delete_form = DeleteResultWindow()
@@ -539,6 +563,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.player3.play()
         self.about_wndw.move(175 + self.x(), 180 + self.y())
         self.about_wndw.show()
+        logging.info('About open')
 
 
 class WinWindow(QDialog, Ui_Win):
@@ -563,6 +588,7 @@ class WinWindow(QDialog, Ui_Win):
         self.results = ResultsTableWindow()
         self.results.move(169 + self.parent.x(), 93 + self.parent.y())
         self.results.show()
+        logging.info('Game restart')
 
     def exit(self):
         self.parent.close()
@@ -572,6 +598,7 @@ class WinWindow(QDialog, Ui_Win):
         self.player.play()
         self.results = ResultsTableWindow()
         self.results.show()
+        logging.info('Game close')
 
 
 class GameOverWindow(QDialog, Ui_GameOver):
@@ -597,6 +624,7 @@ class GameOverWindow(QDialog, Ui_GameOver):
         self.results = ResultsTableWindow()
         self.results.move(169 + self.parent.x(), 93 + self.parent.y())
         self.results.show()
+        logging.info('Game restart')
 
     def exit(self):
         self.parent.close()
@@ -606,6 +634,7 @@ class GameOverWindow(QDialog, Ui_GameOver):
         self.player.play()
         self.results = ResultsTableWindow()
         self.results.show()
+        logging.info('Game close')
 
 
 class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
@@ -645,6 +674,8 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         self.parent.current_state_q_2.startFadeInImage()
         self.parent.current_state_q_2.show()
 
+        logging.info('Game over — leave game')
+
         self.close()
     
     def close_wndw(self):
@@ -679,6 +710,7 @@ class ConfirmAgainWindow(QDialog, Ui_ConfirmAgain):
 
     def restart(self):
         self.parent.restartGame()
+        logging.info('Game restart')
         self.close()
 
 
@@ -693,9 +725,13 @@ class ConfirmCloseWindow(QDialog, Ui_ConfirmExit):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
-        self.accepted.connect(sys.exit)
+        self.accepted.connect(self.exit)
         self.rejected.connect(self.close)
         self.setFixedSize(400, 140)
+    
+    def exit(self):
+        logging.info('Game close')
+        sys.exit()
 
 
 class ResultsTableWindow(QWidget, Ui_ResultsTable):
@@ -748,7 +784,9 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
         result_date = list(filter(lambda x: x[0] == id_result, self.results))[0][1]
         result = sql_request('DELETE FROM results WHERE date = "{}"'.format(result_date))
         if 'ERROR' in result:
-            print(result)
+            raise Exception(result)
+        else:
+            logging.info('R{} delete'.format(id_result))
         self.refreshTable()
 
 
@@ -771,6 +809,7 @@ class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):
         result = sql_request('DELETE FROM results')
         self.results_table = ResultsTableWindow()
         self.results_table.show()
+        logging.info('AllR delete')
         self.close()
 
 
@@ -812,12 +851,31 @@ class AboutWindow(QWidget, Ui_About):
         self.parent.player3.stop()
 
 
+def excepthook(exc_type, exc_value, exc_tb):
+    global app, msg
+    logging.error(
+        str(exc_value) + '\n' + 
+        ''.join(traceback.format_exception(exc_type, exc_value, exc_tb))
+    )
+    msg.show()
+    msg.buttonClicked.connect(app.quit)
 
 
 if __name__ == '__main__':
+    sys.excepthook = excepthook
+    
     app = QApplication(sys.argv)
     logging.info(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ': Session start')
     wndw = StartWindow()
     wndw.show()
 
+    msg = QMessageBox()
+    msg.setWindowTitle("Упс, ошибка...")
+    msg.setWindowIcon(QIcon('images/app_icon.ico'))
+    msg.setIcon(QMessageBox.Critical)
+    msg.setText('<html><body><p>Кажется, мы споткнулись об какую-то ошибку.\n'
+                'Чтобы прокачать игру, отправьте файл logs.txt <a href="https://t.me/pavetranquil">'
+                '<span style="text-decoration: underline; color:#005ffe;">разработчику</span></a>.</p></body></html>')
+
     app.exec()
+    logging.info('Session finish\n\n')
