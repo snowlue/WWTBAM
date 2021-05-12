@@ -136,21 +136,25 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
-        self.control, self.name, self.date = False, name, datetime.today().strftime('%d.%m.%Y %H:%M')
+        self.control, self.name = False, name
 
         self.timer = 900
         self.is_x2_now, self.non_active_answers = False, []
         self.lifelines = [True, True, True]
+        
         self.player1 = QMediaPlayer() # for bed and losing
         self.player2 = QMediaPlayer() # for intro and correct answer
         self.player3 = QMediaPlayer() # for lights down, 50:50 and change
         self.player4 = QMediaPlayer() # for ×2-lifeline
+        self.is_sound = True
+        
         self.new_game.triggered.connect(self.openConfirmAgain)
         self.close_game.triggered.connect(self.openConfirmClose)
         self.about.triggered.connect(self.openAbout)
         self.open_table.triggered.connect(self.openTable)
         self.clear_one.triggered.connect(self.openDeleteResultForm)
         self.clear_all.triggered.connect(self.openConfirmClearAll)
+        self.sound_btn.triggered.connect(self.checkSound)
         self.setFixedSize(1100, 703)
         self.startGame()
 
@@ -169,6 +173,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
     @user_control
     def startGame(self, repeat=False):
+        self.date = datetime.today().strftime('%d.%m.%Y %H:%M')
         self.player2.setMedia(decorate_audio('sounds/intro.mp3' if not repeat else 'sounds/new_start.mp3'))
         self.player2.play()
 
@@ -441,7 +446,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if user_answer != self.correct_answer and not self.is_x2_now:
             result_game = GUARANTEED_PRICES[self.current_number - 1]
             self.time_function(0, self.showGameOver, [
-                               letter, result_game])
+                               letter, result_game, self.is_sound])
             sql_request('''INSERT INTO results
                            (name, result, date) 
                            VALUES ("{}", "{}", "{}")
@@ -508,7 +513,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.startGame(True)
 
     def showWin(self):
-        self.win = WinWindow(self)
+        self.win = WinWindow(self, self.is_sound)
         self.control = False
         self.win.move(169 + self.x(), 210 + self.y())
         self.win.show()
@@ -556,14 +561,23 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.confirm_wndw.show()
 
     def openAbout(self):
-        self.about_wndw = AboutWindow(self)
+        self.about_wndw = AboutWindow(self, self.is_sound)
         for p in [self.player1, self.player2, self.player4]:
-            p.setVolume(20)
+            p.setVolume(20 * self.is_sound)
         self.player3.setMedia(decorate_audio('sounds/about.mp3'))
         self.player3.play()
         self.about_wndw.move(175 + self.x(), 180 + self.y())
         self.about_wndw.show()
         logging.info('About open')
+        
+    def checkSound(self):
+        if self.sender().isChecked():
+            self.is_sound = True
+        else:
+            self.is_sound = False
+            
+        for p in [self.player1, self.player2, self.player3, self.player4]:
+            p.setVolume(100 * self.is_sound)
 
 
 class WinWindow(QDialog, Ui_Win):
@@ -573,12 +587,14 @@ class WinWindow(QDialog, Ui_Win):
     • target: asking about starting new game after win (passed 15 question)
     '''
 
-    def __init__(self, parent):
+    def __init__(self, parent, is_sound):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
 
         self.parent = parent
+        self.is_sound = is_sound
+        
         self.buttonBox.accepted.connect(self.restart)
         self.buttonBox.rejected.connect(self.exit)
 
@@ -595,10 +611,11 @@ class WinWindow(QDialog, Ui_Win):
         self.close()
         self.player = QMediaPlayer()
         self.player.setMedia(decorate_audio('sounds/quit_game.mp3'))
-        self.player.play()
+        if self.is_sound:
+            self.player.play()
         self.results = ResultsTableWindow()
         self.results.show()
-        logging.info('Game close')
+        logging.info('Game close\n')
 
 
 class GameOverWindow(QDialog, Ui_GameOver):
@@ -614,6 +631,7 @@ class GameOverWindow(QDialog, Ui_GameOver):
         self.setWindowIcon(QIcon('images/app_icon.ico'))
 
         self.parent = parent
+        self.is_sound = data[2]
         self.buttonBox.accepted.connect(self.restart)
         self.buttonBox.rejected.connect(self.exit)
         self.label.setText(self.label.text().replace('{0}', data[0]).replace('{1}', data[1]))
@@ -631,7 +649,8 @@ class GameOverWindow(QDialog, Ui_GameOver):
         self.close()
         self.player = QMediaPlayer()
         self.player.setMedia(decorate_audio('sounds/quit_game.mp3'))
-        self.player.play()
+        if self.is_sound:
+            self.player.play()
         self.results = ResultsTableWindow()
         self.results.show()
         logging.info('Game close')
@@ -820,12 +839,13 @@ class AboutWindow(QWidget, Ui_About):
     • target: tell about app's author
     '''
 
-    def __init__(self, parent: GameWindow):
+    def __init__(self, parent: GameWindow, is_sound: bool):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.enText.hide()
         self.parent = parent
+        self.is_sound = is_sound
         self.ruButton.clicked.connect(self.showRuText)
         self.enButton.clicked.connect(self.showEnText)
         self.okButton.clicked.connect(self.close_wndw)
@@ -841,13 +861,13 @@ class AboutWindow(QWidget, Ui_About):
     
     def close_wndw(self):
         for p in [self.parent.player1, self.parent.player2, self.parent.player4]:
-            p.setVolume(100)
+            p.setVolume(100 * self.is_sound)
         self.parent.player3.stop()
         self.close()
     
     def closeEvent(self, a0):
         for p in [self.parent.player1, self.parent.player2, self.parent.player4]:
-            p.setVolume(100)
+            p.setVolume(100 * self.is_sound)
         self.parent.player3.stop()
 
 

@@ -537,8 +537,14 @@ class Ui_MainWindow(object):
         font.setFamily("PT Sans")
         self.clear_all.setFont(font)
         self.clear_all.setObjectName("clear_all")
+        self.sound_btn = QtWidgets.QAction(MainWindow)
+        self.sound_btn.setCheckable(True)
+        self.sound_btn.setChecked(True)
+        self.sound_btn.setObjectName("sound_btn")
         self.game_menu.addAction(self.new_game)
         self.game_menu.addAction(self.close_game)
+        self.game_menu.addSeparator()
+        self.game_menu.addAction(self.sound_btn)
         self.menu.addAction(self.clear_one)
         self.menu.addAction(self.clear_all)
         self.table_menu.addAction(self.open_table)
@@ -565,6 +571,7 @@ class Ui_MainWindow(object):
         self.action.setText(_translate("MainWindow", "Удалить один результат"))
         self.clear_one.setText(_translate("MainWindow", "Удалить один результат"))
         self.clear_all.setText(_translate("MainWindow", "Удалить всё"))
+        self.sound_btn.setText(_translate("MainWindow", "Звук"))
 
 
 class Ui_Win(object):
