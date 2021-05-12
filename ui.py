@@ -1,8 +1,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QVariant, QVariantAnimation, pyqtSlot
-from PyQt5.QtGui import QColor, QPalette
+from PyQt5.QtGui import QColor, QPalette, QFontDatabase
 from PyQt5.QtWidgets import QGraphicsOpacityEffect, QLabel
 
+import font_resources
 
 class AnimationLabel(QLabel):
     def __init__(self, *args, **kwargs):
@@ -98,6 +99,10 @@ class Ui_StartDialog(object):
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
+        fontId = QFontDatabase.addApplicationFont(":itc_conduit.ttf")
+        if fontId == 0:
+            fontName = QFontDatabase.applicationFontFamilies(fontId)[0]
+        
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1100, 705)
         font = QtGui.QFont()
@@ -109,7 +114,7 @@ class Ui_MainWindow(object):
         self.questionField.setGeometry(QtCore.QRect(0, 477, 1100, 201))
         self.questionField.setObjectName("questionField")
         self.answer_B = AnimationLabel(self.questionField)
-        self.answer_B.setGeometry(QtCore.QRect(604, 102, 318, 41))
+        self.answer_B.setGeometry(QtCore.QRect(605, 100, 318, 41))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -121,9 +126,8 @@ class Ui_MainWindow(object):
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
         self.answer_B.setPalette(palette)
-        font = QtGui.QFont()
-        font.setFamily("PT Sans")
-        font.setPointSize(12)
+        font = QtGui.QFont(fontName)
+        font.setPointSize(15)
         font.setBold(False)
         font.setWeight(50)
         self.answer_B.setFont(font)
@@ -134,7 +138,7 @@ class Ui_MainWindow(object):
         self.answer_B.setWordWrap(True)
         self.answer_B.setObjectName("answer_B")
         self.answer_D = AnimationLabel(self.questionField)
-        self.answer_D.setGeometry(QtCore.QRect(604, 153, 318, 41))
+        self.answer_D.setGeometry(QtCore.QRect(605, 152, 318, 41))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -146,9 +150,8 @@ class Ui_MainWindow(object):
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
         self.answer_D.setPalette(palette)
-        font = QtGui.QFont()
-        font.setFamily("PT Sans")
-        font.setPointSize(12)
+        font = QtGui.QFont(fontName)
+        font.setPointSize(15)
         font.setBold(False)
         font.setWeight(50)
         self.answer_D.setFont(font)
@@ -159,7 +162,7 @@ class Ui_MainWindow(object):
         self.answer_D.setWordWrap(True)
         self.answer_D.setObjectName("answer_D")
         self.question = AnimationLabel(self.questionField)
-        self.question.setGeometry(QtCore.QRect(178, 10, 742, 80))
+        self.question.setGeometry(QtCore.QRect(180, 8, 742, 80))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -171,9 +174,8 @@ class Ui_MainWindow(object):
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
         self.question.setPalette(palette)
-        font = QtGui.QFont()
-        font.setFamily("PT Sans")
-        font.setPointSize(13)
+        font = QtGui.QFont(fontName)
+        font.setPointSize(15)
         font.setBold(False)
         font.setWeight(50)
         self.question.setFont(font)
@@ -182,7 +184,7 @@ class Ui_MainWindow(object):
         self.question.setWordWrap(True)
         self.question.setObjectName("question")
         self.answer_A = AnimationLabel(self.questionField)
-        self.answer_A.setGeometry(QtCore.QRect(199, 102, 318, 41))
+        self.answer_A.setGeometry(QtCore.QRect(200, 100, 318, 41))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -194,9 +196,8 @@ class Ui_MainWindow(object):
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
         self.answer_A.setPalette(palette)
-        font = QtGui.QFont()
-        font.setFamily("PT Sans")
-        font.setPointSize(12)
+        font = QtGui.QFont(fontName)
+        font.setPointSize(15)
         font.setBold(False)
         font.setWeight(50)
         self.answer_A.setFont(font)
@@ -218,7 +219,7 @@ class Ui_MainWindow(object):
         self.layout_q.setScaledContents(True)
         self.layout_q.setObjectName("layout_q")
         self.answer_C = AnimationLabel(self.questionField)
-        self.answer_C.setGeometry(QtCore.QRect(199, 153, 318, 41))
+        self.answer_C.setGeometry(QtCore.QRect(200, 152, 318, 41))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -230,9 +231,8 @@ class Ui_MainWindow(object):
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
         self.answer_C.setPalette(palette)
-        font = QtGui.QFont()
-        font.setFamily("PT Sans")
-        font.setPointSize(12)
+        font = QtGui.QFont(fontName)
+        font.setPointSize(15)
         font.setBold(False)
         font.setWeight(50)
         self.answer_C.setFont(font)
