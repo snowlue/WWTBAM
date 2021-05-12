@@ -242,6 +242,11 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.checkPosition(929, 113)
         if event.key() == Qt.Key_4:
             self.checkPosition(999, 113)
+        if event.key() in [Qt.Key_M, 1068]:
+            self.is_sound = not self.is_sound
+            self.sound_btn.setChecked(self.is_sound)
+            for p in [self.player1, self.player2, self.player3, self.player4]:
+                p.setVolume(100 * self.is_sound)
 
     def mousePressEvent(self, event: QMouseEvent):
         self.checkPosition(event.x(), event.y())
