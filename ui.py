@@ -1,3 +1,4 @@
+from random import choice
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QVariant, QVariantAnimation, pyqtSlot
 from PyQt5.QtGui import QColor, QPalette, QFontDatabase
@@ -474,7 +475,7 @@ class Ui_MainWindow(object):
         self.background = QtWidgets.QLabel(self.centralwidget)
         self.background.setGeometry(QtCore.QRect(0, 0, 1100, 680))
         self.background.setText("")
-        self.background.setPixmap(QtGui.QPixmap("images/background.jpg"))
+        self.background.setPixmap(QtGui.QPixmap("images/background{}.jpg".format(choice(list(map(str, range(1, 7)))))))
         self.background.setScaledContents(True)
         self.background.setObjectName("background")
         self.background.raise_()
