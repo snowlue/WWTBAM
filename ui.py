@@ -1,10 +1,14 @@
+from datetime import datetime
 from random import choice
+
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QVariant, QVariantAnimation, pyqtSlot
-from PyQt5.QtGui import QColor, QPalette, QFontDatabase
+from PyQt5.QtCore import (QEasingCurve, QPropertyAnimation, QVariant,
+                          QVariantAnimation, pyqtSlot)
+from PyQt5.QtGui import QColor, QFontDatabase, QPalette
 from PyQt5.QtWidgets import QGraphicsOpacityEffect, QLabel
 
 import font_resources
+
 
 class AnimationLabel(QLabel):
     def __init__(self, *args, **kwargs):
@@ -1033,8 +1037,9 @@ class Ui_About(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "О программе"))
-        self.ruText.setText(_translate("Form", "<html><head/><body><p align=\"center\"><span style=\" font-weight:600;\">Игра «Кто хочет стать Миллионером?»</span></p><p align=\"center\">Игра, написанная на Python и основанная на популярном интеллектуальном телешоу <br/>«Who Wants to Be a Millionaire?»</p><p align=\"center\">© Павел Овчинников, 2020</p></body></html>"))
-        self.enText.setText(_translate("Form", "<html><head/><body><p align=\"center\"><span style=\" font-weight:600;\">The Game «Who Want to Be a Millionaire?»</span></p><p align=\"center\">The game was written on Python and based on popular intellectual TV show <br/>«Who Wants to Be a Millionaire?»</p><p align=\"center\">© Pavel Ovchinnikov, 2020</p></body></html>"))
+        year = datetime.today().year
+        self.ruText.setText(_translate("Form", "<html><head/><body><p align=\"center\"><span style=\" font-weight:600;\">Игра «Кто хочет стать Миллионером?»</span></p><p align=\"center\">Игра, написанная на Python и основанная на популярном интеллектуальном телешоу <br/>«Who Wants to Be a Millionaire?»</p><p align=\"center\">© Павел Овчинников, {}</p></body></html>".format(year)))
+        self.enText.setText(_translate("Form", "<html><head/><body><p align=\"center\"><span style=\" font-weight:600;\">The Game «Who Want to Be a Millionaire?»</span></p><p align=\"center\">The game was written on Python and based<br/>on popular intellectual TV show <br/>«Who Wants to Be a Millionaire?»</p><p align=\"center\">© Pavel Ovchinnikov, {}</p></body></html>".format(year)))
         self.ruButton.setText(_translate("Form", "RU"))
         self.enButton.setText(_translate("Form", "EN"))
         self.okButton.setText(_translate("Form", "ОК"))

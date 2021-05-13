@@ -1,24 +1,24 @@
 import functools
+import logging
+import os
 import random
 import sqlite3
 import sys
-
-import logging
 import traceback
-
 from datetime import datetime
 from typing import List
 
 from PyQt5 import QtCore
-from PyQt5.QtGui import QIcon, QKeyEvent, QPixmap, QMouseEvent
+from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtGui import QIcon, QKeyEvent, QMouseEvent, QPixmap
+from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QMainWindow,
-                             QMessageBox, QTableWidget, QTableWidgetItem, QWidget)
+                             QMessageBox, QTableWidget, QTableWidgetItem,
+                             QWidget)
 
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtCore import QUrl, Qt
-
-from ui import (Ui_About, Ui_ConfirmAgain, Ui_ConfirmClearAll, Ui_ConfirmExit, Ui_ConfirmLeave, Ui_DeleteResult,
-                Ui_GameOver, Ui_MainWindow, Ui_ResultsTable, Ui_StartDialog, Ui_Win, Ui_WinLeave)
+from ui import (Ui_About, Ui_ConfirmAgain, Ui_ConfirmClearAll, Ui_ConfirmExit,
+                Ui_ConfirmLeave, Ui_DeleteResult, Ui_GameOver, Ui_MainWindow,
+                Ui_ResultsTable, Ui_StartDialog, Ui_Win, Ui_WinLeave)
 
 PRICES = [
     '0', '500', '1 000', '2 000', '3 000', '5 000', '10 000',
@@ -26,7 +26,7 @@ PRICES = [
     '400 000', '800 000', '1 500 000', '3 000 000'
 ]
 GUARANTEED_PRICES = ['0'] * 5 + ['5 000'] * 5 + ['100 000'] * 5
-logging.basicConfig(filename='logs.txt', level=logging.DEBUG,
+logging.basicConfig(filename=os.path.realpath('logs.txt'), level=logging.DEBUG,
                     format='%(levelname)s: %(message)s')
 
 
@@ -535,7 +535,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.control = False
         num_to_let = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
         letter = num_to_let[self.answers.index(self.correct_answer)]
-        self.confirm_wndw = ConfirmLeaveWindow(self, letter)
+        self.confirm_wndw = ConfirmLeaveWindow(self, letter, self.is_sound)
         self.confirm_wndw.move(169 + self.x(), 210 + self.y())
         self.confirm_wndw.show()
 
@@ -668,13 +668,14 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
     • target: сonfirm leaving current round
     '''
 
-    def __init__(self, parent: GameWindow, letter):
+    def __init__(self, parent: GameWindow, letter: str, is_sound: bool):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
 
         self.parent = parent
         self.correct = letter
+        self.is_sound = is_sound
         self.label.setText(self.label.text().replace('{}', self.parent.got_amount))
         self.accepted.connect(self.leave)
         self.rejected.connect(self.close_wndw)
@@ -684,7 +685,7 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
                        (name, result, date) 
                        VALUES ("{}", "{}", "{}")
                     '''.format(self.parent.name, self.parent.got_amount, self.parent.date))
-        self.windialog = WinLeaveWindow(self.parent, [self.correct, self.parent.got_amount])
+        self.windialog = WinLeaveWindow(self.parent, [self.correct, self.parent.got_amount, self.is_sound])
         self.windialog.move(169 + self.parent.x(), 210 + self.parent.y())
         self.windialog.show()
         
@@ -832,6 +833,7 @@ class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):
     def deleteAllData(self):
         result = sql_request('DELETE FROM results')
         self.results_table = ResultsTableWindow()
+        self.results_table.move(self.x(), self.y() - 117)
         self.results_table.show()
         logging.info('AllR delete')
         self.close()
@@ -900,7 +902,7 @@ if __name__ == '__main__':
     msg.setIcon(QMessageBox.Critical)
     msg.setText('<html><body><p>Кажется, мы споткнулись об какую-то ошибку.\n'
                 'Чтобы прокачать игру, отправьте файл logs.txt <a href="https://t.me/pavetranquil">'
-                '<span style="text-decoration: underline; color:#005ffe;">разработчику</span></a>.</p></body></html>')
+                '<span style="text-decoration: underline; color:#005ffe; font-weight:600;">разработчику</span></a>.</p></body></html>')
 
     app.exec()
     logging.info('Session finish\n\n')

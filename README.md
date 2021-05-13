@@ -4,7 +4,7 @@
 
 Popular TV show «Who Wants to Be a Millionaire?» is now available on your PC! 💙<br>Lifelines, questions, virtual rubles and all game feauters — all what you love in this game show is now in one app. 💰<br>You can beat your records and friend's records with table of records. 🏆<br>Become smarter and test your knowledge! 📚
 
-## How to play:
+## How to start:
 
 1. Open your terminal in repo's folder
 2. Type next commands:
@@ -12,14 +12,27 @@ Popular TV show «Who Wants to Be a Millionaire?» is now available on your PC! 
     pip install -r requirements.txt
     python main.py
     ```
-    OR (only for Windows)
+    OR (only for Windows & if you don't have Python)
     ```batch
     pip install -r requirements.txt
-    Game.lnk
+    cd bin
+    python main.exe
     ```
 3. Have a fun ^_^
 
-⠀(4.) Also you can download folder «bin» and open main.exe. The folder is self-contained and you can use it on any drive.
+⠀(4.) In addition the folder «bin» is self-contained and you can use it on any drive on Windows even if you don't have Python.
+
+## Rulebook:
+
+- Answer the questions by mouse pressing on A-, B-, C-, D-answer or by keyboard pressing on Q, W, A, S:
+    - 5 000₽ on the 5th question and 100 000₽ on the 10th question are guaranteed, even if you lose the game, you'll get these sums
+    - Your main goal — get the top prize as 3 000 000₽.
+- Use lifelines by mouse pressing on lifelines at the money tree or by keyboard pressing on 1, 2, 3, 4:
+    - Changer changes the question to another
+    - 50:50 removes two incorrect answers to make the question easier
+    - ×2 gives you a second chance to answer the question — if your answer will be incorrect you will can answer one more time. 
+- You can get your current prize and leave the game by pressing home icon at the money tree.
+- You can watch the table of records and set new records when you play the game (also supports erasing).
 
 
 ## License Creative Commons «Attribution-NonCommercial-ShareAlike»
