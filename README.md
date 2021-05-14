@@ -1,5 +1,5 @@
 # Who Wants to Be a Millionaire?
-[![Made with Python](https://img.shields.io/badge/Made_with-Python-%23336E9E)][1]   [![Using QT Designer](https://img.shields.io/badge/Using-QT_Designer-%2325AF37)][2]   [![Using SQLiteStudio](https://img.shields.io/badge/Using-SQLiteStudio-%23337CCF)][3]<br/>
+[![Made with Python 3.8](https://img.shields.io/badge/Made_with-Python_3.8-%23336E9E)][1]   [![Using QT Designer](https://img.shields.io/badge/Using-QT_Designer-%2325AF37)][2]   [![Using SQLiteStudio](https://img.shields.io/badge/Using-SQLiteStudio-%23337CCF)][3]<br/>
 [![PyQt5](https://img.shields.io/badge/PyQt5-%2340CD52)][4]   [![SQLite3](https://img.shields.io/badge/SQLite3-%23107FCB)][5]   [![PyInstaller](https://img.shields.io/badge/PyInstaller-%23FFEB5E)][6]
 
 Popular TV show «Who Wants to Be a Millionaire?» is now available on your PC! 💙<br>Lifelines, questions, virtual rubles and all game feauters — all what you love in this game show is now in one app. 💰<br>You can beat your records and friend's records with table of records. 🏆<br>Become smarter and test your knowledge! 📚
