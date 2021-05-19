@@ -14,9 +14,8 @@ Popular TV show «Who Wants to Be a Millionaire?» is now available on your PC! 
     ```
     OR (only for Windows & if you don't have Python)
     ```batch
-    pip install -r requirements.txt
     cd bin
-    python main.exe
+    main.exe
     ```
 3. Have a fun ^_^
 
