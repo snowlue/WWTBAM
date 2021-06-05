@@ -54,7 +54,7 @@ class AnimationLabel(QLabel):
 class Ui_StartDialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(361, 186)
+        Dialog.setFixedSize(361, 186)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
         font.setPointSize(8)
@@ -109,7 +109,7 @@ class Ui_MainWindow(object):
             fontName = QFontDatabase.applicationFontFamilies(fontId)[0]
         
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1100, 705)
+        MainWindow.setFixedSize(1100, 705)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
         MainWindow.setFont(font)
@@ -582,7 +582,7 @@ class Ui_MainWindow(object):
 class Ui_Win(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(400, 150)
+        Dialog.setFixedSize(400, 150)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
         Dialog.setFont(font)
@@ -625,7 +625,7 @@ class Ui_Win(object):
 class Ui_GameOver(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(400, 150)
+        Dialog.setFixedSize(400, 150)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
         Dialog.setFont(font)
@@ -668,7 +668,7 @@ class Ui_GameOver(object):
 class Ui_ConfirmExit(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(400, 140)
+        Dialog.setFixedSize(400, 140)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
         Dialog.setFont(font)
@@ -752,7 +752,7 @@ class Ui_ConfirmLeave(object):
 class Ui_WinLeave(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(400, 150)
+        Dialog.setFixedSize(400, 150)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
         Dialog.setFont(font)
@@ -788,7 +788,7 @@ class Ui_WinLeave(object):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Вы выиграли, но не всё!"))
         self.label.setText(_translate("Dialog", 
-                                      "Вы покинули эту игру! Правильный ответ на этот вопрос: {0}.\n"
+                                      "Вы покинули игру! Правильный ответ на этот вопрос: {0}.\n"
                                       "Ваш выигрыш составил {1} руб.\n"
                                       "Начать новую игру?"))
 
@@ -838,7 +838,7 @@ class Ui_ConfirmAgain(object):
 class Ui_ResultsTable(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(395, 385)
+        Form.setFixedSize(395, 385)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
         Form.setFont(font)
@@ -869,7 +869,7 @@ class Ui_ResultsTable(object):
 class Ui_DeleteResult(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(442, 385)
+        Form.setFixedSize(442, 385)
         self.verticalLayout = QtWidgets.QVBoxLayout(Form)
         self.verticalLayout.setContentsMargins(10, 10, 10, 10)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -918,7 +918,7 @@ class Ui_DeleteResult(object):
 class Ui_ConfirmClearAll(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(400, 140)
+        Dialog.setFixedSize(400, 140)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
         Dialog.setFont(font)
@@ -960,7 +960,7 @@ class Ui_ConfirmClearAll(object):
 class Ui_About(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(380, 308)
+        Form.setFixedSize(380, 308)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(Form)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout = QtWidgets.QVBoxLayout()

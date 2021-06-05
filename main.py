@@ -798,6 +798,8 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
         results = sorted(results, key=lambda x: int(str(x[2]).replace(' ', '')), reverse=True)
         results = [list(map(str, i[1:])) for i in results]
         self.results = [list(map(str, [i + 1, results[i][2]])) for i in range(len(results))]
+        
+        self.deleteButton.setEnabled(bool(results))
 
         self.spinBox.setMinimum(1)
         self.spinBox.setMaximum(len(results))
