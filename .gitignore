@@ -1,1 +1,3 @@
 __pycache__/
+.qt_for_python/
+logs.txt

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>361</width>
-    <height>186</height>
+    <height>140</height>
    </rect>
   </property>
   <property name="font">
@@ -24,21 +24,21 @@
     <number>0</number>
    </property>
    <property name="leftMargin">
-    <number>10</number>
+    <number>5</number>
    </property>
    <property name="topMargin">
-    <number>10</number>
+    <number>5</number>
    </property>
    <property name="rightMargin">
-    <number>10</number>
+    <number>5</number>
    </property>
    <property name="bottomMargin">
-    <number>10</number>
+    <number>5</number>
    </property>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="2,1,1">
      <property name="spacing">
-      <number>10</number>
+      <number>2</number>
      </property>
      <item>
       <layout class="QFormLayout" name="formLayout">
@@ -69,20 +69,27 @@
         <number>10</number>
        </property>
        <item>
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="ok_button">
          <property name="text">
           <string>Начать игру</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="exit_button">
          <property name="text">
           <string>Выйти</string>
          </property>
         </widget>
        </item>
       </layout>
+     </item>
+     <item>
+      <widget class="QPushButton" name="rulebook_button">
+       <property name="text">
+        <string>Правила игры</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

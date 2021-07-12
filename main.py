@@ -94,24 +94,33 @@ class StartWindow(QDialog, Ui_StartDialog):
     '''
     StartWindow\n
     • type: QInputDialog\n
-    • target: enter player's name 
+    • target: enter player's name
     '''
 
     def __init__(self):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
-        self.setFixedSize(361, 140)
         self.ok_button.clicked.connect(self.getName)
         self.exit_button.clicked.connect(sys.exit)
+        self.msg = QMessageBox()
+        self.msg.setWindowTitle("Некорректное имя")
+        self.msg.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.msg.setIcon(QMessageBox.Warning)
 
     def getName(self):
         name = self.lineEdit.text()
-        if not name or any([(l in name) for l in '`~!@#$%^&*()_+{}|:"<>?[]\\;\',./№0123456789']):
-            self.label.setText('Пожалуйста, введите корректное имя:')
+        if not name:
+            self.msg.setText('Введите имя, чтобы учитываться в таблице рекордов.\n'
+                             'Не оставляйте поле пустым.')
+            self.msg.show()
+        elif any([(le in name) for le in '`~!@#$%^&*()_+{}|:"<>?[]\\;\',./№0123456789']):
+            self.msg.setText('Введите корректное имя, состоящее только из букв и пробелов. '
+                             'Не используйте цифры или спецсимволы.')
+            self.msg.show()
             self.lineEdit.setText('')
         else:
-            self.startGame(name)
+            self.startGame(name.capitalize())
 
     def startGame(self, name):
         self.game = GameWindow(name)
@@ -129,7 +138,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
     '''
     GameWindow\n
     • type: QMainWindow\n
-    • target: playing the game 
+    • target: playing the game
     '''
 
     def __init__(self, name=''):
@@ -141,13 +150,13 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.timer = 900
         self.is_x2_now, self.non_active_answers = False, []
         self.lifelines = [True, True, True]
-        
-        self.player1 = QMediaPlayer() # for bed and losing
-        self.player2 = QMediaPlayer() # for intro and correct answer
-        self.player3 = QMediaPlayer() # for lights down, 50:50 and change
-        self.player4 = QMediaPlayer() # for ×2-lifeline
+
+        self.player1 = QMediaPlayer()  # for bed and losing
+        self.player2 = QMediaPlayer()  # for intro and correct answer
+        self.player3 = QMediaPlayer()  # for lights down, 50:50 and change
+        self.player4 = QMediaPlayer()  # for ×2-lifeline
         self.is_sound = True
-        
+
         self.new_game.triggered.connect(self.openConfirmAgain)
         self.close_game.triggered.connect(self.openConfirmClose)
         self.about.triggered.connect(self.openAbout)
@@ -155,7 +164,6 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.clear_one.triggered.connect(self.openDeleteResultForm)
         self.clear_all.triggered.connect(self.openConfirmClearAll)
         self.sound_btn.triggered.connect(self.checkSound)
-        self.setFixedSize(1100, 703)
         self.startGame()
 
     def user_control(func):
@@ -202,11 +210,11 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
             self.time_function(100, a.startFadeIn)
             self.time_function(0, a.show)
-        
+
         n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
         self.player1.setMedia(decorate_audio('sounds/{}/bed.mp3'.format(n)))
         self.time_function(2500, self.player1.play)
-        logging.info('Game is OK')
+        logging.info('Game is OK. Username: %s', self.name)
 
     def updateQuestionField(self, changer=False):
         self.non_active_answers = []
@@ -221,11 +229,11 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.answer_B.setText(self.answers[1])
         self.answer_C.setText(self.answers[2])
         self.answer_D.setText(self.answers[3])
-        logging.info('Q{} set'.format(self.current_number))
-    
+        logging.info('Q%d set', self.current_number)
+
     def keyPressEvent(self, event: QKeyEvent):
         if event.key() < 1500:
-            logging.info('KP {}'.format(event.key()))
+            logging.info('KP %d', event.key())
         if event.key() in [Qt.Key_Q, 91, 1049, 1061]:
             self.checkPosition(285, 617)
         if event.key() in [Qt.Key_W, 93, 1062, 1066]:
@@ -250,9 +258,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
     def mousePressEvent(self, event: QMouseEvent):
         self.checkPosition(event.x(), event.y())
-    
+
     def checkPosition(self, x, y):
-        logging.info('MP ({}, {})'.format(x, y))
+        logging.info('MP (%d, %d)', x, y)
         if self.control:
             self.timer, n = 0, self.current_number
 
@@ -370,7 +378,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             )
             self.time_function(0, self.current_state_q_2.startFadeInImage)
             self.time_function(0, self.current_state_q_2.show)
-            for i in range(2):
+            for _ in range(2):
                 self.time_function(400, self.current_state_q_2.startFadeOutImage)
                 self.time_function(400, self.current_state_q_2.startFadeInImage)
 
@@ -405,7 +413,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                         0, self.layout_q.setPixmap,
                         QPixmap('images/question field/layout.png')
                     )
-                    logging.info('{} got'.format(self.current_number))
+                    logging.info('%d got', self.current_number)
 
                 self.current_number += 1
                 self.time_function(
@@ -443,7 +451,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 )
                 self.clear_all_labels()
                 sql_request('''INSERT INTO results
-                            (name, result, date) 
+                            (name, result, date)
                             VALUES ("{}", "{}", "{}")
                             '''.format(self.name, '3 000 000', self.date))
                 self.time_function(0, self.showWin)
@@ -453,7 +461,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.time_function(0, self.showGameOver, [
                                letter, result_game, self.is_sound])
             sql_request('''INSERT INTO results
-                           (name, result, date) 
+                           (name, result, date)
                            VALUES ("{}", "{}", "{}")
                         '''.format(self.name, result_game, self.date))
         if self.is_x2_now:
@@ -522,47 +530,47 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.control = False
         self.win.move(169 + self.x(), 210 + self.y())
         self.win.show()
-        logging.info('Game over — player won')
+        logging.info('Game over - player won')
 
     def showGameOver(self, data):
         self.control = False
         self.game_over = GameOverWindow(self, data)
         self.game_over.move(169 + self.x(), 210 + self.y())
         self.game_over.show()
-        logging.info('Game over — player lost')
+        logging.info('Game over - player lost')
 
     def openConfirmLeave(self):
         self.control = False
         num_to_let = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
         letter = num_to_let[self.answers.index(self.correct_answer)]
         self.confirm_wndw = ConfirmLeaveWindow(self, letter, self.is_sound)
-        self.confirm_wndw.move(169 + self.x(), 210 + self.y())
+        self.confirm_wndw.move(168 + self.x(), 216 + self.y())
         self.confirm_wndw.show()
 
     def openConfirmAgain(self):
         self.confirm_wndw = ConfirmAgainWindow(self)
-        self.confirm_wndw.move(169 + self.x(), 210 + self.y())
+        self.confirm_wndw.move(168 + self.x(), 216 + self.y())
         self.confirm_wndw.show()
 
     def openConfirmClose(self):
         self.confirm_wndw = ConfirmCloseWindow()
-        self.confirm_wndw.move(169 + self.x(), 210 + self.y())
+        self.confirm_wndw.move(168 + self.x(), 216 + self.y())
         self.confirm_wndw.show()
 
     def openTable(self):
         self.results_table = ResultsTableWindow()
-        self.results_table.move(169 + self.x(), 93 + self.y())
+        self.results_table.move(170 + self.x(), 93 + self.y())
         self.results_table.show()
         logging.info('Results table open')
 
     def openDeleteResultForm(self):
         self.delete_form = DeleteResultWindow()
-        self.delete_form.move(150 + self.x(), 93 + self.y())
+        self.delete_form.move(147 + self.x(), 93 + self.y())
         self.delete_form.show()
 
     def openConfirmClearAll(self):
         self.confirm_wndw = ConfirmClearAll()
-        self.confirm_wndw.move(169 + self.x(), 210 + self.y())
+        self.confirm_wndw.move(168 + self.x(), 216 + self.y())
         self.confirm_wndw.show()
 
     def openAbout(self):
@@ -571,16 +579,16 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             p.setVolume(20 * self.is_sound)
         self.player3.setMedia(decorate_audio('sounds/about.mp3'))
         self.player3.play()
-        self.about_wndw.move(175 + self.x(), 180 + self.y())
+        self.about_wndw.move(178 + self.x(), 175 + self.y())
         self.about_wndw.show()
         logging.info('About open')
-        
+
     def checkSound(self):
         if self.sender().isChecked():
             self.is_sound = True
         else:
             self.is_sound = False
-            
+
         for p in [self.player1, self.player2, self.player3, self.player4]:
             p.setVolume(100 * self.is_sound)
 
@@ -599,7 +607,7 @@ class WinWindow(QDialog, Ui_Win):
 
         self.parent = parent
         self.is_sound = is_sound
-        
+
         self.buttonBox.accepted.connect(self.restart)
         self.buttonBox.rejected.connect(self.exit)
 
@@ -607,7 +615,7 @@ class WinWindow(QDialog, Ui_Win):
         self.parent.restartGame()
         self.close()
         self.results = ResultsTableWindow()
-        self.results.move(169 + self.parent.x(), 93 + self.parent.y())
+        self.results.move(170 + self.parent.x(), 93 + self.parent.y())
         self.results.show()
         logging.info('Game restart')
 
@@ -645,7 +653,7 @@ class GameOverWindow(QDialog, Ui_GameOver):
         self.parent.restartGame()
         self.close()
         self.results = ResultsTableWindow()
-        self.results.move(169 + self.parent.x(), 93 + self.parent.y())
+        self.results.move(170 + self.parent.x(), 93 + self.parent.y())
         self.results.show()
         logging.info('Game restart')
 
@@ -682,13 +690,13 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
 
     def leave(self):
         sql_request('''INSERT INTO results
-                       (name, result, date) 
+                       (name, result, date)
                        VALUES ("{}", "{}", "{}")
                     '''.format(self.parent.name, self.parent.got_amount, self.parent.date))
         self.windialog = WinLeaveWindow(self.parent, [self.correct, self.parent.got_amount, self.is_sound])
         self.windialog.move(169 + self.parent.x(), 210 + self.parent.y())
         self.windialog.show()
-        
+
         for p in [self.parent.player1, self.parent.player2, self.parent.player3, self.parent.player4]:
             p.stop()
         self.parent.player1.setMedia(decorate_audio('sounds/walk_away.mp3'))
@@ -702,7 +710,7 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         logging.info('Game over — leave game')
 
         self.close()
-    
+
     def close_wndw(self):
         self.parent.control = True
         self.close()
@@ -752,8 +760,7 @@ class ConfirmCloseWindow(QDialog, Ui_ConfirmExit):
         self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.accepted.connect(self.exit)
         self.rejected.connect(self.close)
-        self.setFixedSize(400, 140)
-    
+
     def exit(self):
         logging.info('Game close')
         sys.exit()
@@ -798,7 +805,7 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
         results = sorted(results, key=lambda x: int(str(x[2]).replace(' ', '')), reverse=True)
         results = [list(map(str, i[1:])) for i in results]
         self.results = [list(map(str, [i + 1, results[i][2]])) for i in range(len(results))]
-        
+
         self.deleteButton.setEnabled(bool(results))
 
         self.spinBox.setMinimum(1)
@@ -813,7 +820,7 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
         if 'ERROR' in result:
             raise Exception(result)
         else:
-            logging.info('R{} delete'.format(id_result))
+            logging.info('R%d delete', id_result)
         self.refreshTable()
 
 
@@ -830,10 +837,9 @@ class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):
         self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.accepted.connect(self.deleteAllData)
         self.rejected.connect(self.close)
-        self.setFixedSize(400, 140)
 
     def deleteAllData(self):
-        result = sql_request('DELETE FROM results')
+        sql_request('DELETE FROM results')
         self.results_table = ResultsTableWindow()
         self.results_table.move(self.x(), self.y() - 117)
         self.results_table.show()
@@ -858,7 +864,6 @@ class AboutWindow(QWidget, Ui_About):
         self.ruButton.clicked.connect(self.showRuText)
         self.enButton.clicked.connect(self.showEnText)
         self.okButton.clicked.connect(self.close_wndw)
-        self.setFixedSize(380, 222)
 
     def showRuText(self):
         self.ruText.show()
@@ -867,13 +872,13 @@ class AboutWindow(QWidget, Ui_About):
     def showEnText(self):
         self.enText.show()
         self.ruText.hide()
-    
+
     def close_wndw(self):
         for p in [self.parent.player1, self.parent.player2, self.parent.player4]:
             p.setVolume(100 * self.is_sound)
         self.parent.player3.stop()
         self.close()
-    
+
     def closeEvent(self, a0):
         for p in [self.parent.player1, self.parent.player2, self.parent.player4]:
             p.setVolume(100 * self.is_sound)
@@ -883,7 +888,7 @@ class AboutWindow(QWidget, Ui_About):
 def excepthook(exc_type, exc_value, exc_tb):
     global app, msg
     logging.error(
-        str(exc_value) + '\n' + 
+        str(exc_value) + '\n' +
         ''.join(traceback.format_exception(exc_type, exc_value, exc_tb))
     )
     msg.show()
@@ -892,7 +897,7 @@ def excepthook(exc_type, exc_value, exc_tb):
 
 if __name__ == '__main__':
     sys.excepthook = excepthook
-    
+
     app = QApplication(sys.argv)
     logging.info(datetime.today().strftime('%Y-%m-%d %H:%M:%S') + ': Session start')
     wndw = StartWindow()
@@ -904,7 +909,8 @@ if __name__ == '__main__':
     msg.setIcon(QMessageBox.Critical)
     msg.setText('<html><body><p>Кажется, мы споткнулись об какую-то ошибку.\n'
                 'Чтобы прокачать игру, отправьте файл logs.txt <a href="https://t.me/pavetranquil">'
-                '<span style="text-decoration: underline; color:#005ffe; font-weight:600;">разработчику</span></a>.</p></body></html>')
+                '<span style="text-decoration: underline; color:#005ffe; font-weight:600;">разработчику'
+                '</span></a>.</p></body></html>')
 
     app.exec()
     logging.info('Session finish\n\n')
