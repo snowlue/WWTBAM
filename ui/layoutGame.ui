@@ -871,10 +871,10 @@
     <widget class="QLabel" name="double_dip">
      <property name="geometry">
       <rect>
-       <x>518</x>
-       <y>129</y>
+       <x>519</x>
+       <y>126</y>
        <width>66</width>
-       <height>36</height>
+       <height>40</height>
       </rect>
      </property>
      <property name="text">

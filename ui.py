@@ -423,7 +423,7 @@ class Ui_MainWindow(object):
         self.amount_q.setObjectName("amount_q")
 
         self.double_dip = AnimationLabel(self.questionField)
-        self.double_dip.setGeometry(QtCore.QRect(518, 129, 66, 36))
+        self.double_dip.setGeometry(QtCore.QRect(519, 126, 66, 40))
         self.double_dip.setText("")
         self.double_dip.setPixmap(QtGui.QPixmap("images/double-dip.png"))
         self.double_dip.setScaledContents(True)
