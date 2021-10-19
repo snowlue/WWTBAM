@@ -243,15 +243,15 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.checkPosition(200, 653)  # эмулируем выбор ответа С
             self.checkPosition(568, 653)  # эмулируем выбор ответа D
         if event.key() == Qt.Key_1:
-            self.checkPosition(765, 101)  # эмулируем выбор «замены вопроса»
+            self.checkPosition(766, 100)  # эмулируем выбор «замены вопроса»
         if event.key() == Qt.Key_2:
-            self.checkPosition(836, 101)  # эмулируем выбор 50:50
+            self.checkPosition(835, 100)  # эмулируем выбор 50:50
         if event.key() == Qt.Key_3:
-            self.checkPosition(909, 101)  # эмулируем выбор «права на ошибку»
+            self.checkPosition(902, 100)  # эмулируем выбор «права на ошибку»
         if event.key() == Qt.Key_4:
         if event.key() in [Qt.Key_M, 1068]:
             self.is_sound = not self.is_sound
-            self.checkPosition(979, 101)  # эмулируем выбор «забрать деньги»
+            self.checkPosition(970, 100)  # эмулируем выбор «забрать деньги»
             self.sound_btn.setChecked(self.is_sound)
             for p in [self.player1, self.player2, self.player3, self.player4]:
                 p.setVolume(100 * self.is_sound)
@@ -307,22 +307,22 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     logging.info('Answ[D]')
                     self.checkAnswer(self.answer_D, 'D')
 
-            if 765 <= x <= 805 and 101 <= y <= 126:
+            if 766 <= x <= 816 and 99 <= y <= 129:
                 self.lost_change.show()
                 self.lost_change.startFadeInImage()
                 self.useLifeline('change')
-            elif 836 <= x <= 876 and 101 <= y <= 126:
+            elif 835 <= x <= 885 and 99 <= y <= 129:
                 self.lost_5050.show()
                 self.lost_5050.startFadeInImage()
                 self.useLifeline('5050')
-            elif 909 <= x <= 949 and 101 <= y <= 126:
+            elif 902 <= x <= 952 and 99 <= y <= 129:
                 self.lost_x2.show()
                 self.lost_x2.startFadeInImage()
                 if self.lifelines[1]:
                     self.double_dip.show()
                     self.double_dip.startFadeInImage()
                 self.useLifeline('x2')
-            elif 979 <= x <= 1019 and 101 <= y <= 126:
+            elif 970 <= x <= 1020 and 99 <= y <= 129:
                 self.openConfirmLeave()
 
     def clear_all_labels(self):
