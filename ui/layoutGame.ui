@@ -31,10 +31,10 @@
     <widget class="QLabel" name="answer_B">
      <property name="geometry">
       <rect>
-       <x>604</x>
-       <y>102</y>
-       <width>318</width>
-       <height>41</height>
+       <x>606</x>
+       <y>100</y>
+       <width>288</width>
+       <height>40</height>
       </rect>
      </property>
      <property name="palette">
@@ -98,10 +98,10 @@
     <widget class="QLabel" name="answer_D">
      <property name="geometry">
       <rect>
-       <x>604</x>
-       <y>153</y>
-       <width>318</width>
-       <height>41</height>
+       <x>606</x>
+       <y>151</y>
+       <width>288</width>
+       <height>40</height>
       </rect>
      </property>
      <property name="palette">
@@ -165,9 +165,9 @@
     <widget class="QLabel" name="question">
      <property name="geometry">
       <rect>
-       <x>178</x>
-       <y>10</y>
-       <width>742</width>
+       <x>194</x>
+       <y>7</y>
+       <width>720</width>
        <height>80</height>
       </rect>
      </property>
@@ -229,10 +229,10 @@
     <widget class="QLabel" name="answer_A">
      <property name="geometry">
       <rect>
-       <x>199</x>
-       <y>102</y>
-       <width>318</width>
-       <height>41</height>
+       <x>237</x>
+       <y>100</y>
+       <width>288</width>
+       <height>40</height>
       </rect>
      </property>
      <property name="palette">
@@ -296,10 +296,10 @@
     <widget class="QLabel" name="current_state_q">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>8</y>
-       <width>1102</width>
-       <height>191</height>
+       <x>-20</x>
+       <y>-28</y>
+       <width>1142</width>
+       <height>226</height>
       </rect>
      </property>
      <property name="text">
@@ -312,10 +312,10 @@
     <widget class="QLabel" name="layout_q">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>8</y>
-       <width>1102</width>
-       <height>190</height>
+       <x>-20</x>
+       <y>-28</y>
+       <width>1142</width>
+       <height>226</height>
       </rect>
      </property>
      <property name="text">
@@ -331,10 +331,10 @@
     <widget class="QLabel" name="answer_C">
      <property name="geometry">
       <rect>
-       <x>199</x>
-       <y>153</y>
-       <width>318</width>
-       <height>41</height>
+       <x>237</x>
+       <y>151</y>
+       <width>288</width>
+       <height>40</height>
       </rect>
      </property>
      <property name="palette">
@@ -398,10 +398,10 @@
     <widget class="QLabel" name="current_state_q_2">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>8</y>
-       <width>1102</width>
-       <height>191</height>
+       <x>-20</x>
+       <y>-28</y>
+       <width>1142</width>
+       <height>226</height>
       </rect>
      </property>
      <property name="text">
@@ -414,10 +414,10 @@
     <widget class="QLabel" name="current_state_q_3">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>8</y>
-       <width>1102</width>
-       <height>191</height>
+       <x>-20</x>
+       <y>-28</y>
+       <width>1142</width>
+       <height>226</height>
       </rect>
      </property>
      <property name="text">

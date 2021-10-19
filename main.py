@@ -235,23 +235,23 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if event.key() < 1500:
             logging.info('KP %d', event.key())
         if event.key() in [Qt.Key_Q, 91, 1049, 1061]:
-            self.checkPosition(285, 617)
         if event.key() in [Qt.Key_W, 93, 1062, 1066]:
-            self.checkPosition(760, 617)
         if event.key() in [Qt.Key_A, 59, 1060, 1046]:
-            self.checkPosition(285, 668)
         if event.key() in [Qt.Key_S, 39, 1067, 1069]:
-            self.checkPosition(760, 668)
+            self.checkPosition(200, 601)  # эмулируем выбор ответа A
+            self.checkPosition(568, 601)  # эмулируем выбор ответа В
+            self.checkPosition(200, 653)  # эмулируем выбор ответа С
+            self.checkPosition(568, 653)  # эмулируем выбор ответа D
         if event.key() == Qt.Key_1:
-            self.checkPosition(785, 113)
+            self.checkPosition(765, 101)  # эмулируем выбор «замены вопроса»
         if event.key() == Qt.Key_2:
-            self.checkPosition(856, 113)
+            self.checkPosition(836, 101)  # эмулируем выбор 50:50
         if event.key() == Qt.Key_3:
-            self.checkPosition(929, 113)
+            self.checkPosition(909, 101)  # эмулируем выбор «права на ошибку»
         if event.key() == Qt.Key_4:
-            self.checkPosition(999, 113)
         if event.key() in [Qt.Key_M, 1068]:
             self.is_sound = not self.is_sound
+            self.checkPosition(979, 101)  # эмулируем выбор «забрать деньги»
             self.sound_btn.setChecked(self.is_sound)
             for p in [self.player1, self.player2, self.player3, self.player4]:
                 p.setVolume(100 * self.is_sound)
@@ -270,7 +270,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.player4.setMedia(decorate_audio('sounds/{}/final_answer.mp3'.format(n)))
             elif self.is_x2_now:
                 self.player4.setMedia(decorate_audio('sounds/double/first_final.mp3'))
-            if 150 <= x <= 520 and 597 <= y <= 638:
+            if 200 <= x <= 538 and 601 <= y <= 642:
                 if 'A' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_A.png'))
                     self.current_state_q.startFadeInImage()
@@ -279,7 +279,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                         self.time_function(0, self.player4.play)
                     logging.info('Answ[A]')
                     self.checkAnswer(self.answer_A, 'A')
-            elif 570 <= x <= 950 and 597 <= y <= 638:
+            elif 568 <= x <= 915 and 601 <= y <= 642:
                 if 'B' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_B.png'))
                     self.current_state_q.startFadeInImage()
@@ -288,7 +288,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                         self.time_function(0, self.player4.play)
                     logging.info('Answ[B]')
                     self.checkAnswer(self.answer_B, 'B')
-            elif 150 <= x <= 520 and 648 <= y <= 689:
+            elif 200 <= x <= 538 and 653 <= y <= 693:
                 if 'C' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_C.png'))
                     self.current_state_q.startFadeInImage()
@@ -297,7 +297,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                         self.time_function(0, self.player4.play)
                     logging.info('Answ[C]')
                     self.checkAnswer(self.answer_C, 'C')
-            elif 570 <= x <= 950 and 648 <= y <= 689:
+            elif 568 <= x <= 915 and 653 <= y <= 693:
                 if 'D' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_D.png'))
                     self.current_state_q.startFadeInImage()
