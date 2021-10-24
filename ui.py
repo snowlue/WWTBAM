@@ -1,5 +1,5 @@
-from datetime import datetime
-from random import choice
+from datetime import datetime  # год в копирайте в «О приложени»
+from random import choice  # выбирает фон
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import (QEasingCurve, QPropertyAnimation, QVariant,
@@ -7,7 +7,7 @@ from PyQt5.QtCore import (QEasingCurve, QPropertyAnimation, QVariant,
 from PyQt5.QtGui import QColor, QFontDatabase, QPalette
 from PyQt5.QtWidgets import QGraphicsOpacityEffect, QLabel
 
-import font_resources
+import font_resources  # ресурсы шрифтов
 
 
 class AnimationLabel(QLabel):
@@ -479,7 +479,7 @@ class Ui_MainWindow(object):
         self.background = QtWidgets.QLabel(self.centralwidget)
         self.background.setGeometry(QtCore.QRect(0, 0, 1100, 680))
         self.background.setText("")
-        self.background.setPixmap(QtGui.QPixmap("images/background{}.jpg".format(choice(list(map(str, range(1, 7)))))))
+        self.background.setPixmap(QtGui.QPixmap("images/background{}.jpg".format(choice(list(map(str, range(1, 9)))))))
         self.background.setScaledContents(True)
         self.background.setObjectName("background")
 

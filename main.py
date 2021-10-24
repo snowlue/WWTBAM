@@ -1,16 +1,15 @@
-import functools
 import logging
-import os
-import random
 import sqlite3
 import sys
-import traceback
-from datetime import datetime
+import traceback  # для получения текстового представления исключения
+from datetime import datetime  # обозначить время начало игры
+from functools import partial  # для передачи аргументов в функцию без её вызова
+from os.path import realpath  # возвращает глобальный путь
+from random import shuffle
 from types import TracebackType
 from typing import Callable, Type
 
-from PyQt5 import QtCore
-from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtCore import Qt, QTimer, QUrl
 from PyQt5.QtGui import QCloseEvent, QIcon, QKeyEvent, QMouseEvent, QPixmap
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QMainWindow,
@@ -28,7 +27,7 @@ PRICES = [
     '400 000', '800 000', '1 500 000', '3 000 000'
 ]  # суммы денежного дерева
 GUARANTEED_PRICES = ['0'] * 5 + ['5 000'] * 5 + ['100 000'] * 5  # несгораемые суммы
-logging.basicConfig(filename=os.path.realpath('logs.txt'), level=logging.DEBUG,
+logging.basicConfig(filename=realpath('logs.txt'), level=logging.DEBUG,
                     format='%(levelname)s: %(message)s')  # конфиг логгирования
 
 
@@ -67,10 +66,10 @@ def get_questions():
         questions_set = []
 
         q_shuffled = q_unshuffled.copy()
-        random.shuffle(q_shuffled)  # перемешиваем список вопросов
+        shuffle(q_shuffled)  # перемешиваем список вопросов
         for q in q_shuffled[:2]:  # берём первые два вопроса
             text, corr_answ, answs = q[1], q[2], list(q[2:])  # отбираем текст вопроса, правильный и другие три ответа
-            random.shuffle(answs)  # перемешиваем ответы
+            shuffle(answs)  # перемешиваем ответы
             questions_set.append([text, corr_answ, answs])  # собираем два вопроса — первый и для смены вопроса
 
         questions.append(questions_set)
@@ -295,7 +294,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             аргументы для func
         '''
 
-        QtCore.QTimer.singleShot(self.timer + time, functools.partial(func, *args))
+        QTimer.singleShot(self.timer + time, partial(func, *args))
         # запускаем Qt-таймер с временем, через которое функция запустится
         # partial определяет функцию func с переданными аргументами args, но не выполняет её
         # singleShot черезе self.timer+time миллисекунд выполнит фунцию func
@@ -700,7 +699,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     indxs = set([0, 1, 2, 3])
                 indxs = list(indxs - set([self.answers.index(self.correct_answer)]))
                 # из индексов вырезаем индекс правильного ответа
-                random.shuffle(indxs)  # перемешиваем индекс, чтобы убрать два неверных ответа СЛУЧАЙНО
+                shuffle(indxs)  # перемешиваем индекс, чтобы убрать два неверных ответа СЛУЧАЙНО
                 answs[indxs[0]].setText('')
                 answs[indxs[1]].setText('')
                 self.non_active_answers += [answ_letters[indxs[0]], answ_letters[indxs[1]]]
