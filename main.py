@@ -6,11 +6,12 @@ import sqlite3
 import sys
 import traceback
 from datetime import datetime
-from typing import Callable, List
+from types import TracebackType
+from typing import Callable, Type
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QUrl
-from PyQt5.QtGui import QIcon, QKeyEvent, QMouseEvent, QPixmap
+from PyQt5.QtGui import QCloseEvent, QIcon, QKeyEvent, QMouseEvent, QPixmap
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QMainWindow,
                              QMessageBox, QTableWidget, QTableWidgetItem,
@@ -78,16 +79,16 @@ def get_questions():
     return questions
 
 
-def makeTable(table: QTableWidget, header: List[str], data: List[List[str]]) -> None:
+def makeTable(table: QTableWidget, header: list[str], data: list[list[str]]) -> None:
     '''Метод для генерации таблицы в table с первой сторокой header и матрицей data
 
     Параметры
     ---------
     table: QTableWidget
         виджет таблицы из Qt
-    header: List[str]
+    header: list[str]
         первая строка таблицы — её заголовок
-    data: List[List[str]]
+    data: list[list[str]]
         оставшиеся данные таблицы
     '''
 
@@ -184,6 +185,11 @@ class StartWindow(QDialog, Ui_StartDialog):
 class GameWindow(QMainWindow, Ui_MainWindow):
     '''Класс типа QMainWindow, использующийся для отображения основного игрового контента
 
+    Атрибуты
+    --------
+    name: str
+        имя игрока
+
     Методы
     ------
     user_control(func)
@@ -217,7 +223,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
     openConfirmAgain()
         Показывает форму для подтверждения перезапуска игры
     openConfirmClose()
-        Показывает форму для завершения игры
+        Показывает форму для подтверждения завершения игры
     openTable()
         Показывает таблицу результатов
     openDeleteResultForm()
@@ -230,7 +236,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         Переключает звук (т.е. включает или отключает)
     '''
 
-    def __init__(self, name=''):
+    def __init__(self, name: str = ''):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
@@ -704,117 +710,173 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             logging.info('- {}-ll'.format(type_ll))
 
     def restartGame(self):
+        '''Метод, перезапускающий игру и возвращающий все значения в начальное состояние
+        '''
+
         self.control = True
-        self.timer, self.is_x2_now = 900, False
+        self.timer, self.is_x2_now = 900, False  # 900 для синхронизации анимации и звука
         self.lifelines = {'change': True, '50:50': True, 'x2': True}
         for ll in [self.lost_change, self.lost_x2, self.lost_5050]:
             ll.hide()
         self.clear_all_labels()
         for p in [self.player1, self.player2, self.player3, self.player4]:
-            p.stop()
+            p.stop()  # останавливаем все музыкальные плееры
         self.layout_q.setPixmap(QPixmap('images/question field/layout.png'))
         self.amount_q.setText('')
-        self.startGame(True)
+        self.startGame(True)  # начинаем игру с repeat = True
 
     def showWin(self):
+        '''Метод, показывающий окно для победы
+        '''
+
         self.win = WinWindow(self, self.is_sound)
-        self.control = False
+        self.control = False  # отключаем управление в игре, чтобы игрок не продолжил игру после победы
         self.win.move(169 + self.x(), 210 + self.y())
         self.win.show()
         logging.info('Game over - player won')
 
-    def showGameOver(self, data):
-        self.control = False
+    def showGameOver(self, data: list[str, str, bool]):
+        '''Метод, показывающий окно для поражения
+
+        Параметры
+        ---------
+        data: list[str, str, bool]
+            содержит в себе правильный ответ, несгораемую сумму и is_sound (переключатель звука)
+        '''
+
+        self.control = False  # отключаем управление в игре, чтобы игрок не продолжил игру после победы
         self.game_over = GameOverWindow(self, data)
         self.game_over.move(169 + self.x(), 210 + self.y())
         self.game_over.show()
         logging.info('Game over - player lost')
 
     def openConfirmLeave(self):
+        '''Метод, показывающий форму для подтверждения кнопки «забрать деньги»
+        '''
+
         self.control = False
         num_to_let = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
-        letter = num_to_let[self.answers.index(self.correct_answer)]
+        letter = num_to_let[self.answers.index(self.correct_answer)]  # получаем букву правильного ответа
         self.confirm_wndw = ConfirmLeaveWindow(self, letter, self.is_sound)
+        # и передаём его, чтобы показать правильный ответ после взятия денег
         self.confirm_wndw.move(168 + self.x(), 216 + self.y())
         self.confirm_wndw.show()
 
     def openConfirmAgain(self):
+        '''Метод, показывающий форму для подтверждения перезапуска игры
+        '''
+
         self.confirm_wndw = ConfirmAgainWindow(self)
         self.confirm_wndw.move(168 + self.x(), 216 + self.y())
         self.confirm_wndw.show()
 
     def openConfirmClose(self):
+        '''Метод, показывающий форму для подтверждения закрытия игры
+        '''
+
         self.confirm_wndw = ConfirmCloseWindow()
         self.confirm_wndw.move(168 + self.x(), 216 + self.y())
         self.confirm_wndw.show()
 
     def openTable(self):
+        '''Метод, показывающий таблицу результатов
+        '''
+
         self.results_table = ResultsTableWindow()
         self.results_table.move(170 + self.x(), 93 + self.y())
         self.results_table.show()
         logging.info('Results table open')
 
     def openDeleteResultForm(self):
+        '''Метод, показывающий форму для удаления одного результата из таблицы результатов
+        '''
+
         self.delete_form = DeleteResultWindow()
         self.delete_form.move(147 + self.x(), 93 + self.y())
         self.delete_form.show()
 
     def openConfirmClearAll(self):
+        '''Метод, показывающий форму для очистки таблицы результатов
+        '''
+
         self.confirm_wndw = ConfirmClearAll()
         self.confirm_wndw.move(168 + self.x(), 216 + self.y())
         self.confirm_wndw.show()
 
     def openAbout(self):
+        '''Метод, показывающий информацию об игре и разработчике
+        '''
+
         self.about_wndw = AboutWindow(self, self.is_sound)
         for p in [self.player1, self.player2, self.player4]:
-            p.setVolume(20 * self.is_sound)
+            p.setVolume(20 * self.is_sound)  # приглушаем треки из игры
         self.player3.setMedia(decorate_audio('sounds/about.mp3'))
-        self.player3.play()
+        self.player3.play()  # включаем трек для этого онка
         self.about_wndw.move(178 + self.x(), 175 + self.y())
         self.about_wndw.show()
         logging.info('About open')
 
     def checkSound(self):
-        if self.sender().isChecked():
-            self.is_sound = True
-        else:
-            self.is_sound = False
+        '''Метод, переключающий звук (т.е. включает или отключает)
+        '''
+
+        if self.sender().isChecked():  # если галочка активна
+            self.is_sound = True  # включаем музыку
+        else:  # иначе
+            self.is_sound = False  # отключаем
 
         for p in [self.player1, self.player2, self.player3, self.player4]:
-            p.setVolume(100 * self.is_sound)
+            p.setVolume(100 * self.is_sound)  # устанавливаем звук на основе self.is_sound
 
 
 class WinWindow(QDialog, Ui_Win):
-    '''
-    WinWindow\n
-    • type: QDialog\n
-    • target: asking about starting new game after win (passed 15 question)
+    '''Класс типа QDialog, использующийся для отображения окна победы в игре
+
+    Атрибуты
+    --------
+    parent: GameWindow
+        класс основного окна игры
+    is_sound
+        определяет, включён или отключён ли звук
+
+    Методы
+    ------
+    restart()
+        перезапускает игру и показывает таблицу результатов
+    exit()
+        завершает игру и показывает таблицу результатов
     '''
 
-    def __init__(self, parent, is_sound):
+    def __init__(self, parent: GameWindow, is_sound: bool):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
 
-        self.parent = parent
+        self.parent = parent  # родительское окно
         self.is_sound = is_sound
 
         self.buttonBox.accepted.connect(self.restart)
         self.buttonBox.rejected.connect(self.exit)
 
     def restart(self):
-        self.parent.restartGame()
+        '''Метод, перезапускающий игру и показывающий таблицу результатов
+        '''
+
+        self.parent.restartGame()  # перезапускаем игру в родительском окне
         self.close()
         self.results = ResultsTableWindow()
         self.results.move(170 + self.parent.x(), 93 + self.parent.y())
-        self.results.show()
+        self.results.show()  # показываем таблицу результатов
         logging.info('Game restart')
 
     def exit(self):
+        '''Метод, завершающий игру и показывающий таблицу результатов
+        '''
+
         self.parent.close()
         self.close()
         self.player = QMediaPlayer()
-        self.player.setMedia(decorate_audio('sounds/quit_game.mp3'))
+        self.player.setMedia(decorate_audio('sounds/quit_game.mp3'))  # запускаем трек конца игры
         if self.is_sound:
             self.player.play()
         self.results = ResultsTableWindow()
@@ -823,24 +885,39 @@ class WinWindow(QDialog, Ui_Win):
 
 
 class GameOverWindow(QDialog, Ui_GameOver):
-    '''
-    GameOverWindow\n
-    • type: QDialog\n
-    • target: asking about starting new game after loss
+    '''Класс типа QDialog, использующийся для отображения окна поражения в игре
+
+    Атрибуты
+    --------
+    parent: GameWindow
+        класс основного окна игры
+    data: list[str, str, bool]
+        содержит правильный ответ, несгораемую сумму и is_sound (переключатель звука)
+
+    Методы
+    ------
+    restart()
+        перезапускает игру и показывает таблицу результатов
+    exit()
+        завершает игру и показывает таблицу результатов
     '''
 
-    def __init__(self, parent, data):
+    def __init__(self, parent: GameWindow, data: list[str, str, bool]):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
 
-        self.parent = parent
+        self.parent = parent  # родительское окно
         self.is_sound = data[2]
-        self.buttonBox.accepted.connect(self.restart)
-        self.buttonBox.rejected.connect(self.exit)
+        self.accepted.connect(self.restart)
+        self.rejected.connect(self.exit)
         self.label.setText(self.label.text().replace('{0}', data[0]).replace('{1}', data[1]))
+        # заменяем плейсхолдеры на правильный ответ и выигрыш
 
     def restart(self):
+        '''Метод, перезапускающий игру и показывающий таблицу результатов
+        '''
+
         self.parent.restartGame()
         self.close()
         self.results = ResultsTableWindow()
@@ -849,6 +926,9 @@ class GameOverWindow(QDialog, Ui_GameOver):
         logging.info('Game restart')
 
     def exit(self):
+        '''Метод, завершающий игру и показывающий таблицу результатов
+        '''
+
         self.parent.close()
         self.close()
         self.player = QMediaPlayer()
@@ -861,10 +941,23 @@ class GameOverWindow(QDialog, Ui_GameOver):
 
 
 class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
-    '''
-    ConfirmLeaveWindow\n
-    • type: QDialog\n
-    • target: сonfirm leaving current round
+    '''Класс типа QDialog, необходимый для подтверждения «забрать деньги»
+
+    Атрибуты
+    --------
+    parent: GameWindow
+        класс основного окна игры
+    letter: str
+        буква правильного ответа
+    is_sound: bool
+        определяет, включён или отключён ли звук
+
+    Методы
+    ------
+    leave()
+        покидает игру и забирает деньги, предлагая сыграть ещё раз
+    close_wndw()
+        закрывает окно подтверждения при отмене действия
     '''
 
     def __init__(self, parent: GameWindow, letter: str, is_sound: bool):
@@ -872,29 +965,35 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
 
-        self.parent = parent
-        self.correct = letter
+        self.parent = parent  # родительское окно
+        self.correct = letter  # правильный ответ
         self.is_sound = is_sound
         self.label.setText(self.label.text().replace('{}', self.parent.got_amount))
+        # заменяем плейсхолдер на сумму, с которой игрок хочет уйти
         self.accepted.connect(self.leave)
         self.rejected.connect(self.close_wndw)
 
     def leave(self):
+        '''Метод, покидающий игру, забирающий деньги и предлагающий сыграть ещё раз
+        '''
+
         sql_request('''INSERT INTO results
                        (name, result, date)
                        VALUES ("{}", "{}", "{}")
                     '''.format(self.parent.name, self.parent.got_amount, self.parent.date))
+        # вставляем результат игры в таблицы
         self.windialog = WinLeaveWindow(self.parent, [self.correct, self.parent.got_amount, self.is_sound])
+        # инициализируем окно после «забрать деньги»
         self.windialog.move(169 + self.parent.x(), 210 + self.parent.y())
         self.windialog.show()
 
         for p in [self.parent.player1, self.parent.player2, self.parent.player3, self.parent.player4]:
-            p.stop()
-        self.parent.player1.setMedia(decorate_audio('sounds/walk_away.mp3'))
+            p.stop()  # стопим все плееры
+        self.parent.player1.setMedia(decorate_audio('sounds/walk_away.mp3'))  # запускаем музыку на «забрать деньги»
         self.parent.player1.play()
         self.parent.current_state_q_2.setPixmap(
             QPixmap('images/question field/correct_{}.png'.format(self.correct))
-        )
+        )  # показываем правильный ответ
         self.parent.current_state_q_2.startFadeInImage()
         self.parent.current_state_q_2.show()
 
@@ -903,46 +1002,72 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         self.close()
 
     def close_wndw(self):
+        '''Метод, закрывающий окно подтверждения при отмене действия
+        '''
+
         self.parent.control = True
         self.close()
 
 
 class WinLeaveWindow(Ui_WinLeave, GameOverWindow):
-    '''
-    WinLeaveWindow\n
-    • type: QDialog\n
-    • target: сonfirm restarting game after leaving current round
+    '''Класс, наследующийся от GameOverWindow — необходим для подтверждения выхода из игры при забранных деньгах
+
+    Атрибуты
+    --------
+    parent: GameWindow
+        класс основного окна игры
+    data: list[str, str, bool]
+        содержит (по очереди) правильный ответ, выигрыш и булево, определяющее, включён ли звук или нет
+
+    Методы
+    ------
+    restart()
+        перезапускает игру и показывает таблицу результатов
+    exit()
+        завершает игру и показывает таблицу результатов
     '''
 
     pass
 
 
 class ConfirmAgainWindow(QDialog, Ui_ConfirmAgain):
-    '''
-    ConfirmAgainWindow\n
-    • type: QDialog\n
-    • target: сonfirm restarting game
+    '''Класс типа QDialog, необходим для подтверждения к кнопке «Начать новую игру»
+
+    Атрибуты
+    --------
+    parent: GameWindow
+        класс основного окна игры
+
+    Методы
+    ------
+    restart()
+        перезапускает игру
     '''
 
     def __init__(self, parent: GameWindow):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
-        self.parent = parent
+        self.parent = parent  # родительское окно
         self.accepted.connect(self.restart)
         self.rejected.connect(self.close)
 
     def restart(self):
+        '''Метод, перезапускающий игру
+        '''
+
         self.parent.restartGame()
         logging.info('Game restart')
         self.close()
 
 
 class ConfirmCloseWindow(QDialog, Ui_ConfirmExit):
-    '''
-    ConfirmCloseWindow\n
-    • type: QDialog\n
-    • target: сonfirm player's exit from the app
+    '''Класс типа QDialog, подтверждающий закрытие игры после нажатия кнопки «Закрыть игру» в экшнбаре
+
+    Методы
+    ------
+    exit()
+        завершает игру и закрывает приложение
     '''
 
     def __init__(self):
@@ -953,15 +1078,15 @@ class ConfirmCloseWindow(QDialog, Ui_ConfirmExit):
         self.rejected.connect(self.close)
 
     def exit(self):
+        '''Метод, завершающий игру и закрывающий приложение
+        '''
+
         logging.info('Game close')
         sys.exit()
 
 
 class ResultsTableWindow(QWidget, Ui_ResultsTable):
-    '''
-    ResultsTableWindow\n
-    • type: QWidget\n
-    • target: show the results
+    '''Класс типа QWidget, отображающий таблицу результатов
     '''
 
     def __init__(self):
@@ -969,8 +1094,8 @@ class ResultsTableWindow(QWidget, Ui_ResultsTable):
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
 
-        results = sql_request('SELECT * from results')
-        results = sorted(results, key=lambda x: int(str(x[2]).replace(' ', '')), reverse=True)
+        results = sql_request('SELECT * from results')  # запрашиваем результаты
+        results = sorted(results, key=lambda x: int(str(x[2]).replace(' ', '')), reverse=True)  # сортируем по выигрышу
         results = [list(map(str, i[1:])) for i in results]
 
         makeTable(self.tableWidget, ['Имя', 'Результат', 'Дата и время'], results)
@@ -978,10 +1103,14 @@ class ResultsTableWindow(QWidget, Ui_ResultsTable):
 
 
 class DeleteResultWindow(QWidget, Ui_DeleteResult):
-    '''
-    DeleteResultWindow\n
-    • type: QWidget\n
-    • target: delete one result from the result's table
+    '''Класс типа QWidget, отображающий форму для удаления одного результата из таблицы
+
+    Методы
+    ------
+    refreshTable()
+        обновляет таблицу после удаления одного результата
+    deleteAction()
+        удаляет один результат по id из спинбокса
     '''
 
     def __init__(self):
@@ -992,12 +1121,15 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
         self.deleteButton.clicked.connect(self.deleteAction)
 
     def refreshTable(self):
+        '''Метод, обновляющий таблицу результатов после удаления одного результата
+        '''
+
         results = sql_request('SELECT * from results')
         results = sorted(results, key=lambda x: int(str(x[2]).replace(' ', '')), reverse=True)
         results = [list(map(str, i[1:])) for i in results]
         self.results = [list(map(str, [i + 1, results[i][2]])) for i in range(len(results))]
 
-        self.deleteButton.setEnabled(bool(results))
+        self.deleteButton.setEnabled(bool(results))  # активируем кнопку удаления только при наличии результатов
 
         self.spinBox.setMinimum(1)
         self.spinBox.setMaximum(len(results))
@@ -1005,7 +1137,15 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
         makeTable(self.tableWidget, ['Имя', 'Результат', 'Дата и время'], results)
 
     def deleteAction(self):
-        id_result = self.spinBox.text()
+        '''Метод, удаляющий один результат по id результата из спинбокса
+
+        Исключения
+        ----------
+        Exception
+            если запрос через sql_request() вернулся с ошибкой
+        '''
+
+        id_result = self.spinBox.text()  # берём id результата из спинбокса
         result_date = list(filter(lambda x: x[0] == id_result, self.results))[0][1]
         result = sql_request('DELETE FROM results WHERE date = "{}"'.format(result_date))
         if 'ERROR' in result:
@@ -1016,10 +1156,12 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
 
 
 class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):
-    '''
-    ConfirmDeleteAll\n
-    • type: QDialog\n
-    • target: сonfirm deleting all data from the result's table
+    '''Класс типа QDialog, использующийся для очистки всей таблицы результатов
+
+    Методы
+    -----
+    deleteAllData()
+        очищает всю таблицу результатов
     '''
 
     def __init__(self):
@@ -1030,6 +1172,9 @@ class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):
         self.rejected.connect(self.close)
 
     def deleteAllData(self):
+        '''Метод, очищающий всю таблицу результатов
+        '''
+
         sql_request('DELETE FROM results')
         self.results_table = ResultsTableWindow()
         self.results_table.move(self.x(), self.y() - 117)
@@ -1039,10 +1184,25 @@ class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):
 
 
 class AboutWindow(QWidget, Ui_About):
-    '''
-    AboutWindow\n
-    • type: QWidget\n
-    • target: tell about app's author
+    '''Класс типа QWidget, показывающий информацию о программе и разработчике
+
+    Атрибуты
+    --------
+    parent: GameWindow
+        класс основного окна игры
+    is_sound: bool
+        определяет, включён или отключён ли звук
+
+    Методы
+    ------
+    showRuText()
+        показать русский текст
+    showEnText()
+        показать английский текст
+    close_wndw()
+        закрывает окно
+    closeEvent(event: QCloseEvent)
+        вызывается при событии закрытия окна
     '''
 
     def __init__(self, parent: GameWindow, is_sound: bool):
@@ -1050,40 +1210,67 @@ class AboutWindow(QWidget, Ui_About):
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.enText.hide()
-        self.parent = parent
+        self.parent = parent  # родительское окно
         self.is_sound = is_sound
         self.ruButton.clicked.connect(self.showRuText)
         self.enButton.clicked.connect(self.showEnText)
         self.okButton.clicked.connect(self.close_wndw)
 
     def showRuText(self):
+        '''Метод, показывающий русский текст информации о программе
+        '''
+
         self.ruText.show()
         self.enText.hide()
 
     def showEnText(self):
+        '''Метод, показывающий английский текст информации о программе
+        '''
+
         self.enText.show()
         self.ruText.hide()
 
     def close_wndw(self):
+        '''Метод, закрывающий окно при нажатии на кнопку «ОК»
+        '''
+
         for p in [self.parent.player1, self.parent.player2, self.parent.player4]:
             p.setVolume(100 * self.is_sound)
         self.parent.player3.stop()
         self.close()
 
-    def closeEvent(self, a0):
+    def closeEvent(self, event: QCloseEvent):
+        '''Метод, вызывающийся при закрытии окна
+        '''
+
         for p in [self.parent.player1, self.parent.player2, self.parent.player4]:
             p.setVolume(100 * self.is_sound)
         self.parent.player3.stop()
+        return super().closeEvent(event)
 
 
-def excepthook(exc_type, exc_value, exc_tb):
+def excepthook(exc_type: Type[BaseException], exc_value: BaseException, exc_tb: TracebackType):
+    '''Обработчик исключений
+
+    При вызове исключения логгирует ошибку в логи и показывает окно, предлагающее отправить ошибку разработчику.
+
+    Параметры
+    ---------
+    exc_type: Type[BaseException]
+        тип вызванного исключения
+    exc_value: BaseException
+        описание исключения
+    exc_tb: TracebackType
+        подробный трейсбек
+    '''
+
     global app, msg
     logging.error(
         str(exc_value) + '\n' +
         ''.join(traceback.format_exception(exc_type, exc_value, exc_tb))
-    )
+    )  # логируем ошибку
     msg.show()
-    msg.buttonClicked.connect(app.quit)
+    msg.buttonClicked.connect(app.quit)  # привязываем кнопку «ОК» к завершению приложения
 
 
 if __name__ == '__main__':

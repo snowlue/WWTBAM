@@ -100,12 +100,11 @@ class Ui_StartDialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Начало игры"))
-        self.label.setText(_translate("Dialog", "Введите ваше имя:"))
-        self.ok_button.setText(_translate("Dialog", "Начать игру"))
-        self.exit_button.setText(_translate("Dialog", "Выйти"))
-        self.rulebook_button.setText(_translate("Dialog", "Правила игры"))
+        Dialog.setWindowTitle("Начало игры")
+        self.label.setText("Введите ваше имя:")
+        self.ok_button.setText("Начать игру")
+        self.exit_button.setText("Выйти")
+        self.rulebook_button.setText("Правила игры")
 
 
 class Ui_MainWindow(object):
@@ -503,20 +502,19 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Кто хочет стать Миллионером?"))
-        self.game_menu.setTitle(_translate("MainWindow", "Игра"))
-        self.table_menu.setTitle(_translate("MainWindow", "Таблица результатов"))
-        self.menu.setTitle(_translate("MainWindow", "Очистить"))
-        self.help_menu.setTitle(_translate("MainWindow", "Помощь"))
-        self.new_game.setText(_translate("MainWindow", "Начать новую игру"))
-        self.close_game.setText(_translate("MainWindow", "Завершить игру"))
-        self.open_table.setText(_translate("MainWindow", "Открыть"))
-        self.about.setText(_translate("MainWindow", "О программе"))
-        self.action.setText(_translate("MainWindow", "Удалить один результат"))
-        self.clear_one.setText(_translate("MainWindow", "Удалить один результат"))
-        self.clear_all.setText(_translate("MainWindow", "Удалить всё"))
-        self.sound_btn.setText(_translate("MainWindow", "Звук"))
+        MainWindow.setWindowTitle("Кто хочет стать Миллионером?")
+        self.game_menu.setTitle("Игра")
+        self.table_menu.setTitle("Таблица результатов")
+        self.menu.setTitle("Очистить")
+        self.help_menu.setTitle("Помощь")
+        self.new_game.setText("Начать новую игру")
+        self.close_game.setText("Завершить игру")
+        self.open_table.setText("Открыть")
+        self.about.setText("О программе")
+        self.action.setText("Удалить один результат")
+        self.clear_one.setText("Удалить один результат")
+        self.clear_all.setText("Удалить всё")
+        self.sound_btn.setText("Звук")
 
 
 class Ui_Win(object):
@@ -547,16 +545,13 @@ class Ui_Win(object):
         self.horizontalLayout.addLayout(self.verticalLayout)
 
         self.retranslateUi(Dialog)
-        self.buttonBox.accepted.connect(Dialog.accept)
-        self.buttonBox.rejected.connect(Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Вы — миллионер!"))
-        self.label.setText(_translate("Dialog", "Поздравляем! Вы выиграли и стали миллионером!\n"
-                                      "Ваш выигрыш составил заветные 3 000 000 руб!\n"
-                                      "Начать новую игру?"))
+        Dialog.setWindowTitle("Вы — миллионер!")
+        self.label.setText("Поздравляем! Вы выиграли и стали миллионером!\n"
+                           "Ваш выигрыш составил заветные 3 000 000 руб!\n"
+                           "Начать новую игру?")
 
 
 class Ui_GameOver(object):
@@ -587,16 +582,13 @@ class Ui_GameOver(object):
         self.horizontalLayout.addLayout(self.verticalLayout)
 
         self.retranslateUi(Dialog)
-        self.buttonBox.accepted.connect(Dialog.accept)
-        self.buttonBox.rejected.connect(Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Вы проиграли!"))
-        self.label.setText(_translate("Dialog", "Вы проиграли! Правильный ответ: {0}.\n"
-                                                "Ваш выигрыш составил {1} руб.\n"
-                                                "Начать новую игру?"))
+        Dialog.setWindowTitle("Вы проиграли!")
+        self.label.setText("Вы проиграли! Правильный ответ: {0}.\n"
+                           "Ваш выигрыш составил {1} руб.\n"
+                           "Начать новую игру?")
 
 
 class Ui_ConfirmExit(object):
@@ -624,14 +616,11 @@ class Ui_ConfirmExit(object):
         self.label.setObjectName("label")
 
         self.retranslateUi(Dialog)
-        self.buttonBox.accepted.connect(Dialog.accept)
-        self.buttonBox.rejected.connect(Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Завершить игру?"))
-        self.label.setText(_translate("Dialog", "Действительно завершить текущую игру без сохранения?"))
+        Dialog.setWindowTitle("Завершить игру?")
+        self.label.setText("Действительно завершить текущую игру без сохранения?")
 
 
 class Ui_ConfirmLeave(object):
@@ -659,14 +648,11 @@ class Ui_ConfirmLeave(object):
         self.label.setObjectName("label")
 
         self.retranslateUi(Dialog)
-        self.buttonBox.accepted.connect(Dialog.accept)
-        self.buttonBox.rejected.connect(Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Покинуть игру?"))
-        self.label.setText(_translate("Dialog", "Вы действительно хотите покинуть игру с суммой в {} руб?"))
+        Dialog.setWindowTitle("Покинуть игру?")
+        self.label.setText("Вы действительно хотите покинуть игру с суммой в {} руб?")
 
 
 class Ui_WinLeave(object):
@@ -695,18 +681,14 @@ class Ui_WinLeave(object):
         self.buttonBox.setObjectName("buttonBox")
         self.verticalLayout.addWidget(self.buttonBox)
         self.horizontalLayout.addLayout(self.verticalLayout)
-
         self.retranslateUi(Dialog)
-        self.buttonBox.accepted.connect(Dialog.accept)
-        self.buttonBox.rejected.connect(Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Вы выиграли, но не всё!"))
-        self.label.setText(_translate("Dialog", "Вы покинули игру! Правильный ответ на этот вопрос: {0}.\n"
-                                                "Ваш выигрыш составил {1} руб.\n"
-                                                "Начать новую игру?"))
+        Dialog.setWindowTitle("Вы выиграли, но не всё!")
+        self.label.setText("Вы покинули игру! Правильный ответ на этот вопрос: {0}.\n"
+                           "Ваш выигрыш составил {1} руб.\n"
+                           "Начать новую игру?")
 
 
 class Ui_ConfirmAgain(object):
@@ -734,14 +716,11 @@ class Ui_ConfirmAgain(object):
         self.label.setObjectName("label")
 
         self.retranslateUi(Dialog)
-        self.buttonBox.accepted.connect(Dialog.accept)
-        self.buttonBox.rejected.connect(Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Начать новую игру?"))
-        self.label.setText(_translate("Dialog", "Действительно начать новую игру без сохранения текущей?"))
+        Dialog.setWindowTitle("Начать новую игру?")
+        self.label.setText("Действительно начать новую игру без сохранения текущей?")
 
 
 class Ui_ResultsTable(object):
@@ -770,9 +749,8 @@ class Ui_ResultsTable(object):
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
-        _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Таблица результатов"))
-        self.okButton.setText(_translate("Form", "ОК"))
+        Form.setWindowTitle("Таблица результатов")
+        self.okButton.setText("ОК")
 
 
 class Ui_DeleteResult(object):
@@ -811,10 +789,9 @@ class Ui_DeleteResult(object):
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
-        _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Удаление результата из таблицы"))
-        self.label.setText(_translate("Form", "Выберите номер результата для удаления:"))
-        self.deleteButton.setText(_translate("Form", "Удалить (без подтверждений, сразу при нажатии)"))
+        Form.setWindowTitle("Удаление результата из таблицы")
+        self.label.setText("Выберите номер результата для удаления:")
+        self.deleteButton.setText("Удалить (без подтверждений, сразу при нажатии)")
 
 
 class Ui_ConfirmClearAll(object):
@@ -842,15 +819,11 @@ class Ui_ConfirmClearAll(object):
         self.label.setObjectName("label")
 
         self.retranslateUi(Dialog)
-        self.buttonBox.accepted.connect(Dialog.accept)
-        self.buttonBox.rejected.connect(Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Очистить таблицу результатов?"))
-        self.label.setText(_translate(
-            "Dialog", "Действительно очистить всю таблицу результатов без возможности вернуть?"))
+        Dialog.setWindowTitle("Очистить таблицу результатов?")
+        self.label.setText("Действительно очистить всю таблицу результатов без возможности вернуть?")
 
 
 class Ui_About(object):
@@ -922,17 +895,18 @@ class Ui_About(object):
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
-        _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "О программе"))
+        Form.setWindowTitle("О программе")
         year = datetime.today().year
-        self.ruText.setText(_translate(
-            "Form",
-            '<html><body><p><span style="font-weight:600;">Игра «Кто хочет стать Миллионером?»</span></p><p>Игра, написанная на Python и основанная на популярном интеллектуальном телешоу <br/>«Who Wants to Be a Millionaire?»</p><p><a href="https://github.com/pavetranquil/"><span style="text-decoration: underline; color:#005ffe;">© Павел Овчинников, {}</span></a></p></body></html>'.format(year))
-        )
-        self.enText.setText(_translate(
-            "Form",
-            '<html><body><p><span style="font-weight:600;">The Game «Who Want to Be a Millionaire?»</span></p><p>The game was written on Python and based<br/>on popular intellectual TV show <br/>«Who Wants to Be a Millionaire?»</p><p><a href="https://github.com/pavetranquil/"><span style="text-decoration: underline; color:#005ffe;">© Pavel Ovchinnikov, {}</span></a></p></body></html>'.format(year))
-        )
-        self.ruButton.setText(_translate("Form", "RU"))
-        self.enButton.setText(_translate("Form", "EN"))
-        self.okButton.setText(_translate("Form", "ОК"))
+        self.ruText.setText('<html><body><p><span style="font-weight:600;">Игра «Кто хочет стать Миллионером?»</span>'
+                            '</p><p>Игра, написанная на Python и основанная на популярном интеллектуальном телешоу '
+                            '<br/>«Who Wants to Be a Millionaire?»</p><p><a href="https://github.com/pavetranquil/">'
+                            '<span style="text-decoration: underline; color:#005ffe;">© Павел Овчинников, {}</span>'
+                            '</a></p></body></html>'.format(year))
+        self.enText.setText('<html><body><p><span style="font-weight:600;">The Game «Who Want to Be a Millionaire?»'
+                            '</span></p><p>The game was written on Python and based<br/>on popular intellectual '
+                            'TV show <br/>«Who Wants to Be a Millionaire?»</p><p><a href="'
+                            'https://github.com/pavetranquil/"><span style="text-decoration: underline; color:#005ffe;'
+                            '">© Pavel Ovchinnikov, {}</span></a></p></body></html>'.format(year))
+        self.ruButton.setText("RU")
+        self.enButton.setText("EN")
+        self.okButton.setText("ОК")
