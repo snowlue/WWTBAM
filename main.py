@@ -129,6 +129,8 @@ class StartWindow(QDialog, Ui_StartDialog):
     ------
     getName()
         Получает имя игрока
+    showRules()
+        Показывает правила игры
     startGame()
         Начинает игру, инициализируя GameWindow
     '''
@@ -163,6 +165,9 @@ class StartWindow(QDialog, Ui_StartDialog):
             self.startGame(name.capitalize())
 
     def showRules(self):
+        '''Метод, показывающий правила игры
+        '''
+
         self.rules_wndw = GameRules()
         self.rules_wndw.show()
 
@@ -187,6 +192,9 @@ class StartWindow(QDialog, Ui_StartDialog):
 
 
 class GameRules(QWidget, Ui_Rules):
+    '''Класс типа QWidget, показывающий правила игры
+    '''
+
     def __init__(self):
         super().__init__()
         self.setupUi(self)
