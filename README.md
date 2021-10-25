@@ -1,37 +1,37 @@
-# Who Wants to Be a Millionaire?
+# Кто хочет стать Миллионером?
 [![Made with Python 3.8](https://img.shields.io/badge/Made_with-Python_3.8-%23336E9E)][1]   [![Using QT Designer](https://img.shields.io/badge/Using-QT_Designer-%2325AF37)][2]   [![Using SQLiteStudio](https://img.shields.io/badge/Using-SQLiteStudio-%23337CCF)][3]<br/>
 [![PyQt5](https://img.shields.io/badge/PyQt5-%2340CD52)][4]   [![SQLite3](https://img.shields.io/badge/SQLite3-%23107FCB)][5]   [![PyInstaller](https://img.shields.io/badge/PyInstaller-%23FFEB5E)][6]
 
-Popular TV show «Who Wants to Be a Millionaire?» is now available on your PC! 💙<br>Lifelines, questions, virtual rubles and all game feauters — all what you love in this game show is now in one app. 💰<br>You can beat your records and friend's records using table of records. 🏆<br>Become smarter and test your knowledge! 📚
+Популярное ТВ-шоу «Кто хочет стать Миллионером?» теперь доступно на вашем ПК! 💙<br>Подсказки, вопросы, виртуальные рубли и все фишки игры — всё то, что вы любите, в одном приложении. 💰<br>Бейте свои рекорды и рекорды своих друзей с таблицей рекордов. 🏆<br>Становитесь умнее и проверьте свои знания! 📚
 
-## How to start:
+## Как запустить:
 
-1. Open your terminal in repo's folder
-2. Type next commands:
+1. Откройте терминал в папке репозитория
+2. Введите следующие команды:
     ```batch
     pip install -r requirements.txt
     python main.py
     ```
-    OR (only for Windows & if you don't have Python)
+    ИЛИ (только для Windows и если не установлен Python)
     ```batch
     cd bin
     main.exe
     ```
-3. Have a fun ^_^
+3. Наслаждайтесь игрой ^_^
 
-⠀(4.) In addition the folder «bin» is self-contained and you can use it on any drive on Windows even if you don't have Python.
+⠀(4.) Кроме того, папка «bin» самостоятельная и может использоваться на любом диске Windows, даже если у вас не установлен Python.
 
-## Rulebook:
+## Правила игры (коротко):
 
-- Answer the questions by mouse pressing on A-, B-, C-, D-answer or by keyboard pressing on Q, W, A, S:
-    - 5 000₽ on the 5th question and 100 000₽ on the 10th question are guaranteed, even if you lose the game, you'll get these sums
-    - Your main goal — get the 3 000 000₽ top prize.
-- Use lifelines by mouse pressing on lifelines at the money tree or by keyboard pressing on 1, 2, 3, 4:
-    - Changer changes the question to another
-    - 50:50 removes two incorrect answers to make the question easier
-    - ×2 gives you a second chance to answer the question — if your answer is incorrect you can answer one more time. 
-- You can get your current prize and leave the game by pressing home icon at the money tree.
-- You can watch the table of records and set new records when you play the game (also supports erasing).
+- Отвечайте на вопросы, нажимая на ответы A, B, C, D мышью или Q, W, A, S на клавиатуре:
+    - 5 000₽ на 5-м вопросе и 100 000₽ на 10-м вопросе — несгораемые суммы, даже если вы проиграете, вы получите эти суммы
+    - Ваша главная цель — добраться до 3 000 000₽.
+- Используйте подсказки, нажимая на них мышью или 1, 2, 3 на клавиатуре:
+    - «Замена вопроса» заменяет вопрос на другой такой же сложности
+    - 50:50 убирает два неверных ответа, чтобы упростить задачу
+    - «Право на ошибку» даёт второй шанс ответить на вопрос — если ваш ответ будет неверным, вы сможете ответить ещё раз. 
+- Вы можете забрать деньги и покинуть игру, нажав мышью на иконку «домой» или 4 на клавиатуре.
+- Смотрите таблицу рекордов и пополняйте её свои результатами, играя в игру (поддерживает удаление результатов).
 
 
 [1]: https://python.org
