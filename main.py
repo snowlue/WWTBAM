@@ -18,8 +18,8 @@ from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QMainWindow,
 
 from ui import (AnimationLabel, Ui_About, Ui_ConfirmAgain, Ui_ConfirmClearAll,
                 Ui_ConfirmExit, Ui_ConfirmLeave, Ui_DeleteResult, Ui_GameOver,
-                Ui_MainWindow, Ui_ResultsTable, Ui_StartDialog, Ui_Win,
-                Ui_WinLeave)
+                Ui_MainWindow, Ui_ResultsTable, Ui_Rules, Ui_StartDialog,
+                Ui_Win, Ui_WinLeave)
 
 PRICES = [
     '0', '500', '1 000', '2 000', '3 000', '5 000', '10 000',
@@ -138,6 +138,7 @@ class StartWindow(QDialog, Ui_StartDialog):
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.ok_button.clicked.connect(self.getName)
+        self.rulebook_button.clicked.connect(self.showRules)
         self.exit_button.clicked.connect(sys.exit)
         self.msg = QMessageBox()
         self.msg.setWindowTitle("Некорректное имя")
@@ -161,6 +162,10 @@ class StartWindow(QDialog, Ui_StartDialog):
         else:
             self.startGame(name.capitalize())
 
+    def showRules(self):
+        self.rules_wndw = GameRules()
+        self.rules_wndw.show()
+
     def startGame(self, name: str) -> None:
         '''Метод, начинающий игру с заданным именем игрока name
 
@@ -179,6 +184,13 @@ class StartWindow(QDialog, Ui_StartDialog):
         self.game.double_dip.hide()
 
         self.close()
+
+
+class GameRules(QWidget, Ui_Rules):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.setWindowIcon(QIcon('images/app_icon.ico'))
 
 
 class GameWindow(QMainWindow, Ui_MainWindow):
@@ -908,8 +920,8 @@ class GameOverWindow(QDialog, Ui_GameOver):
 
         self.parent = parent  # родительское окно
         self.is_sound = data[2]
-        self.accepted.connect(self.restart)
-        self.rejected.connect(self.exit)
+        self.buttonBox.accepted.connect(self.restart)
+        self.buttonBox.rejected.connect(self.exit)
         self.label.setText(self.label.text().replace('{0}', data[0]).replace('{1}', data[1]))
         # заменяем плейсхолдеры на правильный ответ и выигрыш
 
@@ -969,8 +981,8 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         self.is_sound = is_sound
         self.label.setText(self.label.text().replace('{}', self.parent.got_amount))
         # заменяем плейсхолдер на сумму, с которой игрок хочет уйти
-        self.accepted.connect(self.leave)
-        self.rejected.connect(self.close_wndw)
+        self.buttonBox.accepted.connect(self.leave)
+        self.buttonBox.rejected.connect(self.close_wndw)
 
     def leave(self):
         '''Метод, покидающий игру, забирающий деньги и предлагающий сыграть ещё раз
@@ -1048,8 +1060,8 @@ class ConfirmAgainWindow(QDialog, Ui_ConfirmAgain):
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.parent = parent  # родительское окно
-        self.accepted.connect(self.restart)
-        self.rejected.connect(self.close)
+        self.buttonBox.accepted.connect(self.restart)
+        self.buttonBox.rejected.connect(self.close)
 
     def restart(self):
         '''Метод, перезапускающий игру
@@ -1073,8 +1085,8 @@ class ConfirmCloseWindow(QDialog, Ui_ConfirmExit):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
-        self.accepted.connect(self.exit)
-        self.rejected.connect(self.close)
+        self.buttonBox.accepted.connect(self.exit)
+        self.buttonBox.rejected.connect(self.close)
 
     def exit(self):
         '''Метод, завершающий игру и закрывающий приложение
@@ -1167,8 +1179,8 @@ class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
-        self.accepted.connect(self.deleteAllData)
-        self.rejected.connect(self.close)
+        self.buttonBox.accepted.connect(self.deleteAllData)
+        self.buttonBox.rejected.connect(self.close)
 
     def deleteAllData(self):
         '''Метод, очищающий всю таблицу результатов
