@@ -861,9 +861,9 @@ class WinWindow(QDialog, Ui_Win):
     Методы
     ------
     restart()
-        перезапускает игру и показывает таблицу результатов
+        Перезапускает игру и показывает таблицу результатов
     exit()
-        завершает игру и показывает таблицу результатов
+        Завершает игру и показывает таблицу результатов
     '''
 
     def __init__(self, parent: GameWindow, is_sound: bool):
@@ -916,9 +916,9 @@ class GameOverWindow(QDialog, Ui_GameOver):
     Методы
     ------
     restart()
-        перезапускает игру и показывает таблицу результатов
+        Перезапускает игру и показывает таблицу результатов
     exit()
-        завершает игру и показывает таблицу результатов
+        Завершает игру и показывает таблицу результатов
     '''
 
     def __init__(self, parent: GameWindow, data: list[str, str, bool]):
@@ -974,9 +974,9 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
     Методы
     ------
     leave()
-        покидает игру и забирает деньги, предлагая сыграть ещё раз
+        Покидает игру и забирает деньги, предлагая сыграть ещё раз
     close_wndw()
-        закрывает окно подтверждения при отмене действия
+        Закрывает окно подтверждения при отмене действия
     '''
 
     def __init__(self, parent: GameWindow, letter: str, is_sound: bool):
@@ -1041,9 +1041,9 @@ class WinLeaveWindow(Ui_WinLeave, GameOverWindow):
     Методы
     ------
     restart()
-        перезапускает игру и показывает таблицу результатов
+        Перезапускает игру и показывает таблицу результатов
     exit()
-        завершает игру и показывает таблицу результатов
+        Завершает игру и показывает таблицу результатов
     '''
 
     pass
@@ -1060,7 +1060,7 @@ class ConfirmAgainWindow(QDialog, Ui_ConfirmAgain):
     Методы
     ------
     restart()
-        перезапускает игру
+        Перезапускает игру
     '''
 
     def __init__(self, parent: GameWindow):
@@ -1086,7 +1086,7 @@ class ConfirmCloseWindow(QDialog, Ui_ConfirmExit):
     Методы
     ------
     exit()
-        завершает игру и закрывает приложение
+        Завершает игру и закрывает приложение
     '''
 
     def __init__(self):
@@ -1127,9 +1127,9 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
     Методы
     ------
     refreshTable()
-        обновляет таблицу после удаления одного результата
+        Обновляет таблицу после удаления одного результата
     deleteAction()
-        удаляет один результат по id из спинбокса
+        Удаляет один результат по id из спинбокса
     '''
 
     def __init__(self):
@@ -1180,7 +1180,7 @@ class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):
     Методы
     -----
     deleteAllData()
-        очищает всю таблицу результатов
+        Очищает всю таблицу результатов
     '''
 
     def __init__(self):
@@ -1215,13 +1215,13 @@ class AboutWindow(QWidget, Ui_About):
     Методы
     ------
     showRuText()
-        показать русский текст
+        Показать русский текст
     showEnText()
-        показать английский текст
+        Показать английский текст
     close_wndw()
-        закрывает окно
+        Закрывает окно
     closeEvent(event: QCloseEvent)
-        вызывается при событии закрытия окна
+        Вызывается при событии закрытия окна
     '''
 
     def __init__(self, parent: GameWindow, is_sound: bool):
