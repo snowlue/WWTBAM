@@ -57,7 +57,7 @@ class Ui_StartDialog(object):
         Dialog.resize(361, 140)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
-        font.setPointSize(8)
+        font.setPointSize(9)
         Dialog.setFont(font)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(Dialog)
         self.horizontalLayout_2.setContentsMargins(5, 5, 5, 5)
@@ -96,10 +96,10 @@ class Ui_StartDialog(object):
         self.verticalLayout.setStretch(2, 1)
         self.horizontalLayout_2.addLayout(self.verticalLayout)
 
-        self.retranslateUi(Dialog)
+        self.setTextInUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def retranslateUi(self, Dialog):
+    def setTextInUi(self, Dialog):
         Dialog.setWindowTitle("Начало игры")
         self.label.setText("Введите ваше имя:")
         self.ok_button.setText("Начать игру")
@@ -117,6 +117,7 @@ class Ui_MainWindow(object):
         MainWindow.setFixedSize(1100, 703)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
+        font.setPointSize(9)
         MainWindow.setFont(font)
 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -498,10 +499,10 @@ class Ui_MainWindow(object):
         self.questionField.raise_()
         self.layoutWidget.raise_()
 
-        self.retranslateUi(MainWindow)
+        self.setTextInUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def retranslateUi(self, MainWindow):
+    def setTextInUi(self, MainWindow):
         MainWindow.setWindowTitle("Кто хочет стать Миллионером?")
         self.game_menu.setTitle("Игра")
         self.table_menu.setTitle("Таблица результатов")
@@ -523,13 +524,13 @@ class Ui_Win(object):
         Dialog.setFixedSize(400, 150)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
+        font.setPointSize(9)
         Dialog.setFont(font)
         self.horizontalLayout = QtWidgets.QHBoxLayout(Dialog)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
         self.label = QtWidgets.QLabel(Dialog)
-        font.setPointSize(9)
         font.setBold(True)
         font.setWeight(75)
         self.label.setFont(font)
@@ -544,10 +545,10 @@ class Ui_Win(object):
         self.verticalLayout.addWidget(self.buttonBox)
         self.horizontalLayout.addLayout(self.verticalLayout)
 
-        self.retranslateUi(Dialog)
+        self.setTextInUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def retranslateUi(self, Dialog):
+    def setTextInUi(self, Dialog):
         Dialog.setWindowTitle("Вы — миллионер!")
         self.label.setText("Поздравляем! Вы выиграли и стали миллионером!\n"
                            "Ваш выигрыш составил заветные 3 000 000 руб!\n"
@@ -560,13 +561,13 @@ class Ui_GameOver(object):
         Dialog.setFixedSize(400, 150)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
+        font.setPointSize(9)
         Dialog.setFont(font)
         self.horizontalLayout = QtWidgets.QHBoxLayout(Dialog)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
         self.label = QtWidgets.QLabel(Dialog)
-        font.setPointSize(9)
         font.setBold(True)
         font.setWeight(75)
         self.label.setFont(font)
@@ -581,10 +582,10 @@ class Ui_GameOver(object):
         self.verticalLayout.addWidget(self.buttonBox)
         self.horizontalLayout.addLayout(self.verticalLayout)
 
-        self.retranslateUi(Dialog)
+        self.setTextInUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def retranslateUi(self, Dialog):
+    def setTextInUi(self, Dialog):
         Dialog.setWindowTitle("Вы проиграли!")
         self.label.setText("Вы проиграли! Правильный ответ: {0}.\n"
                            "Ваш выигрыш составил {1} руб.\n"
@@ -597,10 +598,10 @@ class Ui_ConfirmExit(object):
         Dialog.setFixedSize(400, 140)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
+        font.setPointSize(9)
         Dialog.setFont(font)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(30, 90, 341, 32))
-        font.setPointSize(9)
         self.buttonBox.setFont(font)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
@@ -615,10 +616,10 @@ class Ui_ConfirmExit(object):
         self.label.setWordWrap(True)
         self.label.setObjectName("label")
 
-        self.retranslateUi(Dialog)
+        self.setTextInUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def retranslateUi(self, Dialog):
+    def setTextInUi(self, Dialog):
         Dialog.setWindowTitle("Завершить игру?")
         self.label.setText("Действительно завершить текущую игру без сохранения?")
 
@@ -629,10 +630,10 @@ class Ui_ConfirmLeave(object):
         Dialog.setFixedSize(400, 140)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
+        font.setPointSize(9)
         Dialog.setFont(font)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(30, 90, 341, 32))
-        font.setPointSize(9)
         self.buttonBox.setFont(font)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
@@ -647,10 +648,10 @@ class Ui_ConfirmLeave(object):
         self.label.setWordWrap(True)
         self.label.setObjectName("label")
 
-        self.retranslateUi(Dialog)
+        self.setTextInUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def retranslateUi(self, Dialog):
+    def setTextInUi(self, Dialog):
         Dialog.setWindowTitle("Покинуть игру?")
         self.label.setText("Вы действительно хотите покинуть игру с суммой в {} руб?")
 
@@ -661,13 +662,13 @@ class Ui_WinLeave(object):
         Dialog.setFixedSize(400, 150)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
+        font.setPointSize(9)
         Dialog.setFont(font)
         self.horizontalLayout = QtWidgets.QHBoxLayout(Dialog)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
         self.label = QtWidgets.QLabel(Dialog)
-        font.setPointSize(9)
         font.setBold(True)
         font.setWeight(75)
         self.label.setFont(font)
@@ -681,10 +682,10 @@ class Ui_WinLeave(object):
         self.buttonBox.setObjectName("buttonBox")
         self.verticalLayout.addWidget(self.buttonBox)
         self.horizontalLayout.addLayout(self.verticalLayout)
-        self.retranslateUi(Dialog)
+        self.setTextInUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def retranslateUi(self, Dialog):
+    def setTextInUi(self, Dialog):
         Dialog.setWindowTitle("Вы выиграли, но не всё!")
         self.label.setText("Вы покинули игру! Правильный ответ на этот вопрос: {0}.\n"
                            "Ваш выигрыш составил {1} руб.\n"
@@ -697,10 +698,10 @@ class Ui_ConfirmAgain(object):
         Dialog.setFixedSize(400, 140)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
+        font.setPointSize(9)
         Dialog.setFont(font)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(30, 90, 341, 32))
-        font.setPointSize(9)
         self.buttonBox.setFont(font)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
@@ -715,10 +716,10 @@ class Ui_ConfirmAgain(object):
         self.label.setWordWrap(True)
         self.label.setObjectName("label")
 
-        self.retranslateUi(Dialog)
+        self.setTextInUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def retranslateUi(self, Dialog):
+    def setTextInUi(self, Dialog):
         Dialog.setWindowTitle("Начать новую игру?")
         self.label.setText("Действительно начать новую игру без сохранения текущей?")
 
@@ -729,6 +730,7 @@ class Ui_ResultsTable(object):
         Form.setFixedSize(395, 385)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
+        font.setPointSize(9)
         Form.setFont(font)
         self.horizontalLayout = QtWidgets.QHBoxLayout(Form)
         self.horizontalLayout.setContentsMargins(10, 10, 10, 10)
@@ -745,10 +747,10 @@ class Ui_ResultsTable(object):
         self.verticalLayout.addWidget(self.okButton)
         self.horizontalLayout.addLayout(self.verticalLayout)
 
-        self.retranslateUi(Form)
+        self.setTextInUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
-    def retranslateUi(self, Form):
+    def setTextInUi(self, Form):
         Form.setWindowTitle("Таблица результатов")
         self.okButton.setText("ОК")
 
@@ -785,10 +787,10 @@ class Ui_DeleteResult(object):
         self.deleteButton.setObjectName("deleteButton")
         self.verticalLayout.addWidget(self.deleteButton)
 
-        self.retranslateUi(Form)
+        self.setTextInUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
-    def retranslateUi(self, Form):
+    def setTextInUi(self, Form):
         Form.setWindowTitle("Удаление результата из таблицы")
         self.label.setText("Выберите номер результата для удаления:")
         self.deleteButton.setText("Удалить (без подтверждений, сразу при нажатии)")
@@ -818,10 +820,10 @@ class Ui_ConfirmClearAll(object):
         self.label.setWordWrap(True)
         self.label.setObjectName("label")
 
-        self.retranslateUi(Dialog)
+        self.setTextInUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def retranslateUi(self, Dialog):
+    def setTextInUi(self, Dialog):
         Dialog.setWindowTitle("Очистить таблицу результатов?")
         self.label.setText("Действительно очистить всю таблицу результатов без возможности вернуть?")
 
@@ -891,10 +893,10 @@ class Ui_About(object):
         self.verticalLayout.addLayout(self.verticalLayout_2)
         self.horizontalLayout_2.addLayout(self.verticalLayout)
 
-        self.retranslateUi(Form)
+        self.setTextInUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
-    def retranslateUi(self, Form):
+    def setTextInUi(self, Form):
         Form.setWindowTitle("О программе")
         year = datetime.today().year
         self.ruText.setText('<html><body><p><span style="font-weight:600;">Игра «Кто хочет стать Миллионером?»</span>'
