@@ -107,6 +107,158 @@ class Ui_StartDialog(object):
         self.rulebook_button.setText("Правила игры")
 
 
+class Ui_Rules(object):
+    def setupUi(self, Form):
+        Form.setObjectName("Form")
+        Form.resize(616, 350)
+        Form.setMinimumSize(QtCore.QSize(616, 293))
+        Form.setMaximumSize(QtCore.QSize(616, 867))
+        font = QtGui.QFont()
+        font.setFamily("PT Sans")
+        font.setPointSize(9)
+        Form.setFont(font)
+        Form.setWindowTitle("Правила игры")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(Form)
+        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.scrollArea = QtWidgets.QScrollArea(Form)
+        self.scrollArea.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.scrollArea.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setAlignment(QtCore.Qt.AlignCenter)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 595, 874))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
+        self.verticalLayout.setContentsMargins(10, 10, 10, 10)
+        self.verticalLayout.setSpacing(15)
+        self.verticalLayout.setObjectName("verticalLayout")
+
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        font.setWeight(75)
+
+        self.start_label = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.start_label.sizePolicy().hasHeightForWidth())
+        self.start_label.setSizePolicy(sizePolicy)
+        self.start_label.setFont(font)
+        self.start_label.setText("Добро пожаловать в «Кто хочет стать миллионером?»")
+        self.start_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.start_label.setObjectName("start_label")
+        self.verticalLayout.addWidget(self.start_label)
+
+        self.aboutMoneyTree = QtWidgets.QHBoxLayout()
+        self.aboutMoneyTree.setSpacing(10)
+        self.aboutMoneyTree.setObjectName("aboutMoneyTree")
+        self.verticalLayout.addLayout(self.aboutMoneyTree)
+
+        self.text_mt = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.text_mt.sizePolicy().hasHeightForWidth())
+        self.text_mt.setSizePolicy(sizePolicy)
+        self.text_mt.setMaximumSize(QtCore.QSize(391, 233))
+        self.text_mt.setText('<html><head/><body><p>Правила просты. Перед вами 15 вопросов с разной стоимостью. Чтобы '
+                             'выиграть 3 000 000 виртуальных рублей, придётся ответить на все из них.</p><p>Вам предст'
+                             'авляются две несгораемые суммы в 5 000 рублей на пятом вопросе и в 100 000 рублей на 10 '
+                             'вопросе. Если вы проиграете, то гарантированно получите эти деньги, как только пройдёте '
+                             'эти рубежи.</p><p>Сложность вопросов по мере прохождения будет увеличиваться, что потреб'
+                             'ует от вас больших знаний и смекалки. Будет непросто, но это достойно 3 000 000 рублей!<'
+                             '/p></body></html>')
+        self.text_mt.setWordWrap(True)
+        self.text_mt.setObjectName("text_mt")
+        self.aboutMoneyTree.addWidget(self.text_mt)
+
+        self.picture_mt = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        self.picture_mt.setSizePolicy(sizePolicy)
+        self.picture_mt.setMaximumSize(QtCore.QSize(172, 233))
+        self.picture_mt.setPixmap(QtGui.QPixmap("images/rules/money_tree.png"))
+        self.picture_mt.setScaledContents(True)
+        self.picture_mt.setObjectName("picture_mt")
+        self.aboutMoneyTree.addWidget(self.picture_mt)
+
+        self.aboutLifelines = QtWidgets.QVBoxLayout()
+        self.aboutLifelines.setSpacing(10)
+        self.aboutLifelines.setObjectName("aboutLifelines")
+        self.verticalLayout.addLayout(self.aboutLifelines)
+
+        self.text_ll = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        self.text_ll.setSizePolicy(sizePolicy)
+        self.text_ll.setMaximumSize(QtCore.QSize(573, 221))
+        self.text_ll.setText('<html><head/><body><p>Чтобы упростить задачу, предлагаем три подсказки и возможность заб'
+                             'рать деньги, пополнив таблицу результатов своим выигрышом с указанным именем и датой игр'
+                             'ы.</p><p>1-я подсказка «Замена вопроса» заменяет текущий вопрос на другой — пригодится, '
+                             'если не разбираетесь в теме вопроса. (клик по подсказке или 1 на клавиатуре)<br/>2-я под'
+                             'сказка «50:50» убирает два неверных ответа – полезна, если не уверены в своём выборе. (к'
+                             'лик по подсказке или 2 на клавиатуре)<br/>И 3-я подсказка «Право на ошибку» даёт вам воз'
+                             'можность ошибиться при ответе один раз — отличная страховка на сложных вопросах. (клик п'
+                             'о подсказке или 3 на клавиатуре)<br/>Или вы можете покинуть игру с уже заработанным выиг'
+                             'рышем, чтобы не потерять всё до несгораемой суммы. (клик по иконке «домой» или 4 на клав'
+                             'иатуре)</p></body></html>')
+        self.text_ll.setWordWrap(True)
+        self.text_ll.setObjectName("text_ll")
+        self.aboutLifelines.addWidget(self.text_ll)
+
+        self.picture_ll = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        self.picture_ll.setSizePolicy(sizePolicy)
+        self.picture_ll.setMaximumSize(QtCore.QSize(566, 58))
+        self.picture_ll.setPixmap(QtGui.QPixmap("images/rules/lifelines.png"))
+        self.picture_ll.setScaledContents(False)
+        self.picture_ll.setAlignment(QtCore.Qt.AlignCenter)
+        self.picture_ll.setObjectName("picture_ll")
+        self.aboutLifelines.addWidget(self.picture_ll)
+
+        self.aboutAnswers = QtWidgets.QVBoxLayout()
+        self.aboutAnswers.setSpacing(10)
+        self.aboutAnswers.setObjectName("aboutAnswers")
+        self.verticalLayout.addLayout(self.aboutAnswers)
+
+        self.text_ans = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        self.text_ans.setSizePolicy(sizePolicy)
+        self.text_ans.setMinimumSize(QtCore.QSize(0, 0))
+        self.text_ans.setMaximumSize(QtCore.QSize(573, 98))
+        self.text_ans.setText('<html><head/><body><p>Блок с вопросом и ответами на выбор отображается внизу. В большом'
+                              ' верхнем поле отображается вопрос, а под ним четыре ответа: A, B, C и D (нажимайте на о'
+                              'твет или Q, W, A и S на клавиатуре). Выбранный ответ будет отмечаться оранженвым цветом'
+                              ', правильный — зелёным, а неправильный в «праве на ошибку» — серым. Выбирайте ответ с у'
+                              'мом!</p></body></html>')
+        self.text_ans.setWordWrap(True)
+        self.text_ans.setObjectName("text_ans")
+        self.aboutAnswers.addWidget(self.text_ans)
+
+        self.picture_ans = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        self.picture_ans.setSizePolicy(sizePolicy)
+        self.picture_ans.setMaximumSize(QtCore.QSize(566, 112))
+        self.picture_ans.setPixmap(QtGui.QPixmap("images/rules/question_field.png"))
+        self.picture_ans.setScaledContents(True)
+        self.picture_ans.setAlignment(QtCore.Qt.AlignCenter)
+        self.picture_ans.setObjectName("picture_ans")
+        self.aboutAnswers.addWidget(self.picture_ans)
+
+        self.final_label = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.final_label.sizePolicy().hasHeightForWidth())
+        self.final_label.setSizePolicy(sizePolicy)
+        self.final_label.setFont(font)
+        self.final_label.setText("Удачной игры, успехов и побед!")
+        self.final_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.final_label.setObjectName("final_label")
+        self.verticalLayout.addWidget(self.final_label)
+
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.verticalLayout_3.addWidget(self.scrollArea)
+
+        QtCore.QMetaObject.connectSlotsByName(Form)
+
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         fontId = QFontDatabase.addApplicationFont(":itc_conduit.ttf")
