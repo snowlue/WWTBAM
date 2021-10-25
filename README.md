@@ -34,11 +34,6 @@ Popular TV show «Who Wants to Be a Millionaire?» is now available on your PC! 
 - You can watch the table of records and set new records when you play the game (also supports erasing).
 
 
-## License Creative Commons «Attribution-NonCommercial-ShareAlike»
-
-Project is protected by Creative Commons as CC BY-NC-SA. It means that you must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests I endorse you or your use. Also you may not use the material for commercial purposes and, if you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original and make a link to this repo.
-
-
 [1]: https://python.org
 [2]: https://doc.qt.io/qt-5/qtdesigner-manual.html
 [3]: https://sqlitestudio.pl
