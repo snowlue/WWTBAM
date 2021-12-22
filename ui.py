@@ -347,7 +347,7 @@ class Ui_MainWindow(object):
         font.setWeight(50)
 
         self.answer_A = AnimationLabel(self.questionField)
-        self.answer_A.setGeometry(QtCore.QRect(237, 100, 288, 40))
+        self.answer_A.setGeometry(QtCore.QRect(237, 99, 288, 40))
         self.answer_A.setPalette(palette)
         self.answer_A.setFont(font)
         self.answer_A.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
@@ -357,7 +357,7 @@ class Ui_MainWindow(object):
         self.answer_A.setObjectName("answer_A")
 
         self.answer_B = AnimationLabel(self.questionField)
-        self.answer_B.setGeometry(QtCore.QRect(606, 100, 288, 40))
+        self.answer_B.setGeometry(QtCore.QRect(607, 99, 288, 40))
         self.answer_B.setPalette(palette)
         self.answer_B.setFont(font)
         self.answer_B.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
@@ -377,7 +377,7 @@ class Ui_MainWindow(object):
         self.answer_C.setObjectName("answer_C")
 
         self.answer_D = AnimationLabel(self.questionField)
-        self.answer_D.setGeometry(QtCore.QRect(606, 151, 288, 40))
+        self.answer_D.setGeometry(QtCore.QRect(607, 151, 288, 40))
         self.answer_D.setPalette(palette)
         self.answer_D.setFont(font)
         self.answer_D.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
@@ -387,7 +387,7 @@ class Ui_MainWindow(object):
         self.answer_D.setObjectName("answer_D")
 
         self.question = AnimationLabel(self.questionField)
-        self.question.setGeometry(QtCore.QRect(194, 7, 720, 80))
+        self.question.setGeometry(QtCore.QRect(190, 7, 728, 80))
         self.question.setPalette(palette)
         self.question.setFont(font)
         self.question.setText("")
