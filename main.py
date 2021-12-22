@@ -242,12 +242,15 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         self.date = datetime.today().strftime('%d.%m.%Y %H:%M')  # дата игры
         self.player2.setMedia(decorate_audio('sounds/intro.mp3' if not repeat else 'sounds/new_start.mp3'))
+        self.time_function(0, self.layout_q.setPixmap, QPixmap("animations/question field/1.png"))
         self.player2.play()  # проигрываем саундтрек
 
         self.questions = get_questions()  # получаем вопросы для игры
         self.current_number = 1  # номер вопроса
 
-        # TODO: Здесь будет анимация показа блок с вопросом и ответами
+        for i in range(1, 24):
+            self.time_function(20, self.layout_q.setPixmap, QPixmap('animations/question field/{}.png'.format(i)))
+        self.time_function(0, self.layout_q.setPixmap, QPixmap("images/question field/layout.png"))
 
         for i in range(1, 16):
             self.time_function(
@@ -260,9 +263,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 QPixmap('images/question field/chosen_{}.png'.format(i))
             )  # анимация 4 ответов
 
-        self.time_function(500, self.current_state_q.setPixmap, QPixmap())
+        self.time_function(300, self.current_state_q.setPixmap, QPixmap())
         self.time_function(
-            700, self.current_state_t.setPixmap,
+            0, self.current_state_t.setPixmap,
             QPixmap('images/money tree/{}.png'.format(self.current_number))
         )  # стираем слои после проигравшейся анимации и переводим в начальное положение
 
@@ -514,20 +517,26 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             if self.current_number != 15:  # для 15 вопроса отдельные анимации
                 if self.current_number in [5, 10]:
                     self.time_function(0, self.player1.stop)
+                    self.clear_all_labels()
+                    self.time_function(0, self.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
+                    for i in range(1, 38):  # анимация показа суммы выигрыша
+                        self.time_function(20, self.layout_q.setPixmap,
+                                           QPixmap('animations/sum/{}.png'.format(i)))
                     self.time_function(
-                        5000, self.amount_q.setText,
+                        0, self.amount_q.setText,
                         PRICES[self.current_number]
                     )  # после 5 и 10 вопросов показываем сумму выигрыша
-                    self.clear_all_labels()
-                    # TODO: Здесь будет анимация показа выигрыша
                     self.time_function(
-                        0, self.layout_q.setPixmap,
+                        3700, self.layout_q.setPixmap,
                         QPixmap('images/sum/amount.png')
                     )
                     self.player3.setMedia(decorate_audio('sounds/lights_down.mp3'))  # играем трек перед вопросом
                     self.time_function(0, self.player3.play)
-                    self.time_function(2000, self.amount_q.setText, '')  # зачищаем всё после показа суммы выигрыша
-                    # TODO: Здесь будет анимация показа блок с вопросом и ответами
+                    self.time_function(750, self.amount_q.setText, '')  # зачищаем всё после показа суммы выигрыша
+                    self.time_function(0, self.layout_q.setPixmap, QPixmap('animations/sum/37.png'))
+                    for i in range(37, 0, -1):  # анимация показа блока с вопросом и ответами
+                        self.time_function(20, self.layout_q.setPixmap,
+                                           QPixmap('animations/sum/{}.png'.format(i)))
                     self.time_function(
                         0, self.layout_q.setPixmap,
                         QPixmap('images/question field/layout.png')
@@ -559,26 +568,29 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.time_function(0, self.player2.stop)
 
             else:  # если дошли до 15 вопроса
-                self.time_function(
-                    1500, self.amount_q.setText,
-                    PRICES[self.current_number]
-                )
-                self.time_function(
-                    0, self.layout_q.setPixmap,
-                    QPixmap('images/sum/amount.png')
-                )  # показываем сумму выигрыша
+                self.time_function(1000, self.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
                 self.clear_all_labels()
+                for i in range(1, 38):  # анимация показа суммы выигрыша
+                    self.time_function(20, self.layout_q.setPixmap,
+                                       QPixmap('animations/sum/{}.png'.format(i)))
+                self.time_function(0, self.amount_q.setText, PRICES[self.current_number])
                 sql_request('''INSERT INTO results
                             (name, result, date)
                             VALUES ("{}", "{}", "{}")
                             '''.format(self.name, '3 000 000', self.date))  # записываем в бд выигрыш
-                self.time_function(0, self.showWin)  # показываем окно победы
+                self.time_function(1000, self.showWin)  # показываем окно победы
 
         if user_answer != self.correct_answer and not self.is_x2_now:
             # если ответ неправильный и не было активно «право на ошибку»
             result_game = GUARANTEED_PRICES[self.current_number - 1]
-            self.time_function(0, self.showGameOver, [
-                               letter, result_game, self.is_sound])  # показываем проигрыш
+            self.time_function(0, self.showGameOver,
+                               [letter, result_game, self.is_sound])  # показываем проигрыш
+            self.time_function(1000, self.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
+            self.clear_all_labels()
+            for i in range(1, 38):  # анимация показа суммы выигрыша
+                self.time_function(20, self.layout_q.setPixmap,
+                                   QPixmap('animations/sum/{}.png'.format(i)))
+            self.time_function(0, self.amount_q.setText, result_game)  # показываем сумму выигрыша
             sql_request('''INSERT INTO results
                            (name, result, date)
                            VALUES ("{}", "{}", "{}")
