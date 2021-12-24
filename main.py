@@ -172,6 +172,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.control, self.name = False, name  # control — реагирует ли игра на действия игрока
 
         self.timer = 900  # таймер для поочерёдного воспроизведения событий
+        # 900 для синхронизации анимации и звука
         self.is_x2_now, self.non_active_answers = False, []
         # is_x2_now — активно ли «право на ошибку» прямо сейчас,
         # non_active_answers — неактивные кнопки ответов после 50:50 и «права на ошибку»
@@ -259,13 +260,13 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             )  # анимация денежного дерева
         for i in 'A', 'B', 'C', 'D':
             self.time_function(
-                400, self.current_state_q.setPixmap,
+                360, self.current_state_q.setPixmap,
                 QPixmap('images/question field/chosen_{}.png'.format(i))
             )  # анимация 4 ответов
 
         self.time_function(300, self.current_state_q.setPixmap, QPixmap())
         self.time_function(
-            0, self.current_state_t.setPixmap,
+            200, self.current_state_t.setPixmap,
             QPixmap('images/money tree/{}.png'.format(self.current_number))
         )  # стираем слои после проигравшейся анимации и переводим в начальное положение
 
@@ -381,7 +382,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                         self.player1.stop()
                         self.time_function(0, self.player4.play)
                     logging.info('Answ[A]')
-                    self.checkAnswer(self.answer_A, 'A')
+                    self.time_function(400, self.checkAnswer, self.answer_A, 'A')
             elif 568 <= x <= 915 and 601 <= y <= 642:  # ответ В
                 if 'B' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_B.png'))
@@ -390,7 +391,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                         self.player1.stop()
                         self.time_function(0, self.player4.play)
                     logging.info('Answ[B]')
-                    self.checkAnswer(self.answer_B, 'B')
+                    self.time_function(400, self.checkAnswer, self.answer_B, 'B')
             elif 200 <= x <= 538 and 653 <= y <= 693:  # ответ С
                 if 'C' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_C.png'))
@@ -399,7 +400,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                         self.player1.stop()
                         self.time_function(0, self.player4.play)
                     logging.info('Answ[C]')
-                    self.checkAnswer(self.answer_C, 'C')
+                    self.time_function(400, self.checkAnswer, self.answer_C, 'C')
             elif 568 <= x <= 915 and 653 <= y <= 693:  # ответ D
                 if 'D' not in self.non_active_answers:
                     self.current_state_q.setPixmap(QPixmap('images/question field/chosen_D.png'))
@@ -408,7 +409,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                         self.player1.stop()
                         self.time_function(0, self.player4.play)
                     logging.info('Answ[D]')
-                    self.checkAnswer(self.answer_D, 'D')
+                    self.time_function(400, self.checkAnswer, self.answer_D, 'D')
 
             if 766 <= x <= 816 and 99 <= y <= 129:  # смена вопроса
                 self.lost_change.show()
@@ -544,22 +545,26 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     logging.info('%d got', self.current_number)
 
                 self.current_number += 1  # поднимаем номер вопроса
-                self.time_function(
-                    800 * (self.current_number - 1 not in [5, 10]), self.current_state_t.setPixmap,
-                    QPixmap('images/money tree/{}.png'.format(self.current_number))
-                )  # поднимаем уровень на денежном дереве
-                self.clear_all_labels()
                 if self.current_number - 1 not in [1, 2, 3, 4]:
+                    # для всех вопросов с 6-го свой бэкграунд-трек
                     self.time_function(
                         0, self.player1.setMedia,
                         decorate_audio('sounds/{}/bed.mp3'.format(self.current_number))
-                    )  # для всех вопросов с 6-го свой бэкграунд-трек
+                    )
                     self.time_function(2500, self.player1.play)
                 elif not self.lifelines['x2']:
                     # возвращаем предыдущий трек, если было «право на ошибку» в 1-5 вопросах
                     self.time_function(0, self.player1.setMedia, decorate_audio('sounds/1-4/bed.mp3'))
                     self.time_function(8, self.player1.play)
-                self.time_function(8, self.updateQuestionField)  # обновляем текстовые поля для нового вопроса
+
+                self.time_function(
+                    800 * (self.current_number - 1 not in [5, 10]), self.current_state_t.setPixmap,
+                    QPixmap('images/money tree/{}.png'.format(self.current_number))
+                )  # поднимаем уровень на денежном дереве
+                self.time_function(0, self.current_state_q.setPixmap, QPixmap())
+                self.time_function(0, self.current_state_q_2.setPixmap, QPixmap())
+                self.time_function(0, self.current_state_q_3.setPixmap, QPixmap())
+                self.time_function(0, self.updateQuestionField)  # обновляем текстовые поля для нового вопроса
                 self.time_function(0, self.question.startFadeIn)  # показываем вопрос
                 for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
                     # показываем 4 ответа на новый вопрос
