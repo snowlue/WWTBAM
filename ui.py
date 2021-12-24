@@ -54,7 +54,7 @@ class AnimationLabel(QLabel):
 class Ui_StartDialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(361, 140)
+        Dialog.setFixedSize(361, 150)
         font = QtGui.QFont()
         font.setFamily("PT Sans")
         font.setPointSize(9)
@@ -87,6 +87,23 @@ class Ui_StartDialog(object):
         self.exit_button = QtWidgets.QPushButton(Dialog)
         self.exit_button.setObjectName("exit_button")
         self.horizontalLayout.addWidget(self.exit_button)
+
+        self.buttonGroup = QtWidgets.QButtonGroup(Dialog)
+        self.buttonGroup.setObjectName("ButtonGroup")
+        self.radioButton = QtWidgets.QRadioButton(self)
+        self.radioButton.setChecked(True)
+        self.radioButton.setObjectName("radioButton")
+        self.buttonGroup.addButton(self.radioButton)
+        self.radioButton_2 = QtWidgets.QRadioButton(self)
+        self.radioButton_2.setObjectName("radioButton_2")
+        self.buttonGroup.addButton(self.radioButton_2)
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.addWidget(self.radioButton)
+        self.horizontalLayout_3.addWidget(self.radioButton_2)
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
+        self.horizontalLayout_3.setContentsMargins(0, 5, 0, 5)
+        self.horizontalLayout_3.setSpacing(0)
+
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.rulebook_button = QtWidgets.QPushButton(Dialog)
         self.rulebook_button.setObjectName("rulebook_button")
@@ -102,6 +119,8 @@ class Ui_StartDialog(object):
     def setTextInUi(self, Dialog):
         Dialog.setWindowTitle("Начало игры")
         self.label.setText("Введите ваше имя:")
+        self.radioButton.setText("Обычный режим")
+        self.radioButton_2.setText("Режим на время")
         self.ok_button.setText("Начать игру")
         self.exit_button.setText("Выйти")
         self.rulebook_button.setText("Правила игры")

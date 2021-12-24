@@ -82,7 +82,7 @@ class StartWindow(QDialog, Ui_StartDialog):
         self.rules_wndw.show()
 
     def startGame(self, name: str) -> None:
-        '''Метод, начинающий игру с заданным именем игрока name
+        '''Метод, начинающий игру с заданным именем игрока name и режимом игры
 
         Параметры
         ---------
@@ -90,7 +90,9 @@ class StartWindow(QDialog, Ui_StartDialog):
             имя игрока
         '''
 
-        self.game = GameWindow(name)
+        mode = self.buttonGroup.checkedButton().text()
+        mode = 'classic' if mode == 'Обычный режим' else 'clock'
+        self.game = GameWindow(name, mode)
         self.game.show()
 
         self.game.lost_change.hide()
@@ -118,6 +120,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
     --------
     name: str
         имя игрока
+    mode: str
+        режим игры (принимает значения "classic" и "clock")
 
     Методы
     ------
@@ -165,11 +169,12 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         Переключает звук (т.е. включает или отключает)
     '''
 
-    def __init__(self, name: str = ''):
+    def __init__(self, name: str = '', mode: str = 'classic'):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
-        self.control, self.name = False, name  # control — реагирует ли игра на действия игрока
+        self.control = False  # control — реагирует ли игра на действия игрока
+        self.name, self.mode = name, mode
 
         self.timer = 900  # таймер для поочерёдного воспроизведения событий
         # 900 для синхронизации анимации и звука
