@@ -247,9 +247,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         '''
 
         self.date = datetime.today().strftime('%d.%m.%Y %H:%M')  # дата игры
-        self.player2.setMedia(decorate_audio('sounds/intro.mp3' if not repeat else 'sounds/new_start.mp3'))
+            self.player2.setMedia(decorate_audio('sounds/intro.mp3' if not repeat else 'sounds/new_start.mp3'))
         self.time_function(0, self.layout_q.setPixmap, QPixmap("animations/question field/1.png"))
-        self.player2.play()  # проигрываем саундтрек
+        self.time_function(0, self.player2.play)  # проигрываем саундтрек
 
         self.questions = get_questions()  # получаем вопросы для игры
         self.current_number = 1  # номер вопроса
@@ -265,11 +265,11 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             )  # анимация денежного дерева
         for i in 'A', 'B', 'C', 'D':
             self.time_function(
-                360, self.current_state_q.setPixmap,
+                500, self.current_state_q.setPixmap,
                 QPixmap('images/question field/chosen_{}.png'.format(i))
             )  # анимация 4 ответов
 
-        self.time_function(300, self.current_state_q.setPixmap, QPixmap())
+        self.time_function(500, self.current_state_q.setPixmap, QPixmap())
         self.time_function(
             200, self.current_state_t.setPixmap,
             QPixmap('images/money tree/{}.png'.format(self.current_number))
@@ -277,6 +277,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         self.time_function(500, self.updateQuestionField)  # обновляем текстовые блоки вопроса и ответов
         self.time_function(0, self.question.startFadeIn)  # показываем вопрос
+
         for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:  # показываем ответы
             self.time_function(100, a.startFadeIn)
             self.time_function(0, a.show)
@@ -536,9 +537,10 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                         3700, self.layout_q.setPixmap,
                         QPixmap('images/sum/amount.png')
                     )
+                    self.time_function(750 + 1000 * int(self.current_number == 10), self.amount_q.setText, '')
                     self.player3.setMedia(decorate_audio('sounds/lights_down.mp3'))  # играем трек перед вопросом
                     self.time_function(0, self.player3.play)
-                    self.time_function(750, self.amount_q.setText, '')  # зачищаем всё после показа суммы выигрыша
+                    # зачищаем всё после показа суммы выигрыша
                     self.time_function(0, self.layout_q.setPixmap, QPixmap('animations/sum/37.png'))
                     for i in range(37, 0, -1):  # анимация показа блока с вопросом и ответами
                         self.time_function(20, self.layout_q.setPixmap,
