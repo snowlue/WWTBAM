@@ -1039,9 +1039,94 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QLabel" name="timer_view">
+    <property name="geometry">
+     <rect>
+      <x>215</x>
+      <y>419</y>
+      <width>678</width>
+      <height>64</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../images/timer/15.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="timer_text">
+    <property name="geometry">
+     <rect>
+      <x>509</x>
+      <y>443</y>
+      <width>89</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="palette">
+     <palette>
+      <active>
+       <colorrole role="WindowText">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>255</red>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </active>
+      <inactive>
+       <colorrole role="WindowText">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>255</red>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </inactive>
+      <disabled>
+       <colorrole role="WindowText">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>120</red>
+          <green>120</green>
+          <blue>120</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </disabled>
+     </palette>
+    </property>
+    <property name="font">
+     <font>
+      <family>ITC Conduit Cyrillic</family>
+      <pointsize>27</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
    <zorder>background</zorder>
    <zorder>questionField</zorder>
    <zorder>layoutWidget</zorder>
+   <zorder>timer_view</zorder>
+   <zorder>timer_text</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

@@ -517,6 +517,24 @@ class Ui_MainWindow(object):
         self.background.setScaledContents(True)
         self.background.setObjectName("background")
 
+        self.timer_view = QtWidgets.QLabel(self.centralwidget)
+        self.timer_view.setGeometry(QtCore.QRect(215, 419, 678, 64))
+        self.timer_view.setText('')
+        self.timer_view.setScaledContents(True)
+        self.timer_view.setAlignment(QtCore.Qt.AlignCenter)
+        self.timer_view.setObjectName("timer")
+
+        self.timer_text = QtWidgets.QLabel(self.centralwidget)
+        self.timer_text.setGeometry(QtCore.QRect(509, 443, 89, 40))
+        self.timer_text.setPalette(palette)
+        font.setPointSize(27)
+        font.setBold(True)
+        font.setWeight(75)
+        self.timer_text.setFont(font)
+        self.timer_text.setText("")
+        self.timer_text.setAlignment(QtCore.Qt.AlignCenter)
+        self.timer_text.setObjectName("timer_text")
+
         self.layout_q.raise_()
         self.amount_q.raise_()
         self.current_state_q.raise_()
@@ -531,6 +549,8 @@ class Ui_MainWindow(object):
         self.background.raise_()
         self.questionField.raise_()
         self.layoutWidget.raise_()
+        self.timer_view.raise_()
+        self.timer_text.raise_()
 
         self.setTextInUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)

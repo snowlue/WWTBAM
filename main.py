@@ -131,6 +131,10 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         Активирует таймер для выполнения анимаций (обёртка)
     startGame(repeat)
         Активирует анимацию начала игры и показывает первый вопрос
+    showAnswers()
+        Показывает ответы на вопрос
+    mergeTheTimer()
+        Отсчитывает секунду от таймера в режиме на время
     updateQuestionField(changer)
         Обновляет текстовые поля вопроса и ответов
     keyPressEvent(event)
@@ -175,6 +179,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.control = False  # control — реагирует ли игра на действия игрока
         self.name, self.mode = name, mode
+        self.has_shown = True if self.mode == 'classic' else False
 
         self.timer = 900  # таймер для поочерёдного воспроизведения событий
         # 900 для синхронизации анимации и звука
@@ -233,7 +238,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         QTimer.singleShot(self.timer + time, partial(func, *args))
         # запускаем Qt-таймер с временем, через которое функция запустится
         # partial определяет функцию func с переданными аргументами args, но не выполняет её
-        # singleShot черезе self.timer+time миллисекунд выполнит фунцию func
+        # singleShot через self.timer+time миллисекунд выполнит фунцию func
         self.timer += time
 
     @user_control
@@ -247,7 +252,13 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         '''
 
         self.date = datetime.today().strftime('%d.%m.%Y %H:%M')  # дата игры
+        self.time_function(1000, lambda a: a, True)
+        if self.mode == 'classic':
             self.player2.setMedia(decorate_audio('sounds/intro.mp3' if not repeat else 'sounds/new_start.mp3'))
+        else:
+            self.player2.setMedia(
+                decorate_audio('sounds/intro_clock.mp3' if not repeat else 'sounds/new_start_clock.mp3')
+            )
         self.time_function(0, self.layout_q.setPixmap, QPixmap("animations/question field/1.png"))
         self.time_function(0, self.player2.play)  # проигрываем саундтрек
 
@@ -260,9 +271,11 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         for i in range(1, 16):
             self.time_function(
-                200, self.current_state_t.setPixmap,
+                200 + 30 * int(self.mode == 'clock'), self.current_state_t.setPixmap,
                 QPixmap('images/money tree/{}.png'.format(i))
             )  # анимация денежного дерева
+        if self.mode == 'clock':
+            self.time_function(500, lambda a: a, True)
         for i in 'A', 'B', 'C', 'D':
             self.time_function(
                 500, self.current_state_q.setPixmap,
@@ -271,21 +284,85 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         self.time_function(500, self.current_state_q.setPixmap, QPixmap())
         self.time_function(
-            200, self.current_state_t.setPixmap,
+            1000 + 200 * int(self.mode == 'clock'), self.current_state_t.setPixmap,
             QPixmap('images/money tree/{}.png'.format(self.current_number))
         )  # стираем слои после проигравшейся анимации и переводим в начальное положение
 
-        self.time_function(500, self.updateQuestionField)  # обновляем текстовые блоки вопроса и ответов
-        self.time_function(0, self.question.startFadeIn)  # показываем вопрос
-
-        for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:  # показываем ответы
-            self.time_function(100, a.startFadeIn)
-            self.time_function(0, a.show)
+        if self.mode == 'classic':
+            self.time_function(500, self.updateQuestionField)  # обновляем текстовые блоки вопроса и ответов
+            self.time_function(0, self.question.startFadeIn)  # показываем вопрос
+            self.showAnswers()
 
         n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
         self.player1.setMedia(decorate_audio('sounds/{}/bed.mp3'.format(n)))
-        self.time_function(2500, self.player1.play)  # задаём фоновый трек и проигрываем
+        self.time_function(2500 if self.mode != 'clock' else 0, self.player1.play)
+        self.time_function(0, self.player1.setVolume, 30 if self.mode == 'clock' else 100)
+        # задаём фоновый трек и проигрываем его
+
+        if self.mode == 'clock':
+            self.player3.setMedia(decorate_audio('sounds/question_show_clock.mp3'))
+            self.time_function(500, self.player3.play)
+            self.time_function(300, self.updateQuestionField)  # обновляем текстовые блоки вопроса и ответов
+            self.time_function(0, self.question.startFadeIn)  # показываем вопрос
+            self.time_function(300, lambda a: a, True)
+            for i in range(1, 19):  # показываем таймер
+                self.time_function(20, self.timer_view.setPixmap, QPixmap('animations/timer/{}.png'.format(i)))
+            for i in range(0, 16):
+                dial = 1 if n in ['1-4', 5] else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
+                self.time_function(0, self.timer_text.setText, str(i * dial))
+                self.time_function(50, self.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(i)))
+            self.time_function(0, self.double_dip.setPixmap, QPixmap('images/show-button.png'))
+            self.time_function(0, self.double_dip.show)
+            self.time_function(0, self.double_dip.startFadeInImage)
+
         logging.info('Game is OK. Username: %s', self.name)
+
+    def showAnswers(self):
+        '''Метод, показывающий ответы на вопрос
+        '''
+        for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
+            self.time_function(100, a.startFadeIn)
+            self.time_function(0, a.show)
+
+        if self.mode == 'clock':
+            self.has_shown = True
+            n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
+            self.time_function(0, self.double_dip.startFadeOutImage)
+            self.time_function(200, self.double_dip.setPixmap, QPixmap('images/double-dip.png'))
+            self.time_function(0, self.double_dip.hide)
+
+            self.qttimer = QTimer(self)
+            self.qttimer.timeout.connect(self.mergeTheTimer)
+            self.qttimer.start(1000)
+
+            if n == '1-4' or n == 5:
+                self.player2.setMedia(decorate_audio('sounds/{}/clock.mp3'.format(n)))
+                self.time_function(500, self.player2.play)
+                self.seconds_left = 15
+            else:
+                self.player1.setMedia(decorate_audio('sounds/{}/bed_clock.mp3'.format(n)))
+                self.time_function(500, self.player1.play)
+                if n in [6, 7, 8, 9, 10]:
+                    self.seconds_left = 30
+                elif n in [11, 12, 13, 14]:
+                    self.seconds_left = 45
+                elif n == 15:
+                    self.seconds_left = 90
+
+    def mergeTheTimer(self):
+        '''
+        Метод, отсчитывающий секунду от таймера в режиме на время
+        '''
+        n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
+        dial = 1 if n in ['1-4', 5] else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
+        dial = self.seconds_left // dial + 1 * (self.seconds_left % dial in range(1, dial))
+        self.time_function(0, self.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(dial)))
+        self.time_function(0, self.timer_text.setText, str(self.seconds_left))
+
+        if not self.current_state_q.pixmap().isNull() or self.seconds_left == 0:
+            self.qttimer.stop()
+
+        self.seconds_left -= 1
 
     def updateQuestionField(self, changer: bool = False):
         '''Метод, обновляющий текстовые поля вопроса и ответов
@@ -366,7 +443,11 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         '''
 
         logging.info('MP (%d, %d)', x, y)
-        if self.control:
+        if self.mode == 'clock' and 539 <= x <= 567 and 641 <= y <= 662:  # показать ответы на вопрос
+            self.timer = 0
+            self.showAnswers()
+
+        if self.control and self.has_shown:
             self.timer, n = 0, self.current_number
             # каждое действие можно совершать при отработанной анимации,
             # поэтому таймер для time_function можно сбрасывать
