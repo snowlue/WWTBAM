@@ -302,8 +302,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
         self.player1.setMedia(decorate_audio('sounds/{}/bed.mp3'.format(n)))
         self.time_function(2500 if self.mode != 'clock' else 0, self.player1.play)
-        self.time_function(0, self.player1.setVolume, 30 if self.mode == 'clock' else 100)
-        # задаём фоновый трек и проигрываем его
+        if not self.is_sound:
+            self.time_function(0, self.player1.setVolume, 30 if self.mode == 'clock' else 100)
+            # задаём фоновый трек и проигрываем его
 
         if self.mode == 'clock':
             self.player3.setMedia(decorate_audio('sounds/question_show_clock.mp3'))
@@ -326,6 +327,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
     def showAnswers(self):
         '''Метод, показывающий ответы на вопрос
         '''
+
         for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
             self.time_function(100, a.startFadeIn)
             self.time_function(0, a.show)
@@ -357,9 +359,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     self.seconds_left = 90
 
     def mergeTheTimer(self):
+        '''Метод, отсчитывающий секунду от таймера в режиме на время
         '''
-        Метод, отсчитывающий секунду от таймера в режиме на время
-        '''
+
         n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
         dial = 1 if n in ['1-4', 5] else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
         dial = self.seconds_left // dial + 1 * (self.seconds_left % dial in range(1, dial))
@@ -769,6 +771,16 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             else:  # если дошли до 15 вопроса
                 self.time_function(1000, self.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
                 self.clear_all_labels()
+                if self.mode == 'clock':
+                    dial = 1 if n in ['1-4', 5] else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
+                    for i in range(self.seconds_left // dial, -1, -1):  # анимируем опустошение таймера
+                        self.time_function(0, self.timer_text.setText, str(i * dial))
+                        self.time_function(20, self.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(i)))
+                    self.time_function(0, self.timer_text.setText, '')
+                    for i in range(18, 0, -1):  # скрываем его
+                        self.time_function(20, self.timer_view.setPixmap,
+                                           QPixmap('animations/timer/{}.png'.format(i)))
+                    self.time_function(20, self.timer_view.setPixmap, QPixmap())
                 for i in range(1, 38):  # анимация показа суммы выигрыша
                     self.time_function(20, self.layout_q.setPixmap,
                                        QPixmap('animations/sum/{}.png'.format(i)))
@@ -1000,6 +1012,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         for p in [self.player1, self.player2, self.player3, self.player4]:
             p.setVolume(100 * self.is_sound)  # устанавливаем звук на основе self.is_sound
 
+        if self.current_number in range(1, 6) and self.mode == 'clock':
+            self.player1.setVolume(30 * self.is_sound)
+
 
 class WinWindow(QDialog, Ui_Win):
     '''Класс типа QDialog, использующийся для отображения окна победы в игре
@@ -1166,7 +1181,10 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         for p in [self.parent.player1, self.parent.player2, self.parent.player3, self.parent.player4]:
             p.stop()  # стопим все плееры
         self.parent.player1.setMedia(
-            decorate_audio('sounds/walk_away{}.mp3'.format('_clock' if self.parent.mode == 'clock' else ''))
+            decorate_audio('sounds/{}walk_away{}.mp3'.format(
+                'great_' if self.parent.current_number >= 11 else '',
+                '_clock' if self.parent.mode == 'clock' else ''
+            ))
         )  # запускаем музыку на «забрать деньги»
         self.parent.player1.play()
         if self.parent.mode == 'clock':
@@ -1176,6 +1194,25 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         )  # показываем правильный ответ
         self.parent.current_state_q_2.startFadeInImage()
         self.parent.current_state_q_2.show()
+
+        self.parent.time_function(3000, self.parent.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
+        self.parent.clear_all_labels()
+        n = '1-4' if self.parent.current_number in [1, 2, 3, 4] else self.parent.current_number
+        if self.parent.mode == 'clock':
+            dial = 1 if n in ['1-4', 5] else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
+            for i in range(self.parent.seconds_left // dial, -1, -1):  # анимируем опустошение таймера
+                self.parent.time_function(0, self.parent.timer_text.setText, str(i * dial))
+                self.parent.time_function(20, self.parent.timer_view.setPixmap,
+                                          QPixmap('images/timer/{}.png'.format(i)))
+            self.parent.time_function(0, self.parent.timer_text.setText, '')
+            for i in range(18, 0, -1):  # скрываем его
+                self.parent.time_function(20, self.parent.timer_view.setPixmap,
+                                          QPixmap('animations/timer/{}.png'.format(i)))
+            self.parent.time_function(20, self.parent.timer_view.setPixmap, QPixmap())
+        for i in range(1, 38):  # анимация показа суммы выигрыша
+            self.parent.time_function(20, self.parent.layout_q.setPixmap,
+                                      QPixmap('animations/sum/{}.png'.format(i)))
+        self.parent.time_function(0, self.parent.amount_q.setText, self.parent.got_amount)  # показываем сумму выигрыша
 
         logging.info('Game over — leave game')
 
