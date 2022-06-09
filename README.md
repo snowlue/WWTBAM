@@ -1,5 +1,5 @@
 # Кто хочет стать Миллионером?
-[![Made with Python 3.8](https://img.shields.io/badge/Made_with-Python_3.8-%23336E9E)][1]   [![Using QT Designer](https://img.shields.io/badge/Using-QT_Designer-%2325AF37)][2]   [![Using SQLiteStudio](https://img.shields.io/badge/Using-SQLiteStudio-%23337CCF)][3]<br/>
+[![Made with Python 3.9](https://img.shields.io/badge/Made_with-Python_3.9-%23336E9E)][1]   [![Using QT Designer](https://img.shields.io/badge/Using-QT_Designer-%2325AF37)][2]   [![Using SQLiteStudio](https://img.shields.io/badge/Using-SQLiteStudio-%23337CCF)][3]<br/>
 [![PyQt5](https://img.shields.io/badge/PyQt5-%2340CD52)][4]   [![SQLite3](https://img.shields.io/badge/SQLite3-%23107FCB)][5]   [![PyInstaller](https://img.shields.io/badge/PyInstaller-%23FFEB5E)][6]
 
 Популярное ТВ-шоу «Кто хочет стать Миллионером?» теперь доступно на вашем ПК! 💙<br>Подсказки, вопросы, виртуальные рубли и все фишки игры — всё то, что вы любите, в одном приложении. 💰<br>Бейте свои рекорды и рекорды своих друзей с таблицей рекордов. 🏆<br>Становитесь умнее и проверьте свои знания! 📚
