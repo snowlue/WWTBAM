@@ -8,6 +8,7 @@
 
 ## Как запустить:
 
+0. Установите [Python 3.9][1] на свой компьютер
 1. Откройте терминал в папке репозитория
 2. Введите следующие команды:
     ```batch
@@ -36,7 +37,7 @@
 - Смотрите таблицу рекордов и пополняйте её свои результатами, играя в игру (поддерживает удаление результатов).
 
 
-[1]: https://python.org
+[1]: https://www.python.org/downloads/release/python-3913/
 [2]: https://doc.qt.io/qt-5/qtdesigner-manual.html
 [3]: https://sqlitestudio.pl
 [4]: https://pypi.org/project/PyQt5
