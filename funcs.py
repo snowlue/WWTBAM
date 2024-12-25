@@ -1,4 +1,5 @@
 import logging
+import os
 import sqlite3
 import sys
 import traceback  # для получения текстового представления исключения
@@ -97,7 +98,7 @@ def decorate_audio(file: str) -> QMediaContent:
         относительный путь к аудиофайлу
     '''
 
-    url = QUrl.fromLocalFile(file)  # определяем из относительного пути file QUrl-объект, понятный для QMediaContent
+    url = QUrl.fromLocalFile(os.path.abspath(file))  # определяем из относительного пути file QUrl-объект, понятный для QMediaContent
     return QMediaContent(url)  # создаём из QUrl медиа-контент, понятный для Qt, и возвращаем его
 
 

@@ -954,13 +954,13 @@ class Ui_About(object):
         year = datetime.today().year
         self.ruText.setText('<html><body><p><span style="font-weight:600;">Игра «Кто хочет стать Миллионером?»</span>'
                             '</p><p>Игра, написанная на Python и основанная на популярном интеллектуальном телешоу '
-                            '<br/>«Who Wants to Be a Millionaire?»</p><p><a href="https://github.com/pavetranquil/">'
+                            '<br/>«Who Wants to Be a Millionaire?»</p><p><a href="https://github.com/snowlue/">'
                             '<span style="text-decoration: underline; color:#005ffe;">© Павел Овчинников, {}</span>'
                             '</a></p></body></html>'.format(year))
         self.enText.setText('<html><body><p><span style="font-weight:600;">The Game «Who Want to Be a Millionaire?»'
                             '</span></p><p>The game was written on Python and based<br/>on popular intellectual '
                             'TV show <br/>«Who Wants to Be a Millionaire?»</p><p><a href="'
-                            'https://github.com/pavetranquil/"><span style="text-decoration: underline; color:#005ffe;'
+                            'https://github.com/snowlue/"><span style="text-decoration: underline; color:#005ffe;'
                             '">© Pavel Ovchinnikov, {}</span></a></p></body></html>'.format(year))
         self.ruButton.setText("RU")
         self.enButton.setText("EN")
