@@ -14,36 +14,36 @@ from PyQt5.QtWidgets import QHeaderView, QTableWidget, QTableWidgetItem
 from application import msg
 
 
-def sql_request(request: str) -> str:
-    '''Метод для запроса данных из базы данных database.sqlite3 и возвращает "OK" или "ERROR" с описанием ошибки
+def sql_request(request: str) -> tuple[str, list]:
+    """Метод для запроса данных из базы данных database.sqlite3 и возвращает "OK" или "ERROR" с описанием ошибки
 
     Параметры
     ---------
     request: str
         текст запроса
-    '''
+    """
 
     with sqlite3.connect('database.sqlite3') as con:  # подключаемся к бд
         cur = con.cursor()  # и задаём курсор по бд
         try:
             # выясняем цель запроса
             if 'select' in request.lower():  # для получения данных из бд?
-                return cur.execute(request).fetchall()  # возвращаем выборку
+                return 'OK', cur.execute(request).fetchall()  # возвращаем выборку
             else:  # для записи данных в бд?
                 cur.execute(request)  # распаковываем запрос
                 con.commit()
-                return 'OK'
+                return 'OK', []
         except Exception as ex:
-            return 'ERROR: ' + str(ex)  # если в запросе ошибка, возвращаем её
+            return 'ERROR: ' + str(ex), []  # если в запросе ошибка, возвращаем её
 
 
 def get_questions():
-    '''Метод для получения и подготовки вопросов из базы данных database.sqlite3 для игры
-    '''
+    """Метод для получения и подготовки вопросов из базы данных database.sqlite3 для игры"""
 
-    questions_data, questions = [sql_request(
-        'SELECT * FROM "{}_questions"'.format(i)
-    ) for i in range(1, 16)], []  # извлекаем все вопросы из бд
+    questions_data, questions = (
+        [sql_request('SELECT * FROM "{}_questions"'.format(i))[1] for i in range(1, 16)],
+        [],
+    )  # извлекаем все вопросы из бд
 
     for q_unshuffled in questions_data:  # проходимся по списку с вопросами по каждому шагу денежного дерева
         questions_set = []
@@ -62,7 +62,7 @@ def get_questions():
 
 
 def makeTable(table: QTableWidget, header: list[str], data: list[list[str]]) -> None:
-    '''Метод для генерации таблицы в table с первой сторокой header и матрицей data
+    """Метод для генерации таблицы в table с первой строкой header и матрицей data
 
     Параметры
     ---------
@@ -72,7 +72,7 @@ def makeTable(table: QTableWidget, header: list[str], data: list[list[str]]) -> 
         первая строка таблицы — её заголовок
     data: list[list[str]]
         оставшиеся данные таблицы
-    '''
+    """
 
     table.setColumnCount(len(header))
     table.setHorizontalHeaderLabels(header)
@@ -90,22 +90,22 @@ def makeTable(table: QTableWidget, header: list[str], data: list[list[str]]) -> 
 
 
 def decorate_audio(file: str) -> QMediaContent:
-    '''Метод, декорирующий путь к аудиофайлу в медиа-контент, понятный для Qt
+    """Метод, декорирующий путь к аудиофайлу в медиа-контент, понятный для Qt
 
     Параметры
     ---------
     file: str
         относительный путь к аудиофайлу
-    '''
+    """
 
-    url = QUrl.fromLocalFile(os.path.abspath(file))  # определяем из относительного пути file QUrl-объект, понятный для QMediaContent
+    url = QUrl.fromLocalFile(os.path.abspath(file))  # из пути file определяем QUrl-объект, понятный для QMediaContent
     return QMediaContent(url)  # создаём из QUrl медиа-контент, понятный для Qt, и возвращаем его
 
 
 def excepthook(exc_type: Type[BaseException], exc_value: BaseException, exc_tb: TracebackType):
-    '''Обработчик исключений
+    """Обработчик исключений
 
-    При вызове исключения логгирует ошибку в логи и показывает окно, предлагающее отправить ошибку разработчику.
+    При вызове исключения логирует ошибку в логи и показывает окно, предлагающее отправить ошибку разработчику.
 
     Параметры
     ---------
@@ -115,11 +115,10 @@ def excepthook(exc_type: Type[BaseException], exc_value: BaseException, exc_tb: 
         описание исключения
     exc_tb: TracebackType
         подробный трейсбек
-    '''
+    """
 
     logging.error(
-        str(exc_value) + '\n' +
-        ''.join(traceback.format_exception(exc_type, exc_value, exc_tb))
+        str(exc_value) + '\n' + ''.join(traceback.format_exception(exc_type, exc_value, exc_tb))
     )  # логируем ошибку
     msg.show()
     msg.buttonClicked.connect(sys.exit)  # привязываем кнопку «ОК» к завершению приложения

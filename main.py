@@ -12,25 +12,35 @@ from PyQt5.QtMultimedia import QMediaPlayer
 from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QWidget
 
 from application import app
-from funcs import (decorate_audio, excepthook, get_questions, makeTable,
-                   sql_request)
-from ui import (AnimationLabel, Ui_About, Ui_ConfirmAgain, Ui_ConfirmClearAll,
-                Ui_ConfirmExit, Ui_ConfirmLeave, Ui_DeleteResult, Ui_GameOver,
-                Ui_MainWindow, Ui_ResultsTable, Ui_Rules, Ui_StartDialog,
-                Ui_Win, Ui_WinLeave)
+from funcs import decorate_audio, excepthook, get_questions, makeTable, sql_request
+from ui import (AnimationLabel, Ui_About, Ui_ConfirmAgain, Ui_ConfirmClearAll, Ui_ConfirmExit, Ui_ConfirmLeave,
+                Ui_DeleteResult, Ui_GameOver, Ui_MainWindow, Ui_ResultsTable, Ui_Rules, Ui_StartDialog, Ui_Win,
+                Ui_WinLeave)
 
 PRICES = [
-    '0', '500', '1 000', '2 000', '3 000', '5 000', '10 000',
-    '15 000', '25 000', '50 000', '100 000', '200 000',
-    '400 000', '800 000', '1 500 000', '3 000 000'
+    '0',
+    '500',
+    '1 000',
+    '2 000',
+    '3 000',
+    '5 000',
+    '10 000',
+    '15 000',
+    '25 000',
+    '50 000',
+    '100 000',
+    '200 000',
+    '400 000',
+    '800 000',
+    '1 500 000',
+    '3 000 000',
 ]  # суммы денежного дерева
 GUARANTEED_PRICES = ['0'] * 5 + ['5 000'] * 5 + ['100 000'] * 5  # несгораемые суммы
-logging.basicConfig(filename=realpath('logs.txt'), level=logging.DEBUG,
-                    format='%(levelname)s: %(message)s')  # конфиг логгирования
+logging.basicConfig(filename=realpath('logs.txt'), level=logging.DEBUG, format='%(levelname)s: %(message)s')
 
 
 class StartWindow(QDialog, Ui_StartDialog):
-    '''Класс типа QDialog, использующийся для ввода имени игрока и показа правил игр
+    """Класс типа QDialog, использующийся для ввода имени игрока и показа правил игр
 
     Примечание:
         правила игры пока не прописаны
@@ -43,7 +53,7 @@ class StartWindow(QDialog, Ui_StartDialog):
         Показывает правила игры
     startGame()
         Начинает игру, инициализируя GameWindow
-    '''
+    """
 
     def __init__(self):
         super().__init__()
@@ -53,42 +63,40 @@ class StartWindow(QDialog, Ui_StartDialog):
         self.rulebook_button.clicked.connect(self.showRules)
         self.exit_button.clicked.connect(sys.exit)
         self.msg = QMessageBox()
-        self.msg.setWindowTitle("Некорректное имя")
+        self.msg.setWindowTitle('Некорректное имя')
         self.msg.setWindowIcon(QIcon('images/app_icon.ico'))
         self.msg.setIcon(QMessageBox.Warning)
 
     def getName(self) -> None:
-        '''Метод, получающий имя игрока
-        '''
+        """Метод, получающий имя игрока"""
 
         name = self.lineEdit.text()
         if not name:
-            self.msg.setText('Введите имя, чтобы учитываться в таблице рекордов.\n'
-                             'Не оставляйте поле пустым.')
+            self.msg.setText('Введите имя, чтобы учитываться в таблице рекордов.\nНе оставляйте поле пустым.')
             self.msg.show()
         elif any([(le in name) for le in '`~!@#$%^&*()_+{}|:"<>?[]\\;\',./№0123456789']):
-            self.msg.setText('Введите корректное имя, состоящее только из букв и пробелов. '
-                             'Не используйте цифры или спецсимволы.')
+            self.msg.setText(
+                'Введите корректное имя, состоящее только из букв и пробелов. Не используйте цифры или спецсимволы.'
+            )
             self.msg.show()
             self.lineEdit.setText('')
         else:
             self.startGame(name.capitalize())
 
     def showRules(self):
-        '''Метод, показывающий правила игры
-        '''
+        """Метод, показывающий правила игры"""
 
         self.rules_wndw = GameRules()
         self.rules_wndw.show()
 
     def startGame(self, name: str) -> None:
-        '''Метод, начинающий игру с заданным именем игрока name и режимом игры
+        """Метод, начинающий игру с заданным именем игрока name и режимом игры
 
         Параметры
         ---------
         name: str
             имя игрока
-        '''
+        """
 
         mode = self.buttonGroup.checkedButton().text()
         mode = 'classic' if mode == 'Обычный режим' else 'clock'
@@ -104,8 +112,7 @@ class StartWindow(QDialog, Ui_StartDialog):
 
 
 class GameRules(QWidget, Ui_Rules):
-    '''Класс типа QWidget, показывающий правила игры
-    '''
+    """Класс типа QWidget, показывающий правила игры"""
 
     def __init__(self):
         super().__init__()
@@ -114,7 +121,7 @@ class GameRules(QWidget, Ui_Rules):
 
 
 class GameWindow(QMainWindow, Ui_MainWindow):
-    '''Класс типа QMainWindow, использующийся для отображения основного игрового контента
+    """Класс типа QMainWindow, использующийся для отображения основного игрового контента
 
     Атрибуты
     --------
@@ -171,7 +178,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         Показывает информацию об игре и разработчике
     checkSound()
         Переключает звук (т.е. включает или отключает)
-    '''
+    """
 
     def __init__(self, name: str = '', mode: str = 'classic'):
         super().__init__()
@@ -190,7 +197,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         self.player1 = QMediaPlayer()  # для музыки во время вопроса и неправильных ответов
         self.player2 = QMediaPlayer()  # для интро и правильных ответов
-        self.player3 = QMediaPlayer()  # для музыки перед вопросм, подсказки 50:50 и смены вопроса
+        self.player3 = QMediaPlayer()  # для музыки перед вопросом, подсказки 50:50 и смены вопроса
         self.player4 = QMediaPlayer()  # для подсказки x2
         self.is_sound = True
 
@@ -203,25 +210,27 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.sound_btn.triggered.connect(self.checkSound)
         self.startGame()
 
-    def user_control(func: Callable):
-        '''Декоратор, деактивирующий управление игрой во время выполнения анимации
+    def user_control(func: Callable):  # type: ignore
+        """Декоратор, деактивирующий управление игрой во время выполнения анимации
 
         Параметры
         ---------
         func: Callable
             функция с анимацией
-        '''
+        """
 
         def wrapper(self, *args, **kwargs):
-            def f(x): self.control = x
+            def f(x):
+                self.control = x
+
             self.time_function(1, f, False)
             func(self, *args, **kwargs)
             self.time_function(1, f, True)
 
         return wrapper
 
-    def time_function(self, time: int, func: Callable, *args):
-        '''Метод, активирующий таймер для выполнения анимации
+    def time_function(self, time: int, func: Callable, *args, **kwargs):
+        """Метод, активирующий таймер для выполнения анимации
 
         Метод аналогичен time.sleep(), но не вызывает зависания в потоке Qt
 
@@ -233,23 +242,25 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             запускаемая функция
         *args
             аргументы для func
-        '''
+        **kwargs
+            именованные аргументы для func
+        """
 
-        QTimer.singleShot(self.timer + time, partial(func, *args))
+        QTimer.singleShot(self.timer + time, partial(func, *args, **kwargs))
         # запускаем Qt-таймер с временем, через которое функция запустится
         # partial определяет функцию func с переданными аргументами args, но не выполняет её
-        # singleShot через self.timer+time миллисекунд выполнит фунцию func
+        # singleShot через self.timer+time миллисекунд выполнит функцию func
         self.timer += time
 
     @user_control
     def startGame(self, repeat: bool = False):
-        '''Метод, запускающий анимацию начала игры и показывающий первый вопрос
+        """Метод, запускающий анимацию начала игры и показывающий первый вопрос
 
         Параметры
         ---------
         repeat: bool = False
             первая ли эта игра в рамках сессии или нет (True, если не первая)
-        '''
+        """
 
         self.date = datetime.today().strftime('%d.%m.%Y %H:%M')  # дата игры
         self.time_function(1000, lambda a: a, True)
@@ -265,7 +276,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.double_dip.setPixmap(QPixmap('images/double-dip.png'))
         if repeat:
             self.double_dip.hide()
-        self.time_function(0, self.layout_q.setPixmap, QPixmap("animations/question field/1.png"))
+        self.time_function(0, self.layout_q.setPixmap, QPixmap('animations/question field/1.png'))
         self.time_function(0, self.player2.play)  # проигрываем саундтрек
 
         self.questions = get_questions()  # получаем вопросы для игры
@@ -273,25 +284,26 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         for i in range(1, 24):
             self.time_function(20, self.layout_q.setPixmap, QPixmap('animations/question field/{}.png'.format(i)))
-        self.time_function(0, self.layout_q.setPixmap, QPixmap("images/question field/layout.png"))
+        self.time_function(0, self.layout_q.setPixmap, QPixmap('images/question field/layout.png'))
 
         for i in range(1, 16):
             self.time_function(
-                200 + 30 * int(self.mode == 'clock'), self.current_state_t.setPixmap,
-                QPixmap('images/money tree/{}.png'.format(i))
+                200 + 30 * int(self.mode == 'clock'),
+                self.current_state_t.setPixmap,
+                QPixmap('images/money tree/{}.png'.format(i)),
             )  # анимация денежного дерева
         if self.mode == 'clock':
             self.time_function(500, lambda a: a, True)
         for i in 'A', 'B', 'C', 'D':
             self.time_function(
-                500, self.current_state_q.setPixmap,
-                QPixmap('images/question field/chosen_{}.png'.format(i))
+                500, self.current_state_q.setPixmap, QPixmap('images/question field/chosen_{}.png'.format(i))
             )  # анимация 4 ответов
 
         self.time_function(500, self.current_state_q.setPixmap, QPixmap())
         self.time_function(
-            1000 + 200 * int(self.mode == 'clock'), self.current_state_t.setPixmap,
-            QPixmap('images/money tree/{}.png'.format(self.current_number))
+            1000 + 200 * int(self.mode == 'clock'),
+            self.current_state_t.setPixmap,
+            QPixmap('images/money tree/{}.png'.format(self.current_number)),
         )  # стираем слои после проигравшейся анимации и переводим в начальное положение
 
         if self.mode == 'classic':
@@ -325,8 +337,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         logging.info('Game is OK. Mode: %s. Username: %s', self.mode, self.name)
 
     def showAnswers(self):
-        '''Метод, показывающий ответы на вопрос
-        '''
+        """Метод, показывающий ответы на вопрос"""
 
         for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
             self.time_function(100, a.startFadeIn)
@@ -359,8 +370,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     self.seconds_left = 90
 
     def mergeTheTimer(self):
-        '''Метод, отсчитывающий секунду от таймера в режиме на время
-        '''
+        """Метод, отсчитывающий секунду от таймера в режиме на время"""
 
         n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
         dial = 1 if n in ['1-4', 5] else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
@@ -382,11 +392,10 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.time_function(0, self.player1.stop)
             self.time_function(0, self.player2.stop)
             self.time_function(0, self.player3.play)
-            logging.info('Time\'s up')
+            logging.info("Time's up")
 
             self.time_function(
-                0, self.current_state_q_2.setPixmap,
-                QPixmap('images/question field/correct_{}.png'.format(letter))
+                0, self.current_state_q_2.setPixmap, QPixmap('images/question field/correct_{}.png'.format(letter))
             )  # зажигаем правильный ответ
             self.time_function(0, self.current_state_q_2.startFadeInImage)
             self.time_function(0, self.current_state_q_2.show)
@@ -400,28 +409,28 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             for i in range(18, 0, -1):  # скрываем таймер
                 self.time_function(20, self.timer_view.setPixmap, QPixmap('animations/timer/{}.png'.format(i)))
             self.time_function(20, self.timer_view.setPixmap, QPixmap())
-            self.time_function(0, self.showGameOver,
-                               [letter, result_game, self.is_sound])  # показываем проигрыш
+            self.time_function(0, self.showGameOver, [letter, result_game, self.is_sound])  # показываем проигрыш
 
             for i in range(1, 38):  # анимация показа суммы выигрыша
-                self.time_function(20, self.layout_q.setPixmap,
-                                   QPixmap('animations/sum/{}.png'.format(i)))
+                self.time_function(20, self.layout_q.setPixmap, QPixmap('animations/sum/{}.png'.format(i)))
             self.time_function(0, self.amount_q.setText, result_game)  # показываем сумму выигрыша
-            sql_request('''INSERT INTO results
+            sql_request(
+                """INSERT INTO results
                            (name, result, date)
                            VALUES ("{}", "{}", "{}")
-                        '''.format(self.name, result_game, self.date))  # записываем в бд выигрыш
+                        """.format(self.name, result_game, self.date)
+            )  # записываем в бд выигрыш
 
         self.seconds_left -= 1
 
     def updateQuestionField(self, changer: bool = False):
-        '''Метод, обновляющий текстовые поля вопроса и ответов
+        """Метод, обновляющий текстовые поля вопроса и ответов
 
         Параметры
         ---------
         changer: bool = False
             активна ли подсказка «замена вопроса» прямо сейчас
-        '''
+        """
 
         self.non_active_answers = []
         text = self.questions[self.current_number - 1][int(changer)][0]
@@ -438,13 +447,13 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         logging.info('Q%d set', self.current_number)
 
     def keyPressEvent(self, event: QKeyEvent):
-        '''Метод, обрабатывающий нажатия клавиши клавиатуры
+        """Метод, обрабатывающий нажатия клавиши клавиатуры
 
         Параметры
         ---------
         event: QKeyEvent
             содержит в себе объект события с подробным описанием нажатой клавиши/комбинации
-        '''
+        """
 
         if event.key() < 1500:  # логирование только для клавиш клавиатуры
             logging.info('KP %d', event.key())
@@ -471,18 +480,18 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 p.setVolume(100 * self.is_sound)
 
     def mousePressEvent(self, event: QMouseEvent):
-        '''Метод, обрабатывающий нажатия клавиши клавиатуры
+        """Метод, обрабатывающий нажатия клавиши клавиатуры
 
         Параметры
         ---------
         event: QMouseEvent
             содержит в себе объект события с подробным описанием нажатой кнопки мыши
-        '''
+        """
 
         self.checkPosition(event.x(), event.y())  # делегируем обработку события на checkPosition
 
     def checkPosition(self, x: int, y: int):
-        '''Метод, обрабатывающий переданные координаты в действие
+        """Метод, обрабатывающий переданные координаты в действие
 
         Параметры
         ---------
@@ -490,7 +499,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             x-координата
         y: int
             y-координата
-        '''
+        """
 
         logging.info('MP (%d, %d)', x, y)
         if self.mode == 'clock' and 539 <= x <= 567 and 641 <= y <= 662:  # показать ответы на вопрос
@@ -575,8 +584,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.openConfirmLeave()
 
     def clear_all_labels(self):
-        '''Метод, подчищающий все слои состояния и текстовые блоки
-        '''
+        """Метод, подчищающий все слои состояния и текстовые блоки"""
 
         self.time_function(0, self.timer_text.setText, '')
         self.time_function(0, self.question.setText, '')
@@ -590,7 +598,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
     @user_control
     def checkAnswer(self, label: AnimationLabel, letter: str):
-        '''Метод, обрабатывающий ответ игрока и проверяющий правильность ответа
+        """Метод, обрабатывающий ответ игрока и проверяющий правильность ответа
 
         Декорирован user_control
 
@@ -600,7 +608,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             текстовое поле, содержащее текст ответа
         letter: str
             буква ответа
-        '''
+        """
 
         user_answer = label.text()  # получаем из текстового поля текст ответа
         if user_answer != self.correct_answer:  # если ответа игрока не совпадает с правильным
@@ -641,8 +649,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.time_function(0, self.player1.play)
                 logging.info('Answ incorrect')
             self.time_function(
-                0, self.current_state_q_2.setPixmap,
-                QPixmap('images/question field/correct_{}.png'.format(letter))
+                0, self.current_state_q_2.setPixmap, QPixmap('images/question field/correct_{}.png'.format(letter))
             )  # зажигаем правильный ответ
             self.time_function(0, self.current_state_q_2.startFadeInImage)
             self.time_function(0, self.current_state_q_2.show)
@@ -653,8 +660,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         else:  # если используется «право на ошибку» и неправильный ответ игрока
             self.time_function(
-                1500, self.current_state_q_3.setPixmap,
-                QPixmap('images/question field/wrong_{}.png'.format(x2_letter))
+                1500, self.current_state_q_3.setPixmap, QPixmap('images/question field/wrong_{}.png'.format(x2_letter))
             )  # зажигаем серым неправильный ответ
             self.time_function(0, self.player4.stop)
             self.player1.setMedia(decorate_audio('sounds/double/first_wrong.mp3'))
@@ -675,40 +681,31 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                             self.time_function(20, self.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(i)))
                         self.time_function(0, self.timer_text.setText, '')
                         for i in range(18, 0, -1):  # скрываем его
-                            self.time_function(20, self.timer_view.setPixmap,
-                                               QPixmap('animations/timer/{}.png'.format(i)))
+                            self.time_function(
+                                20, self.timer_view.setPixmap, QPixmap('animations/timer/{}.png'.format(i))
+                            )
                         self.time_function(20, self.timer_view.setPixmap, QPixmap())
                     for i in range(1, 38):  # анимация показа суммы выигрыша
-                        self.time_function(20, self.layout_q.setPixmap,
-                                           QPixmap('animations/sum/{}.png'.format(i)))
+                        self.time_function(20, self.layout_q.setPixmap, QPixmap('animations/sum/{}.png'.format(i)))
                     self.time_function(
-                        0, self.amount_q.setText,
-                        PRICES[self.current_number]
+                        0, self.amount_q.setText, PRICES[self.current_number]
                     )  # после 5 и 10 вопросов показываем сумму выигрыша
-                    self.time_function(
-                        3700, self.layout_q.setPixmap,
-                        QPixmap('images/sum/amount.png')
-                    )
+                    self.time_function(3700, self.layout_q.setPixmap, QPixmap('images/sum/amount.png'))
                     self.time_function(750 + 1000 * int(self.current_number == 10), self.amount_q.setText, '')
                     self.player3.setMedia(decorate_audio('sounds/lights_down.mp3'))  # играем трек перед вопросом
                     self.time_function(0, self.player3.play)
                     # зачищаем всё после показа суммы выигрыша
                     self.time_function(0, self.layout_q.setPixmap, QPixmap('animations/sum/37.png'))
                     for i in range(37, 0, -1):  # анимация показа блока с вопросом и ответами
-                        self.time_function(20, self.layout_q.setPixmap,
-                                           QPixmap('animations/sum/{}.png'.format(i)))
-                    self.time_function(
-                        0, self.layout_q.setPixmap,
-                        QPixmap('images/question field/layout.png')
-                    )
+                        self.time_function(20, self.layout_q.setPixmap, QPixmap('animations/sum/{}.png'.format(i)))
+                    self.time_function(0, self.layout_q.setPixmap, QPixmap('images/question field/layout.png'))
                     logging.info('%d got', self.current_number)
 
                 self.current_number += 1  # поднимаем номер вопроса
                 if self.current_number - 1 not in [1, 2, 3, 4]:
                     # для всех вопросов с 6-го свой бэкграунд-трек
                     self.time_function(
-                        0, self.player1.setMedia,
-                        decorate_audio('sounds/{}/bed.mp3'.format(self.current_number))
+                        0, self.player1.setMedia, decorate_audio('sounds/{}/bed.mp3'.format(self.current_number))
                     )
                     if self.mode == 'classic':
                         self.time_function(2500, self.player1.play)
@@ -732,8 +729,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     self.time_function(0, self.player2.stop)
 
                 self.time_function(
-                    800 * (self.current_number - 1 not in [5, 10]), self.current_state_t.setPixmap,
-                    QPixmap('images/money tree/{}.png'.format(self.current_number))
+                    800 * (self.current_number - 1 not in [5, 10]),
+                    self.current_state_t.setPixmap,
+                    QPixmap('images/money tree/{}.png'.format(self.current_number)),
                 )  # поднимаем уровень на денежном дереве
 
                 if self.mode == 'clock':
@@ -747,8 +745,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     self.time_function(0, self.question.startFadeIn)  # показываем вопрос
                     if self.current_number in [6, 11]:
                         for i in range(1, 19):  # показываем таймер
-                            self.time_function(20, self.timer_view.setPixmap,
-                                               QPixmap('animations/timer/{}.png'.format(i)))
+                            self.time_function(
+                                20, self.timer_view.setPixmap, QPixmap('animations/timer/{}.png'.format(i))
+                            )
                     for i in range(0, 16):  # анимируем пополнение таймера
                         dial = 1 if n == '1-4' else (2 if n in range(5, 10) else (3 if n in range(10, 14) else 6))
                         self.time_function(0, self.timer_text.setText, str(i * dial))
@@ -778,24 +777,23 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                         self.time_function(20, self.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(i)))
                     self.time_function(0, self.timer_text.setText, '')
                     for i in range(18, 0, -1):  # скрываем его
-                        self.time_function(20, self.timer_view.setPixmap,
-                                           QPixmap('animations/timer/{}.png'.format(i)))
+                        self.time_function(20, self.timer_view.setPixmap, QPixmap('animations/timer/{}.png'.format(i)))
                     self.time_function(20, self.timer_view.setPixmap, QPixmap())
                 for i in range(1, 38):  # анимация показа суммы выигрыша
-                    self.time_function(20, self.layout_q.setPixmap,
-                                       QPixmap('animations/sum/{}.png'.format(i)))
+                    self.time_function(20, self.layout_q.setPixmap, QPixmap('animations/sum/{}.png'.format(i)))
                 self.time_function(0, self.amount_q.setText, PRICES[self.current_number])
-                sql_request('''INSERT INTO results
+                sql_request(
+                    """INSERT INTO results
                             (name, result, date)
                             VALUES ("{}", "{}", "{}")
-                            '''.format(self.name, '3 000 000', self.date))  # записываем в бд выигрыш
+                            """.format(self.name, '3 000 000', self.date)
+                )  # записываем в бд выигрыш
                 self.time_function(1000, self.showWin)  # показываем окно победы
 
         if user_answer != self.correct_answer and not self.is_x2_now:
             # если ответ неправильный и не было активно «право на ошибку»
             result_game = GUARANTEED_PRICES[self.current_number - 1]
-            self.time_function(0, self.showGameOver,
-                               [letter, result_game, self.is_sound])  # показываем проигрыш
+            self.time_function(0, self.showGameOver, [letter, result_game, self.is_sound])  # показываем проигрыш
             self.time_function(1000, self.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
             self.clear_all_labels()
             if self.mode == 'clock':
@@ -805,30 +803,30 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     self.time_function(20, self.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(i)))
                 self.time_function(0, self.timer_text.setText, '')
                 for i in range(18, 0, -1):  # скрываем его
-                    self.time_function(20, self.timer_view.setPixmap,
-                                       QPixmap('animations/timer/{}.png'.format(i)))
+                    self.time_function(20, self.timer_view.setPixmap, QPixmap('animations/timer/{}.png'.format(i)))
                 self.time_function(20, self.timer_view.setPixmap, QPixmap())
             for i in range(1, 38):  # анимация показа суммы выигрыша
-                self.time_function(20, self.layout_q.setPixmap,
-                                   QPixmap('animations/sum/{}.png'.format(i)))
+                self.time_function(20, self.layout_q.setPixmap, QPixmap('animations/sum/{}.png'.format(i)))
             self.time_function(0, self.amount_q.setText, result_game)  # показываем сумму выигрыша
-            sql_request('''INSERT INTO results
+            sql_request(
+                """INSERT INTO results
                            (name, result, date)
                            VALUES ("{}", "{}", "{}")
-                        '''.format(self.name, result_game, self.date))  # записываем в бд выигрыш
+                        """.format(self.name, result_game, self.date)
+            )  # записываем в бд выигрыш
 
         if self.is_x2_now:  # если было активно «право на ошибку», то со следующим вопросом снимаем его
             self.is_x2_now = False
 
     @user_control
     def useLifeline(self, type_ll: str):
-        '''Метод, использующий подсказку type_ll
+        """Метод, использующий подсказку type_ll
 
         Параметры
         ---------
         type_ll: str
             тип подсказки ("50:50", "x2" или "change")
-        '''
+        """
 
         if self.lifelines[type_ll]:
             if type_ll == 'change':  # замена вопроса
@@ -894,8 +892,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             logging.info('- {}-ll'.format(type_ll))
 
     def restartGame(self):
-        '''Метод, перезапускающий игру и возвращающий все значения в начальное состояние
-        '''
+        """Метод, перезапускающий игру и возвращающий все значения в начальное состояние"""
 
         self.control = True
         self.timer, self.is_x2_now = 900, False  # 900 для синхронизации анимации и звука
@@ -910,8 +907,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.startGame(True)  # начинаем игру с repeat = True
 
     def showWin(self):
-        '''Метод, показывающий окно для победы
-        '''
+        """Метод, показывающий окно для победы"""
 
         self.win = WinWindow(self, self.is_sound)
         self.control = False  # отключаем управление в игре, чтобы игрок не продолжил игру после победы
@@ -919,24 +915,23 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.win.show()
         logging.info('Game over - player won')
 
-    def showGameOver(self, data: list[str, str, bool]):
-        '''Метод, показывающий окно для поражения
+    def showGameOver(self, state: tuple[str, str, bool]):
+        """Метод, показывающий окно для поражения
 
         Параметры
         ---------
-        data: list[str, str, bool]
+        state: tuple[str, str, bool]
             содержит в себе правильный ответ, несгораемую сумму и is_sound (переключатель звука)
-        '''
+        """
 
         self.control = False  # отключаем управление в игре, чтобы игрок не продолжил игру после победы
-        self.game_over = GameOverWindow(self, data)
+        self.game_over = GameOverWindow(self, state)
         self.game_over.move(169 + self.x(), 210 + self.y())
         self.game_over.show()
         logging.info('Game over - player lost')
 
     def openConfirmLeave(self):
-        '''Метод, показывающий форму для подтверждения кнопки «забрать деньги»
-        '''
+        """Метод, показывающий форму для подтверждения кнопки «забрать деньги»"""
 
         self.control = False
         num_to_let = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
@@ -947,24 +942,21 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.confirm_wndw.show()
 
     def openConfirmAgain(self):
-        '''Метод, показывающий форму для подтверждения перезапуска игры
-        '''
+        """Метод, показывающий форму для подтверждения перезапуска игры"""
 
         self.confirm_wndw = ConfirmAgainWindow(self)
         self.confirm_wndw.move(168 + self.x(), 216 + self.y())
         self.confirm_wndw.show()
 
     def openConfirmClose(self):
-        '''Метод, показывающий форму для подтверждения закрытия игры
-        '''
+        """Метод, показывающий форму для подтверждения закрытия игры"""
 
         self.confirm_wndw = ConfirmCloseWindow()
         self.confirm_wndw.move(168 + self.x(), 216 + self.y())
         self.confirm_wndw.show()
 
     def openTable(self):
-        '''Метод, показывающий таблицу результатов
-        '''
+        """Метод, показывающий таблицу результатов"""
 
         self.results_table = ResultsTableWindow()
         self.results_table.move(170 + self.x(), 93 + self.y())
@@ -972,37 +964,33 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         logging.info('Results table open')
 
     def openDeleteResultForm(self):
-        '''Метод, показывающий форму для удаления одного результата из таблицы результатов
-        '''
+        """Метод, показывающий форму для удаления одного результата из таблицы результатов"""
 
         self.delete_form = DeleteResultWindow()
         self.delete_form.move(147 + self.x(), 93 + self.y())
         self.delete_form.show()
 
     def openConfirmClearAll(self):
-        '''Метод, показывающий форму для очистки таблицы результатов
-        '''
+        """Метод, показывающий форму для очистки таблицы результатов"""
 
         self.confirm_wndw = ConfirmClearAll()
         self.confirm_wndw.move(168 + self.x(), 216 + self.y())
         self.confirm_wndw.show()
 
     def openAbout(self):
-        '''Метод, показывающий информацию об игре и разработчике
-        '''
+        """Метод, показывающий информацию об игре и разработчике"""
 
         self.about_wndw = AboutWindow(self, self.is_sound)
         for p in [self.player1, self.player2, self.player4]:
             p.setVolume(20 * self.is_sound)  # приглушаем треки из игры
         self.player3.setMedia(decorate_audio('sounds/about.mp3'))
-        self.player3.play()  # включаем трек для этого онка
+        self.player3.play()  # включаем трек для этого окна
         self.about_wndw.move(178 + self.x(), 175 + self.y())
         self.about_wndw.show()
         logging.info('About open')
 
     def checkSound(self):
-        '''Метод, переключающий звук (т.е. включает или отключает)
-        '''
+        """Метод, переключающий звук (т.е. включает или отключает)"""
 
         if self.sender().isChecked():  # если галочка активна
             self.is_sound = True  # включаем музыку
@@ -1017,13 +1005,13 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
 
 class WinWindow(QDialog, Ui_Win):
-    '''Класс типа QDialog, использующийся для отображения окна победы в игре
+    """Класс типа QDialog, использующийся для отображения окна победы в игре
 
     Атрибуты
     --------
     parent: GameWindow
         класс основного окна игры
-    is_sound
+    is_sound: bool
         определяет, включён или отключён ли звук
 
     Методы
@@ -1032,39 +1020,37 @@ class WinWindow(QDialog, Ui_Win):
         Перезапускает игру и показывает таблицу результатов
     exit()
         Завершает игру и показывает таблицу результатов
-    '''
+    """
 
     def __init__(self, parent: GameWindow, is_sound: bool):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
 
-        self.parent = parent  # родительское окно
+        self.parent_ = parent  # родительское окно
         self.is_sound = is_sound
 
         self.buttonBox.accepted.connect(self.restart)
         self.buttonBox.rejected.connect(self.exit)
 
     def restart(self):
-        '''Метод, перезапускающий игру и показывающий таблицу результатов
-        '''
+        """Метод, перезапускающий игру и показывающий таблицу результатов"""
 
-        self.parent.restartGame()  # перезапускаем игру в родительском окне
+        self.parent_.restartGame()  # перезапускаем игру в родительском окне
         self.close()
         self.results = ResultsTableWindow()
-        self.results.move(170 + self.parent.x(), 93 + self.parent.y())
+        self.results.move(170 + self.parent_.x(), 93 + self.parent_.y())
         self.results.show()  # показываем таблицу результатов
         logging.info('Game restart')
 
     def exit(self):
-        '''Метод, завершающий игру и показывающий таблицу результатов
-        '''
+        """Метод, завершающий игру и показывающий таблицу результатов"""
 
-        self.parent.close()
+        self.parent_.close()
         self.close()
         self.player = QMediaPlayer()
         self.player.setMedia(
-            decorate_audio('sounds/quit_game{}.mp3'.format('_clock' if self.parent.mode == 'clock' else ''))
+            decorate_audio('sounds/quit_game{}.mp3'.format('_clock' if self.parent_.mode == 'clock' else ''))
         )  # запускаем трек конца игры
         if self.is_sound:
             self.player.play()
@@ -1074,13 +1060,13 @@ class WinWindow(QDialog, Ui_Win):
 
 
 class GameOverWindow(QDialog, Ui_GameOver):
-    '''Класс типа QDialog, использующийся для отображения окна поражения в игре
+    """Класс типа QDialog, использующийся для отображения окна поражения в игре
 
     Атрибуты
     --------
     parent: GameWindow
         класс основного окна игры
-    data: list[str, str, bool]
+    state: tuple[str, str, bool]
         содержит правильный ответ, несгораемую сумму и is_sound (переключатель звука)
 
     Методы
@@ -1089,40 +1075,38 @@ class GameOverWindow(QDialog, Ui_GameOver):
         Перезапускает игру и показывает таблицу результатов
     exit()
         Завершает игру и показывает таблицу результатов
-    '''
+    """
 
-    def __init__(self, parent: GameWindow, data: list[str, str, bool]):
+    def __init__(self, parent: GameWindow, state: tuple[str, str, bool]):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
 
-        self.parent = parent  # родительское окно
-        self.is_sound = data[2]
+        self.parent_ = parent  # родительское окно
+        self.is_sound = state[2]
         self.buttonBox.accepted.connect(self.restart)
         self.buttonBox.rejected.connect(self.exit)
-        self.label.setText(self.label.text().replace('{0}', data[0]).replace('{1}', data[1]))
+        self.label.setText(self.label.text().replace('{0}', state[0]).replace('{1}', state[1]))
         # заменяем плейсхолдеры на правильный ответ и выигрыш
 
     def restart(self):
-        '''Метод, перезапускающий игру и показывающий таблицу результатов
-        '''
+        """Метод, перезапускающий игру и показывающий таблицу результатов"""
 
-        self.parent.restartGame()
+        self.parent_.restartGame()
         self.close()
         self.results = ResultsTableWindow()
-        self.results.move(170 + self.parent.x(), 93 + self.parent.y())
+        self.results.move(170 + self.parent_.x(), 93 + self.parent_.y())
         self.results.show()
         logging.info('Game restart')
 
     def exit(self):
-        '''Метод, завершающий игру и показывающий таблицу результатов
-        '''
+        """Метод, завершающий игру и показывающий таблицу результатов"""
 
-        self.parent.close()
+        self.parent_.close()
         self.close()
         self.player = QMediaPlayer()
         self.player.setMedia(
-            decorate_audio('sounds/quit_game{}.mp3'.format('_clock' if self.parent.mode == 'clock' else ''))
+            decorate_audio('sounds/quit_game{}.mp3'.format('_clock' if self.parent_.mode == 'clock' else ''))
         )  # запускаем трек конца игры
         if self.is_sound:
             self.player.play()
@@ -1132,7 +1116,7 @@ class GameOverWindow(QDialog, Ui_GameOver):
 
 
 class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
-    '''Класс типа QDialog, необходимый для подтверждения «забрать деньги»
+    """Класс типа QDialog, необходимый для подтверждения «забрать деньги»
 
     Атрибуты
     --------
@@ -1149,91 +1133,96 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         Покидает игру и забирает деньги, предлагая сыграть ещё раз
     close_wndw()
         Закрывает окно подтверждения при отмене действия
-    '''
+    """
 
     def __init__(self, parent: GameWindow, letter: str, is_sound: bool):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
 
-        self.parent = parent  # родительское окно
+        self.parent_ = parent  # родительское окно
         self.correct = letter  # правильный ответ
         self.is_sound = is_sound
-        self.label.setText(self.label.text().replace('{}', self.parent.got_amount))
+        self.label.setText(self.label.text().replace('{}', self.parent_.got_amount))
         # заменяем плейсхолдер на сумму, с которой игрок хочет уйти
         self.buttonBox.accepted.connect(self.leave)
         self.buttonBox.rejected.connect(self.close_wndw)
 
     def leave(self):
-        '''Метод, покидающий игру, забирающий деньги и предлагающий сыграть ещё раз
-        '''
+        """Метод, покидающий игру, забирающий деньги и предлагающий сыграть ещё раз"""
 
-        sql_request('''INSERT INTO results
+        sql_request(
+            """INSERT INTO results
                        (name, result, date)
                        VALUES ("{}", "{}", "{}")
-                    '''.format(self.parent.name, self.parent.got_amount, self.parent.date))
+                    """.format(self.parent_.name, self.parent_.got_amount, self.parent_.date)
+        )
         # вставляем результат игры в таблицы
-        self.windialog = WinLeaveWindow(self.parent, [self.correct, self.parent.got_amount, self.is_sound])
+        self.windialog = WinLeaveWindow(self.parent_, (self.correct, self.parent_.got_amount, self.is_sound))
         # инициализируем окно после «забрать деньги»
-        self.windialog.move(169 + self.parent.x(), 210 + self.parent.y())
+        self.windialog.move(169 + self.parent_.x(), 210 + self.parent_.y())
         self.windialog.show()
 
-        for p in [self.parent.player1, self.parent.player2, self.parent.player3, self.parent.player4]:
+        for p in [self.parent_.player1, self.parent_.player2, self.parent_.player3, self.parent_.player4]:
             p.stop()  # стопим все плееры
-        self.parent.player1.setMedia(
-            decorate_audio('sounds/{}walk_away{}.mp3'.format(
-                'great_' if self.parent.current_number >= 11 else '',
-                '_clock' if self.parent.mode == 'clock' else ''
-            ))
+        self.parent_.player1.setMedia(
+            decorate_audio(
+                'sounds/{}walk_away{}.mp3'.format(
+                    'great_' if self.parent_.current_number >= 11 else '',
+                    '_clock' if self.parent_.mode == 'clock' else '',
+                )
+            )
         )  # запускаем музыку на «забрать деньги»
-        self.parent.player1.play()
-        if self.parent.mode == 'clock':
-            self.parent.qttimer.stop()
-        self.parent.current_state_q_2.setPixmap(
+        self.parent_.player1.play()
+        if self.parent_.mode == 'clock':
+            self.parent_.qttimer.stop()
+        self.parent_.current_state_q_2.setPixmap(
             QPixmap('images/question field/correct_{}.png'.format(self.correct))
         )  # показываем правильный ответ
-        self.parent.current_state_q_2.startFadeInImage()
-        self.parent.current_state_q_2.show()
+        self.parent_.current_state_q_2.startFadeInImage()
+        self.parent_.current_state_q_2.show()
 
-        self.parent.time_function(3000, self.parent.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
-        self.parent.clear_all_labels()
-        n = '1-4' if self.parent.current_number in [1, 2, 3, 4] else self.parent.current_number
-        if self.parent.mode == 'clock':
+        self.parent_.time_function(3000, self.parent_.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
+        self.parent_.clear_all_labels()
+        n = '1-4' if self.parent_.current_number in [1, 2, 3, 4] else self.parent_.current_number
+        if self.parent_.mode == 'clock':
             dial = 1 if n in ['1-4', 5] else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
-            for i in range(self.parent.seconds_left // dial, -1, -1):  # анимируем опустошение таймера
-                self.parent.time_function(0, self.parent.timer_text.setText, str(i * dial))
-                self.parent.time_function(20, self.parent.timer_view.setPixmap,
-                                          QPixmap('images/timer/{}.png'.format(i)))
-            self.parent.time_function(0, self.parent.timer_text.setText, '')
+            for i in range(self.parent_.seconds_left // dial, -1, -1):  # анимируем опустошение таймера
+                self.parent_.time_function(0, self.parent_.timer_text.setText, str(i * dial))
+                self.parent_.time_function(
+                    20, self.parent_.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(i))
+                )
+            self.parent_.time_function(0, self.parent_.timer_text.setText, '')
             for i in range(18, 0, -1):  # скрываем его
-                self.parent.time_function(20, self.parent.timer_view.setPixmap,
-                                          QPixmap('animations/timer/{}.png'.format(i)))
-            self.parent.time_function(20, self.parent.timer_view.setPixmap, QPixmap())
+                self.parent_.time_function(
+                    20, self.parent_.timer_view.setPixmap, QPixmap('animations/timer/{}.png'.format(i))
+                )
+            self.parent_.time_function(20, self.parent_.timer_view.setPixmap, QPixmap())
         for i in range(1, 38):  # анимация показа суммы выигрыша
-            self.parent.time_function(20, self.parent.layout_q.setPixmap,
-                                      QPixmap('animations/sum/{}.png'.format(i)))
-        self.parent.time_function(0, self.parent.amount_q.setText, self.parent.got_amount)  # показываем сумму выигрыша
+            self.parent_.time_function(20, self.parent_.layout_q.setPixmap, QPixmap('animations/sum/{}.png'.format(i)))
+        self.parent_.time_function(
+            0, self.parent_.amount_q.setText, self.parent_.got_amount
+        )  # показываем сумму выигрыша
 
         logging.info('Game over — leave game')
 
         self.close()
 
     def close_wndw(self):
-        '''Метод, закрывающий окно подтверждения при отмене действия
-        '''
+        """Метод, закрывающий окно подтверждения при отмене действия"""
 
-        self.parent.control = True
+        self.parent_.control = True
         self.close()
 
 
 class WinLeaveWindow(Ui_WinLeave, GameOverWindow):
-    '''Класс, наследующийся от GameOverWindow — необходим для подтверждения выхода из игры при забранных деньгах
+    """Класс, наследующийся от GameOverWindow — необходим для подтверждения выхода из игры при забранных деньгах
 
     Атрибуты
     --------
     parent: GameWindow
         класс основного окна игры
-    data: list[str, str, bool]
+    state: tuple[str, str, bool]
         содержит (по очереди) правильный ответ, выигрыш и булево, определяющее, включён ли звук или нет
 
     Методы
@@ -1242,13 +1231,13 @@ class WinLeaveWindow(Ui_WinLeave, GameOverWindow):
         Перезапускает игру и показывает таблицу результатов
     exit()
         Завершает игру и показывает таблицу результатов
-    '''
+    """
 
     pass
 
 
 class ConfirmAgainWindow(QDialog, Ui_ConfirmAgain):
-    '''Класс типа QDialog, необходим для подтверждения к кнопке «Начать новую игру»
+    """Класс типа QDialog, необходим для подтверждения к кнопке «Начать новую игру»
 
     Атрибуты
     --------
@@ -1259,33 +1248,32 @@ class ConfirmAgainWindow(QDialog, Ui_ConfirmAgain):
     ------
     restart()
         Перезапускает игру
-    '''
+    """
 
     def __init__(self, parent: GameWindow):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
-        self.parent = parent  # родительское окно
+        self.parent_ = parent  # родительское окно
         self.buttonBox.accepted.connect(self.restart)
         self.buttonBox.rejected.connect(self.close)
 
     def restart(self):
-        '''Метод, перезапускающий игру
-        '''
+        """Метод, перезапускающий игру"""
 
-        self.parent.restartGame()
+        self.parent_.restartGame()
         logging.info('Game restart')
         self.close()
 
 
 class ConfirmCloseWindow(QDialog, Ui_ConfirmExit):
-    '''Класс типа QDialog, подтверждающий закрытие игры после нажатия кнопки «Закрыть игру» в экшнбаре
+    """Класс типа QDialog, подтверждающий закрытие игры после нажатия кнопки «Закрыть игру» в экшнбаре
 
     Методы
     ------
     exit()
         Завершает игру и закрывает приложение
-    '''
+    """
 
     def __init__(self):
         super().__init__()
@@ -1295,23 +1283,21 @@ class ConfirmCloseWindow(QDialog, Ui_ConfirmExit):
         self.buttonBox.rejected.connect(self.close)
 
     def exit(self):
-        '''Метод, завершающий игру и закрывающий приложение
-        '''
+        """Метод, завершающий игру и закрывающий приложение"""
 
         logging.info('Game close')
         sys.exit()
 
 
 class ResultsTableWindow(QWidget, Ui_ResultsTable):
-    '''Класс типа QWidget, отображающий таблицу результатов
-    '''
+    """Класс типа QWidget, отображающий таблицу результатов"""
 
     def __init__(self):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
 
-        results = sql_request('SELECT * from results')  # запрашиваем результаты
+        results = sql_request('SELECT * from results')[1]  # запрашиваем результаты
         results = sorted(results, key=lambda x: int(str(x[2]).replace(' ', '')), reverse=True)  # сортируем по выигрышу
         results = [list(map(str, i[1:])) for i in results]
 
@@ -1320,7 +1306,7 @@ class ResultsTableWindow(QWidget, Ui_ResultsTable):
 
 
 class DeleteResultWindow(QWidget, Ui_DeleteResult):
-    '''Класс типа QWidget, отображающий форму для удаления одного результата из таблицы
+    """Класс типа QWidget, отображающий форму для удаления одного результата из таблицы
 
     Методы
     ------
@@ -1328,7 +1314,7 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
         Обновляет таблицу после удаления одного результата
     deleteAction()
         Удаляет один результат по id из спинбокса
-    '''
+    """
 
     def __init__(self):
         super().__init__()
@@ -1338,10 +1324,9 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
         self.deleteButton.clicked.connect(self.deleteAction)
 
     def refreshTable(self):
-        '''Метод, обновляющий таблицу результатов после удаления одного результата
-        '''
+        """Метод, обновляющий таблицу результатов после удаления одного результата"""
 
-        results = sql_request('SELECT * from results')
+        results = sql_request('SELECT * from results')[1]
         results = sorted(results, key=lambda x: int(str(x[2]).replace(' ', '')), reverse=True)
         results = [list(map(str, i[1:])) for i in results]
         self.results = [list(map(str, [i + 1, results[i][2]])) for i in range(len(results))]
@@ -1354,17 +1339,17 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
         makeTable(self.tableWidget, ['Имя', 'Результат', 'Дата и время'], results)
 
     def deleteAction(self):
-        '''Метод, удаляющий один результат по id результата из спинбокса
+        """Метод, удаляющий один результат по id результата из спинбокса
 
         Исключения
         ----------
         Exception
             если запрос через sql_request() вернулся с ошибкой
-        '''
+        """
 
         id_result = self.spinBox.text()  # берём id результата из спинбокса
         result_date = list(filter(lambda x: x[0] == id_result, self.results))[0][1]
-        result = sql_request('DELETE FROM results WHERE date = "{}"'.format(result_date))
+        result = sql_request('DELETE FROM results WHERE date = "{}"'.format(result_date))[0]
         if 'ERROR' in result:
             raise Exception(result)
         else:
@@ -1373,13 +1358,13 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
 
 
 class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):
-    '''Класс типа QDialog, использующийся для очистки всей таблицы результатов
+    """Класс типа QDialog, использующийся для очистки всей таблицы результатов
 
     Методы
     -----
     deleteAllData()
         Очищает всю таблицу результатов
-    '''
+    """
 
     def __init__(self):
         super().__init__()
@@ -1389,8 +1374,7 @@ class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):
         self.buttonBox.rejected.connect(self.close)
 
     def deleteAllData(self):
-        '''Метод, очищающий всю таблицу результатов
-        '''
+        """Метод, очищающий всю таблицу результатов"""
 
         sql_request('DELETE FROM results')
         self.results_table = ResultsTableWindow()
@@ -1401,7 +1385,7 @@ class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):
 
 
 class AboutWindow(QWidget, Ui_About):
-    '''Класс типа QWidget, показывающий информацию о программе и разработчике
+    """Класс типа QWidget, показывающий информацию о программе и разработчике
 
     Атрибуты
     --------
@@ -1420,49 +1404,45 @@ class AboutWindow(QWidget, Ui_About):
         Закрывает окно
     closeEvent(event: QCloseEvent)
         Вызывается при событии закрытия окна
-    '''
+    """
 
     def __init__(self, parent: GameWindow, is_sound: bool):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
         self.enText.hide()
-        self.parent = parent  # родительское окно
+        self.parent_ = parent  # родительское окно
         self.is_sound = is_sound
         self.ruButton.clicked.connect(self.showRuText)
         self.enButton.clicked.connect(self.showEnText)
         self.okButton.clicked.connect(self.close_wndw)
 
     def showRuText(self):
-        '''Метод, показывающий русский текст информации о программе
-        '''
+        """Метод, показывающий русский текст информации о программе"""
 
         self.ruText.show()
         self.enText.hide()
 
     def showEnText(self):
-        '''Метод, показывающий английский текст информации о программе
-        '''
+        """Метод, показывающий английский текст информации о программе"""
 
         self.enText.show()
         self.ruText.hide()
 
     def close_wndw(self):
-        '''Метод, закрывающий окно при нажатии на кнопку «ОК»
-        '''
+        """Метод, закрывающий окно при нажатии на кнопку «ОК»"""
 
-        for p in [self.parent.player1, self.parent.player2, self.parent.player4]:
+        for p in [self.parent_.player1, self.parent_.player2, self.parent_.player4]:
             p.setVolume(100 * self.is_sound)
-        self.parent.player3.stop()
+        self.parent_.player3.stop()
         self.close()
 
     def closeEvent(self, event: QCloseEvent):
-        '''Метод, вызывающийся при закрытии окна
-        '''
+        """Метод, вызывающийся при закрытии окна"""
 
-        for p in [self.parent.player1, self.parent.player2, self.parent.player4]:
+        for p in [self.parent_.player1, self.parent_.player2, self.parent_.player4]:
             p.setVolume(100 * self.is_sound)
-        self.parent.player3.stop()
+        self.parent_.player3.stop()
         return super().closeEvent(event)
 
 
