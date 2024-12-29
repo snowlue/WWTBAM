@@ -2,7 +2,7 @@ from datetime import datetime  # год в копирайте в «О прило
 from random import choice  # выбирает фон
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, QEasingCurve, QPropertyAnimation, QVariant, QVariantAnimation, pyqtSlot
+from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, Qt, QVariant, QVariantAnimation, pyqtSlot
 from PyQt5.QtGui import QColor, QFontDatabase, QPalette
 from PyQt5.QtWidgets import QGraphicsOpacityEffect, QLabel
 
