@@ -2,11 +2,11 @@ from datetime import datetime  # год в копирайте в «О прило
 from random import choice  # выбирает фон
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QVariant, QVariantAnimation, pyqtSlot
+from PyQt5.QtCore import Qt, QEasingCurve, QPropertyAnimation, QVariant, QVariantAnimation, pyqtSlot
 from PyQt5.QtGui import QColor, QFontDatabase, QPalette
 from PyQt5.QtWidgets import QGraphicsOpacityEffect, QLabel
 
-import font_resources  # ресурсы шрифтов
+import font_resources  # noqa: F401 | ресурсы шрифтов
 
 
 class AnimationLabel(QLabel):
@@ -66,16 +66,18 @@ class Ui_StartDialog(object):
         self.verticalLayout.setSpacing(2)
         self.verticalLayout.setObjectName('verticalLayout')
         self.formLayout = QtWidgets.QFormLayout()
-        self.formLayout.setFormAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.formLayout.setFormAlignment(
+            Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter  # type: ignore
+        )
         self.formLayout.setHorizontalSpacing(10)
         self.formLayout.setVerticalSpacing(0)
         self.formLayout.setObjectName('formLayout')
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setObjectName('label')
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label)
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.ItemRole.LabelRole, self.label)
         self.lineEdit = QtWidgets.QLineEdit(Dialog)
         self.lineEdit.setObjectName('lineEdit')
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.lineEdit)
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.ItemRole.FieldRole, self.lineEdit)
         self.verticalLayout.addLayout(self.formLayout)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setSpacing(10)
@@ -89,11 +91,11 @@ class Ui_StartDialog(object):
 
         self.buttonGroup = QtWidgets.QButtonGroup(Dialog)
         self.buttonGroup.setObjectName('ButtonGroup')
-        self.radioButton = QtWidgets.QRadioButton(self)
+        self.radioButton = QtWidgets.QRadioButton(self)  # type: ignore
         self.radioButton.setChecked(True)
         self.radioButton.setObjectName('radioButton')
         self.buttonGroup.addButton(self.radioButton)
-        self.radioButton_2 = QtWidgets.QRadioButton(self)
+        self.radioButton_2 = QtWidgets.QRadioButton(self)  # type: ignore
         self.radioButton_2.setObjectName('radioButton_2')
         self.buttonGroup.addButton(self.radioButton_2)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
@@ -143,7 +145,7 @@ class Ui_Rules(object):
         self.scrollArea.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.scrollArea.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
         self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setAlignment(QtCore.Qt.AlignCenter)
+        self.scrollArea.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.scrollArea.setObjectName('scrollArea')
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 595, 874))
@@ -166,7 +168,7 @@ class Ui_Rules(object):
         self.start_label.setSizePolicy(sizePolicy)
         self.start_label.setFont(font)
         self.start_label.setText('Добро пожаловать в «Кто хочет стать миллионером?»')
-        self.start_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.start_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.start_label.setObjectName('start_label')
         self.verticalLayout.addWidget(self.start_label)
 
@@ -229,7 +231,7 @@ class Ui_Rules(object):
         self.picture_ll.setMaximumSize(QtCore.QSize(566, 58))
         self.picture_ll.setPixmap(QtGui.QPixmap('images/rules/lifelines.png'))
         self.picture_ll.setScaledContents(False)
-        self.picture_ll.setAlignment(QtCore.Qt.AlignCenter)
+        self.picture_ll.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.picture_ll.setObjectName('picture_ll')
         self.aboutLifelines.addWidget(self.picture_ll)
 
@@ -257,7 +259,7 @@ class Ui_Rules(object):
         self.picture_ans.setMaximumSize(QtCore.QSize(566, 112))
         self.picture_ans.setPixmap(QtGui.QPixmap('images/rules/question_field.png'))
         self.picture_ans.setScaledContents(True)
-        self.picture_ans.setAlignment(QtCore.Qt.AlignCenter)
+        self.picture_ans.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.picture_ans.setObjectName('picture_ans')
         self.aboutAnswers.addWidget(self.picture_ans)
 
@@ -269,7 +271,7 @@ class Ui_Rules(object):
         self.final_label.setSizePolicy(sizePolicy)
         self.final_label.setFont(font)
         self.final_label.setText('Удачной игры, успехов и побед!')
-        self.final_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.final_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.final_label.setObjectName('final_label')
         self.verticalLayout.addWidget(self.final_label)
 
@@ -354,11 +356,11 @@ class Ui_MainWindow(object):
 
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
+        brush.setStyle(Qt.BrushStyle.SolidPattern)
         palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush)
         palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
         brush = QtGui.QBrush(QtGui.QColor(120, 120, 120))
-        brush.setStyle(QtCore.Qt.SolidPattern)
+        brush.setStyle(Qt.BrushStyle.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
 
         font = QtGui.QFont(fontName)
@@ -370,9 +372,11 @@ class Ui_MainWindow(object):
         self.answer_A.setGeometry(QtCore.QRect(237, 99, 288, 40))
         self.answer_A.setPalette(palette)
         self.answer_A.setFont(font)
-        self.answer_A.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.answer_A.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
         self.answer_A.setText('')
-        self.answer_A.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.answer_A.setAlignment(
+            Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter  # type: ignore
+        )
         self.answer_A.setWordWrap(True)
         self.answer_A.setObjectName('answer_A')
 
@@ -380,9 +384,11 @@ class Ui_MainWindow(object):
         self.answer_B.setGeometry(QtCore.QRect(607, 99, 288, 40))
         self.answer_B.setPalette(palette)
         self.answer_B.setFont(font)
-        self.answer_B.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.answer_B.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
         self.answer_B.setText('')
-        self.answer_B.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.answer_B.setAlignment(
+            Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter  # type: ignore
+        )
         self.answer_B.setWordWrap(True)
         self.answer_B.setObjectName('answer_B')
 
@@ -390,9 +396,11 @@ class Ui_MainWindow(object):
         self.answer_C.setGeometry(QtCore.QRect(237, 151, 288, 40))
         self.answer_C.setPalette(palette)
         self.answer_C.setFont(font)
-        self.answer_C.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.answer_C.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
         self.answer_C.setText('')
-        self.answer_C.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.answer_C.setAlignment(
+            Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter  # type: ignore
+        )
         self.answer_C.setWordWrap(True)
         self.answer_C.setObjectName('answer_C')
 
@@ -400,9 +408,11 @@ class Ui_MainWindow(object):
         self.answer_D.setGeometry(QtCore.QRect(607, 151, 288, 40))
         self.answer_D.setPalette(palette)
         self.answer_D.setFont(font)
-        self.answer_D.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.answer_D.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
         self.answer_D.setText('')
-        self.answer_D.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.answer_D.setAlignment(
+            Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter  # type: ignore
+        )
         self.answer_D.setWordWrap(True)
         self.answer_D.setObjectName('answer_D')
 
@@ -411,7 +421,7 @@ class Ui_MainWindow(object):
         self.question.setPalette(palette)
         self.question.setFont(font)
         self.question.setText('')
-        self.question.setAlignment(QtCore.Qt.AlignCenter)
+        self.question.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.question.setWordWrap(True)
         self.question.setObjectName('question')
 
@@ -442,7 +452,7 @@ class Ui_MainWindow(object):
 
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
+        brush.setStyle(Qt.BrushStyle.SolidPattern)
         palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush)
         palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
@@ -453,7 +463,7 @@ class Ui_MainWindow(object):
         font.setPointSize(33)
         self.amount_q.setFont(font)
         self.amount_q.setText('')
-        self.amount_q.setAlignment(QtCore.Qt.AlignCenter)
+        self.amount_q.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.amount_q.setObjectName('amount_q')
 
         self.double_dip = AnimationLabel(self.questionField)
@@ -522,7 +532,7 @@ class Ui_MainWindow(object):
         self.timer_view.setGeometry(QtCore.QRect(215, 419, 678, 64))
         self.timer_view.setText('')
         self.timer_view.setScaledContents(True)
-        self.timer_view.setAlignment(QtCore.Qt.AlignCenter)
+        self.timer_view.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.timer_view.setObjectName('timer')
 
         self.timer_text = QtWidgets.QLabel(self.centralwidget)
@@ -533,7 +543,7 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.timer_text.setFont(font)
         self.timer_text.setText('')
-        self.timer_text.setAlignment(QtCore.Qt.AlignCenter)
+        self.timer_text.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.timer_text.setObjectName('timer_text')
 
         self.layout_q.raise_()
@@ -588,11 +598,11 @@ class Ui_Win(object):
         font.setBold(True)
         font.setWeight(75)
         self.label.setFont(font)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.label.setObjectName('label')
         self.verticalLayout.addWidget(self.label)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
         self.buttonBox.setCenterButtons(True)
         self.buttonBox.setObjectName('buttonBox')
@@ -626,11 +636,11 @@ class Ui_GameOver(object):
         font.setBold(True)
         font.setWeight(75)
         self.label.setFont(font)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.label.setObjectName('label')
         self.verticalLayout.addWidget(self.label)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
         self.buttonBox.setCenterButtons(True)
         self.buttonBox.setObjectName('buttonBox')
@@ -642,9 +652,7 @@ class Ui_GameOver(object):
 
     def setTextInUi(self, Dialog):
         Dialog.setWindowTitle('Вы проиграли!')
-        self.label.setText(
-            'Вы проиграли! Правильный ответ: {0}.\nВаш выигрыш составил {1} руб.\nНачать новую игру?'
-        )
+        self.label.setText('Вы проиграли! Правильный ответ: {0}.\nВаш выигрыш составил {1} руб.\nНачать новую игру?')
 
 
 class Ui_ConfirmExit(object):
@@ -658,7 +666,7 @@ class Ui_ConfirmExit(object):
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(30, 90, 341, 32))
         self.buttonBox.setFont(font)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
         self.buttonBox.setCenterButtons(True)
         self.buttonBox.setObjectName('buttonBox')
@@ -667,7 +675,7 @@ class Ui_ConfirmExit(object):
         font.setBold(True)
         font.setWeight(75)
         self.label.setFont(font)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.label.setWordWrap(True)
         self.label.setObjectName('label')
 
@@ -690,7 +698,7 @@ class Ui_ConfirmLeave(object):
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(30, 90, 341, 32))
         self.buttonBox.setFont(font)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
         self.buttonBox.setCenterButtons(True)
         self.buttonBox.setObjectName('buttonBox')
@@ -699,7 +707,7 @@ class Ui_ConfirmLeave(object):
         font.setBold(True)
         font.setWeight(75)
         self.label.setFont(font)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.label.setWordWrap(True)
         self.label.setObjectName('label')
 
@@ -727,11 +735,11 @@ class Ui_WinLeave(object):
         font.setBold(True)
         font.setWeight(75)
         self.label.setFont(font)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.label.setObjectName('label')
         self.verticalLayout.addWidget(self.label)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
         self.buttonBox.setCenterButtons(True)
         self.buttonBox.setObjectName('buttonBox')
@@ -759,7 +767,7 @@ class Ui_ConfirmAgain(object):
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(30, 90, 341, 32))
         self.buttonBox.setFont(font)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
         self.buttonBox.setCenterButtons(True)
         self.buttonBox.setObjectName('buttonBox')
@@ -768,7 +776,7 @@ class Ui_ConfirmAgain(object):
         font.setBold(True)
         font.setWeight(75)
         self.label.setFont(font)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.label.setWordWrap(True)
         self.label.setObjectName('label')
 
@@ -863,7 +871,7 @@ class Ui_ConfirmClearAll(object):
         self.buttonBox.setGeometry(QtCore.QRect(30, 90, 341, 32))
         font.setPointSize(9)
         self.buttonBox.setFont(font)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
         self.buttonBox.setCenterButtons(True)
         self.buttonBox.setObjectName('buttonBox')
@@ -872,7 +880,7 @@ class Ui_ConfirmClearAll(object):
         font.setBold(True)
         font.setWeight(75)
         self.label.setFont(font)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.label.setWordWrap(True)
         self.label.setObjectName('label')
 
@@ -898,7 +906,7 @@ class Ui_About(object):
         font.setPointSize(9)
         self.ruText.setFont(font)
         self.ruText.setScaledContents(False)
-        self.ruText.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
+        self.ruText.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)  # type: ignore
         self.ruText.setWordWrap(True)
         self.ruText.setObjectName('ruText')
         self.ruText.setOpenExternalLinks(True)
@@ -907,7 +915,7 @@ class Ui_About(object):
         self.enText.setEnabled(True)
         self.enText.setFont(font)
         self.enText.setScaledContents(False)
-        self.enText.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
+        self.enText.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)  # type: ignore
         self.enText.setWordWrap(True)
         self.enText.setObjectName('enText')
         self.enText.setOpenExternalLinks(True)

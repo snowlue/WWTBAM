@@ -457,23 +457,23 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         if event.key() < 1500:  # логирование только для клавиш клавиатуры
             logging.info('KP %d', event.key())
-        if event.key() in [Qt.Key_Q, 91, 1049, 1061]:  # Q, Й, [, Х
+        if event.key() in [Qt.Key.Key_Q, 91, 1049, 1061]:  # Q, Й, [, Х
             self.checkPosition(200, 601)  # эмулируем выбор ответа A
-        if event.key() in [Qt.Key_W, 93, 1062, 1066]:  # W, Ц, ], Ъ
+        if event.key() in [Qt.Key.Key_W, 93, 1062, 1066]:  # W, Ц, ], Ъ
             self.checkPosition(568, 601)  # эмулируем выбор ответа В
-        if event.key() in [Qt.Key_A, 59, 1060, 1046]:  # A, Ф, ;, Ж
+        if event.key() in [Qt.Key.Key_A, 59, 1060, 1046]:  # A, Ф, ;, Ж
             self.checkPosition(200, 653)  # эмулируем выбор ответа С
-        if event.key() in [Qt.Key_S, 39, 1067, 1069]:  # S, Ы, ', Э
+        if event.key() in [Qt.Key.Key_S, 39, 1067, 1069]:  # S, Ы, ', Э
             self.checkPosition(568, 653)  # эмулируем выбор ответа D
-        if event.key() == Qt.Key_1:
+        if event.key() == Qt.Key.Key_1:
             self.checkPosition(766, 100)  # эмулируем выбор «замены вопроса»
-        if event.key() == Qt.Key_2:
+        if event.key() == Qt.Key.Key_2:
             self.checkPosition(835, 100)  # эмулируем выбор 50:50
-        if event.key() == Qt.Key_3:
+        if event.key() == Qt.Key.Key_3:
             self.checkPosition(902, 100)  # эмулируем выбор «права на ошибку»
-        if event.key() == Qt.Key_4:
+        if event.key() == Qt.Key.Key_4:
             self.checkPosition(970, 100)  # эмулируем выбор «забрать деньги»
-        if event.key() in [Qt.Key_M, 1068]:  # M, Ь
+        if event.key() in [Qt.Key.Key_M, 1068]:  # M, Ь
             self.is_sound = not self.is_sound  # переключаем звук
             self.sound_btn.setChecked(self.is_sound)
             for p in [self.player1, self.player2, self.player3, self.player4]:
@@ -992,7 +992,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
     def checkSound(self):
         """Метод, переключающий звук (т.е. включает или отключает)"""
 
-        if self.sender().isChecked():  # если галочка активна
+        if self.sender().isChecked():  # type: ignore | если галочка активна
             self.is_sound = True  # включаем музыку
         else:  # иначе
             self.is_sound = False  # отключаем
