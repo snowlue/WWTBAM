@@ -9,7 +9,7 @@
 [![PyInstaller](https://img.shields.io/badge/PyInstaller-FFEB5E?style=flat-square)][6]
 
 The popular TV show "Who Wants to Be a Millionaire?" is now available on your PC! 💙  
-Hints, questions, virtual rubles, and all the game’s features—everything you love in one application. 💰  
+Hints, questions, virtual rubles, and all the game’s features — everything you love in one application. 💰  
 Beat your records and compete with your friends using the high-score table. 🏆  
 Get smarter and test your knowledge! 📚
 
@@ -37,7 +37,7 @@ Get smarter and test your knowledge! 📚
 
 - At the start of the game, you can choose a timed mode (similar to the Clock Format introduced in the U.S. in 2008).
 - Answer questions by clicking on A, B, C, or D with your mouse or pressing Q, W, A, S on your keyboard:
-    - ₽5,000 at question 5 and ₽100,000 at question 10 are guaranteed amounts—if you pass these milestones, you will receive these sums even if you lose.
+    - ₽5,000 at question 5 and ₽100,000 at question 10 are guaranteed amounts — if you pass these milestones, you will receive these sums even if you lose.
     - Your main goal is to reach ₽3,000,000.
 - Use hints by clicking on them with your mouse or pressing 1, 2, or 3 on your keyboard:
     - "Replace Question" swaps the current question with another of the same difficulty.
