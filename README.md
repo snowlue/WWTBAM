@@ -1,6 +1,10 @@
 # Кто хочет стать Миллионером?
-[![Made with Python 3.9](https://img.shields.io/badge/Made_with-Python_3.9-%23336E9E)][1]   [![Using QT Designer](https://img.shields.io/badge/Using-QT_Designer-%2325AF37)][2]   [![Using SQLiteStudio](https://img.shields.io/badge/Using-SQLiteStudio-%23337CCF)][3]<br/>
-[![PyQt5](https://img.shields.io/badge/PyQt5-%2340CD52)][4]   [![SQLite3](https://img.shields.io/badge/SQLite3-%23107FCB)][5]   [![PyInstaller](https://img.shields.io/badge/PyInstaller-%23FFEB5E)][6]
+[![en](https://img.shields.io/badge/lang-EN-red?style=flat-square)](https://github.com/snowlue/wwtbam/blob/main/README.en.md)
+
+[![Made with Python 3.9](https://img.shields.io/badge/Made_with-Python_3.9-336E9E?style=flat-square)][1]
+[![Using QT Designer](https://img.shields.io/badge/Using-QT_Designer-25AF37?style=flat-square)][2]
+[![Using SQLiteStudio](https://img.shields.io/badge/Using-SQLiteStudio-337CCF?style=flat-square)][3]<br/>
+[![PyQt5](https://img.shields.io/badge/PyQt5-40CD52?style=flat-square)][4]   [![SQLite3](https://img.shields.io/badge/SQLite3-107FCB?style=flat-square)][5]   [![PyInstaller](https://img.shields.io/badge/PyInstaller-FFEB5E?style=flat-square)][6]
 
 Популярное ТВ-шоу «Кто хочет стать Миллионером?» теперь доступно на вашем ПК! 💙<br>Подсказки, вопросы, виртуальные рубли и все фишки игры — всё то, что вы любите, в одном приложении. 💰<br>Бейте свои рекорды и рекорды своих друзей с таблицей рекордов. 🏆<br>Становитесь умнее и проверьте свои знания! 📚
 
@@ -11,12 +15,12 @@
 0. Установите [Python 3.9][1] на свой компьютер
 1. Откройте терминал в папке репозитория
 2. Введите следующие команды:
-    ```batch
+    ```bash
     pip install -r requirements.txt
-    python main.py
+    python3 main.py
     ```
-    ИЛИ (только для Windows и если не установлен Python)
-    ```batch
+    ИЛИ (если не установлен Python, только для Windows)
+    ```bash
     cd bin
     main.exe
     ```
