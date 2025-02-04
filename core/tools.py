@@ -2,16 +2,19 @@ import logging
 import os
 import sqlite3
 import sys
-import traceback  # для получения текстового представления исключения
+import traceback
 from random import shuffle
 from types import TracebackType
-from typing import Type
+from typing import TYPE_CHECKING, Type
 
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QObject, QTime, QTimer, QUrl
 from PyQt5.QtMultimedia import QMediaContent
 from PyQt5.QtWidgets import QHeaderView, QTableWidget, QTableWidgetItem
 
-from application import msg
+from core.application import msg
+
+if TYPE_CHECKING:
+    from core.game import GameWindow
 
 
 def sql_request(request: str) -> tuple[str, list]:
@@ -122,3 +125,55 @@ def excepthook(exc_type: Type[BaseException], exc_value: BaseException, exc_tb: 
     )  # логируем ошибку
     msg.show()
     msg.buttonClicked.connect(sys.exit)  # привязываем кнопку «ОК» к завершению приложения
+
+
+class AnimationScheduler(QObject):
+    def __init__(self, parent: 'GameWindow'):
+        super().__init__(parent)
+        self._timer = QTimer(self)
+        self._timer.setInterval(10)  # интервал проверки (10 мс)
+        self._timer.timeout.connect(self._update)
+        self._start_time = None  # будет хранить QTime запуска анимации
+        self._events = []  # список запланированных событий в виде (относительное время, функция, args, kwargs)
+        self._current_delay = 0
+        self._parent = parent
+
+    def schedule(self, delay: int, func, *args, **kwargs):
+        """
+        Запланировать выполнение функции func через delay миллисекунд после старта анимации.
+        """
+        self._current_delay += delay
+        self._events.append((self._current_delay, func, args, kwargs))
+
+    def start(self):
+        """
+        Запускаем анимацию – сохраняем текущее время и стартуем таймер.
+        """
+        # сортируем события по времени (на случай, если порядок добавления не по возрастанию)
+        if not self._events:
+            return
+        self._events.sort(key=lambda event: event[0])
+        self._start_time = QTime.currentTime()
+        self._timer.start()
+        self._parent.user_control = False
+
+    def _update(self):
+        """
+        Метод, вызываемый периодически таймером: проверяет, какие события пора выполнить.
+        """
+        if self._start_time is None:
+            return
+
+        elapsed = self._start_time.msecsTo(QTime.currentTime())
+        # Найдём все события, время которых наступило
+        due_events = [event for event in self._events if event[0] <= elapsed]
+        for event in due_events:
+            delay, func, args, kwargs = event
+            func(*args, **kwargs)
+            self._events.remove(event)
+
+        # Если все события выполнены, останавливаем таймер
+        if not self._events:
+            self._timer.stop()
+            self._parent.user_control = True
+            self._current_delay = 0

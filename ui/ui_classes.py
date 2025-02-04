@@ -6,7 +6,7 @@ from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, Qt, QVariant, QVarian
 from PyQt5.QtGui import QColor, QFontDatabase, QPalette
 from PyQt5.QtWidgets import QGraphicsOpacityEffect, QLabel
 
-import font_resources  # noqa: F401 | ресурсы шрифтов
+import ui.font_resources as font_resources  # noqa: F401 | ресурсы шрифтов
 
 
 class AnimationLabel(QLabel):
