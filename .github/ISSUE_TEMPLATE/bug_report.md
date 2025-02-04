@@ -3,7 +3,7 @@ name: Баг-репорт
 about: Создайте репорт о проблеме, чтобы помочь нам стать лучше.
 title: Придумайте название вашему репорту
 labels: bug
-assignees: PaveTranquil
+assignees: snowlue
 
 ---
 

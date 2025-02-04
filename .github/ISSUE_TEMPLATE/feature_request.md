@@ -3,7 +3,7 @@ name: Новая фича
 about: Предложите идею или фичу для нашего проекта.
 title: Придумайте название вашему репорту
 labels: new feature
-assignees: PaveTranquil
+assignees: snowlue
 
 ---
 
