@@ -1,12 +1,10 @@
 import logging
 import sys
 from datetime import datetime  # обозначить время начало игры
-from functools import partial  # для передачи аргументов в функцию без её вызова
 from os.path import realpath  # возвращает глобальный путь
 from random import shuffle
-from typing import Callable
 
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import QObject, Qt, QTime, QTimer
 from PyQt5.QtGui import QCloseEvent, QIcon, QKeyEvent, QMouseEvent, QPixmap
 from PyQt5.QtMultimedia import QMediaPlayer
 from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QWidget
@@ -120,6 +118,58 @@ class GameRules(QWidget, Ui_Rules):
         self.setWindowIcon(QIcon('images/app_icon.ico'))
 
 
+class AnimationScheduler(QObject):
+    def __init__(self, parent: 'GameWindow'):
+        super().__init__(parent)
+        self._timer = QTimer(self)
+        self._timer.setInterval(10)  # интервал проверки (10 мс)
+        self._timer.timeout.connect(self._update)
+        self._start_time = None  # будет хранить QTime запуска анимации
+        self._events = []  # список запланированных событий в виде (относительное время, функция, args, kwargs)
+        self._current_delay = 0
+        self._parent = parent
+
+    def schedule(self, delay: int, func, *args, **kwargs):
+        """
+        Запланировать выполнение функции func через delay миллисекунд после старта анимации.
+        """
+        self._current_delay += delay
+        self._events.append((self._current_delay, func, args, kwargs))
+
+    def start(self):
+        """
+        Запускаем анимацию – сохраняем текущее время и стартуем таймер.
+        """
+        # сортируем события по времени (на случай, если порядок добавления не по возрастанию)
+        if not self._events:
+            return
+        self._events.sort(key=lambda event: event[0])
+        self._start_time = QTime.currentTime()
+        self._timer.start()
+        self._parent.user_control = False
+
+    def _update(self):
+        """
+        Метод, вызываемый периодически таймером: проверяет, какие события пора выполнить.
+        """
+        if self._start_time is None:
+            return
+
+        elapsed = self._start_time.msecsTo(QTime.currentTime())
+        # Найдём все события, время которых наступило
+        due_events = [event for event in self._events if event[0] <= elapsed]
+        for event in due_events:
+            delay, func, args, kwargs = event
+            func(*args, **kwargs)
+            self._events.remove(event)
+
+        # Если все события выполнены, останавливаем таймер
+        if not self._events:
+            self._timer.stop()
+            self._parent.user_control = True
+            self._current_delay = 0
+
+
 class GameWindow(QMainWindow, Ui_MainWindow):
     """Класс типа QMainWindow, использующийся для отображения основного игрового контента
 
@@ -184,15 +234,13 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
-        self.control = False  # control — реагирует ли игра на действия игрока
-        self.name, self.mode = name, mode
+        self.user_control = False  # реагирует ли игра на действия игрока
+        self.name = name
+        self.mode = mode
         self.has_shown = True if self.mode == 'classic' else False
 
-        self.timer = 900  # таймер для поочерёдного воспроизведения событий
-        # 900 для синхронизации анимации и звука
-        self.is_x2_now, self.non_active_answers = False, []
-        # is_x2_now — активно ли «право на ошибку» прямо сейчас,
-        # non_active_answers — неактивные кнопки ответов после 50:50 и «права на ошибку»
+        self.is_x2_now = False
+        self.non_active_answers = []
         self.lifelines = {'change': True, '50:50': True, 'x2': True}
 
         self.player1 = QMediaPlayer()  # для музыки во время вопроса и неправильных ответов
@@ -200,6 +248,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.player3 = QMediaPlayer()  # для музыки перед вопросом, подсказки 50:50 и смены вопроса
         self.player4 = QMediaPlayer()  # для подсказки x2
         self.is_sound = True
+        self.scheduler1 = AnimationScheduler(self)
+        self.scheduler2 = AnimationScheduler(self)  # для анимации ответов, запасной
 
         self.new_game.triggered.connect(self.openConfirmAgain)
         self.close_game.triggered.connect(self.openConfirmClose)
@@ -210,49 +260,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.sound_btn.triggered.connect(self.checkSound)
         self.startGame()
 
-    def user_control(func: Callable):  # type: ignore
-        """Декоратор, деактивирующий управление игрой во время выполнения анимации
+    def switch_user_control(self, is_available_to_control: bool):
+        self.user_control = is_available_to_control
 
-        Параметры
-        ---------
-        func: Callable
-            функция с анимацией
-        """
-
-        def wrapper(self, *args, **kwargs):
-            def f(x):
-                self.control = x
-
-            self.time_function(1, f, False)
-            func(self, *args, **kwargs)
-            self.time_function(1, f, True)
-
-        return wrapper
-
-    def time_function(self, time: int, func: Callable, *args, **kwargs):
-        """Метод, активирующий таймер для выполнения анимации
-
-        Метод аналогичен time.sleep(), но не вызывает зависания в потоке Qt
-
-        Параметры
-        ---------
-        time: int
-            время выполнения анимации
-        func: Callable
-            запускаемая функция
-        *args
-            аргументы для func
-        **kwargs
-            именованные аргументы для func
-        """
-
-        QTimer.singleShot(self.timer + time, partial(func, *args, **kwargs))
-        # запускаем Qt-таймер с временем, через которое функция запустится
-        # partial определяет функцию func с переданными аргументами args, но не выполняет её
-        # singleShot через self.timer+time миллисекунд выполнит функцию func
-        self.timer += time
-
-    @user_control
     def startGame(self, repeat: bool = False):
         """Метод, запускающий анимацию начала игры и показывающий первый вопрос
 
@@ -263,7 +273,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         """
 
         self.date = datetime.today().strftime('%d.%m.%Y %H:%M')  # дата игры
-        self.time_function(1000, lambda a: a, True)
+
+        self.scheduler1.schedule(1000, lambda a: a, True)
         if self.mode == 'classic':
             self.player2.setMedia(decorate_audio('sounds/intro.mp3' if not repeat else 'sounds/new_start.mp3'))
         else:
@@ -276,151 +287,153 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.double_dip.setPixmap(QPixmap('images/double-dip.png'))
         if repeat:
             self.double_dip.hide()
-        self.time_function(0, self.layout_q.setPixmap, QPixmap('animations/question field/1.png'))
-        self.time_function(0, self.player2.play)  # проигрываем саундтрек
+
+        self.scheduler1.schedule(0, self.layout_q.setPixmap, QPixmap('animations/question field/1.png'))
+        self.scheduler1.schedule(0, self.player2.play)  # проигрываем саундтрек
 
         self.questions = get_questions()  # получаем вопросы для игры
-        self.current_number = 1  # номер вопроса
+        self.current_question_num = 1  # God mode
 
         for i in range(1, 24):
-            self.time_function(20, self.layout_q.setPixmap, QPixmap('animations/question field/{}.png'.format(i)))
-        self.time_function(0, self.layout_q.setPixmap, QPixmap('images/question field/layout.png'))
+            self.scheduler1.schedule(30, self.layout_q.setPixmap, QPixmap(f'animations/question field/{i}.png'))
+        self.scheduler1.schedule(0, self.layout_q.setPixmap, QPixmap('images/question field/layout.png'))
+        self.scheduler1.schedule(600 - 150 * int(self.mode == 'clock'), lambda a: a, True)
 
         for i in range(1, 16):
-            self.time_function(
-                200 + 30 * int(self.mode == 'clock'),
+            self.scheduler1.schedule(
+                220 + 32 * int(self.mode == 'clock'),
                 self.current_state_t.setPixmap,
-                QPixmap('images/money tree/{}.png'.format(i)),
+                QPixmap(f'images/money tree/{i}.png'),
             )  # анимация денежного дерева
         if self.mode == 'clock':
-            self.time_function(500, lambda a: a, True)
-        for i in 'A', 'B', 'C', 'D':
-            self.time_function(
-                500, self.current_state_q.setPixmap, QPixmap('images/question field/chosen_{}.png'.format(i))
+            self.scheduler1.schedule(500, lambda a: a, True)
+        for i in ('A', 'B', 'C', 'D'):
+            self.scheduler1.schedule(
+                450, self.current_state_q.setPixmap, QPixmap(f'images/question field/chosen_{i}.png')
             )  # анимация 4 ответов
 
-        self.time_function(500, self.current_state_q.setPixmap, QPixmap())
-        self.time_function(
-            1000 + 200 * int(self.mode == 'clock'),
+        self.scheduler1.schedule(500, self.current_state_q.setPixmap, QPixmap())
+        self.scheduler1.schedule(
+            1000 + 600 * int(self.mode == 'clock'),
             self.current_state_t.setPixmap,
-            QPixmap('images/money tree/{}.png'.format(self.current_number)),
+            QPixmap(f'images/money tree/{self.current_question_num}.png'),
         )  # стираем слои после проигравшейся анимации и переводим в начальное положение
 
         if self.mode == 'classic':
-            self.time_function(500, self.updateQuestionField)  # обновляем текстовые блоки вопроса и ответов
-            self.time_function(0, self.question.startFadeIn)  # показываем вопрос
-            self.showAnswers()
+            self.scheduler1.schedule(500, self.updateQuestionField)  # обновляем текстовые блоки вопроса и ответов
+            self.scheduler1.schedule(0, self.question.startFadeIn)  # показываем вопрос
+            self.scheduler1.schedule(0, self.showAnswers)
 
-        n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
-        self.player1.setMedia(decorate_audio('sounds/{}/bed.mp3'.format(n)))
-        self.time_function(2500 if self.mode != 'clock' else 0, self.player1.play)
+        n = '1-4' if self.current_question_num in range(1, 5) else self.current_question_num
+        self.player1.setMedia(decorate_audio(f'sounds/{n}/bed.mp3'))
+        self.scheduler1.schedule(2500 if self.mode != 'clock' else 0, self.player1.play)
         if not self.is_sound:
-            self.time_function(0, self.player1.setVolume, 30 if self.mode == 'clock' else 100)
+            self.scheduler1.schedule(0, self.player1.setVolume, 30 if self.mode == 'clock' else 100)
             # задаём фоновый трек и проигрываем его
 
         if self.mode == 'clock':
             self.player3.setMedia(decorate_audio('sounds/question_show_clock.mp3'))
-            self.time_function(500, self.player3.play)
-            self.time_function(300, self.updateQuestionField)  # обновляем текстовые блоки вопроса и ответов
-            self.time_function(0, self.question.startFadeIn)  # показываем вопрос
-            self.time_function(300, lambda a: a, True)
+            self.scheduler1.schedule(500, self.player3.play)
+            self.scheduler1.schedule(300, self.updateQuestionField)  # обновляем текстовые блоки вопроса и ответов
+            self.scheduler1.schedule(0, self.question.startFadeIn)  # показываем вопрос
+            self.scheduler1.schedule(300, lambda a: a, True)
             for i in range(1, 19):  # показываем таймер
-                self.time_function(20, self.timer_view.setPixmap, QPixmap('animations/timer/{}.png'.format(i)))
+                self.scheduler1.schedule(30, self.timer_view.setPixmap, QPixmap(f'animations/timer/{i}.png'))
             for i in range(0, 16):  # анимируем его пополнение
-                dial = 1 if n in ['1-4', 5] else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
-                self.time_function(0, self.timer_text.setText, str(i * dial))
-                self.time_function(50, self.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(i)))
-            self.time_function(0, self.double_dip.setPixmap, QPixmap('images/show-button.png'))
-            self.time_function(0, self.double_dip.show)  # подменяем кнопку по центру на кнопку показа ответа
-            self.time_function(0, self.double_dip.startFadeInImage)
+                dial = 1 if n in ('1-4', 5) else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
+                self.scheduler1.schedule(0, self.timer_text.setText, str(i * dial))
+                self.scheduler1.schedule(50, self.timer_view.setPixmap, QPixmap(f'images/timer/{i}.png'))
+            self.scheduler1.schedule(0, self.double_dip.setPixmap, QPixmap('images/show-button.png'))
+            self.scheduler1.schedule(0, self.double_dip.show)  # подменяем кнопку по центру на кнопку показа ответа
+            self.scheduler1.schedule(0, self.double_dip.startFadeInImage)
+
+        self.scheduler1.start()
 
         logging.info('Game is OK. Mode: %s. Username: %s', self.mode, self.name)
 
     def showAnswers(self):
         """Метод, показывающий ответы на вопрос"""
 
-        for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
-            self.time_function(100, a.startFadeIn)
-            self.time_function(0, a.show)
+        for answer_text_field in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
+            self.scheduler2.schedule(100, answer_text_field.startFadeIn)
+            self.scheduler2.schedule(0, answer_text_field.show)
 
         if self.mode == 'clock':
             self.has_shown = True
-            n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
-            self.time_function(0, self.double_dip.startFadeOutImage)
-            self.time_function(200, self.double_dip.setPixmap, QPixmap('images/double-dip.png'))
-            self.time_function(0, self.double_dip.hide)
+            n = '1-4' if self.current_question_num in range(1, 5) else self.current_question_num
+            self.scheduler2.schedule(0, self.double_dip.startFadeOutImage)
+            self.scheduler2.schedule(200, self.double_dip.setPixmap, QPixmap('images/double-dip.png'))
+            self.scheduler2.schedule(0, self.double_dip.hide)
 
             self.qttimer = QTimer(self)
-            self.qttimer.timeout.connect(self.mergeTheTimer)
+            self.qttimer.timeout.connect(self.mergeTimer)
             self.qttimer.start(1000)
 
-            if n == '1-4' or n == 5:
-                self.player2.setMedia(decorate_audio('sounds/{}/clock.mp3'.format(n)))
-                self.time_function(500, self.player2.play)
+            if n in ('1-4', 5):
+                self.player2.setMedia(decorate_audio(f'sounds/{n}/clock.mp3'))
+                self.scheduler2.schedule(500, self.player2.play)
                 self.seconds_left = 15
             else:
-                self.player1.setMedia(decorate_audio('sounds/{}/bed_clock.mp3'.format(n)))
-                self.time_function(500, self.player1.play)
-                self.time_function(0, self.player3.stop)
-                if n in [6, 7, 8, 9, 10]:
+                self.player1.setMedia(decorate_audio(f'sounds/{n}/bed_clock.mp3'))
+                self.scheduler2.schedule(500, self.player1.play)
+                self.scheduler2.schedule(0, self.player3.stop)
+                if n in range(6, 11):
                     self.seconds_left = 30
-                elif n in [11, 12, 13, 14]:
+                elif n in range(11, 15):
                     self.seconds_left = 45
                 elif n == 15:
                     self.seconds_left = 90
+        self.scheduler2.start()
 
-    def mergeTheTimer(self):
+    def mergeTimer(self):
         """Метод, отсчитывающий секунду от таймера в режиме на время"""
 
-        n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
-        dial = 1 if n in ['1-4', 5] else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
+        n = '1-4' if self.current_question_num in range(1, 5) else self.current_question_num
+        dial = 1 if n in ('1-4', 5) else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
         dial = self.seconds_left // dial + 1 * (self.seconds_left % dial in range(1, dial))
         # синхронизирует анимацию таймера и секундомер
-        self.time_function(0, self.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(dial)))
-        self.time_function(0, self.timer_text.setText, str(self.seconds_left))
+        self.scheduler1.schedule(0, self.timer_view.setPixmap, QPixmap(f'images/timer/{dial}.png'))
+        self.scheduler1.schedule(0, self.timer_text.setText, str(self.seconds_left))
 
         if self.seconds_left == 0:  # если ответ не был дан
             self.qttimer.stop()
 
-            result_game = GUARANTEED_PRICES[self.current_number - 1]
+            result_game = GUARANTEED_PRICES[self.current_question_num - 1]
             num_to_let = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
             letter = num_to_let[self.answers.index(self.correct_answer)]
 
-            self.time_function(2000 + 1000 * (n == 15), lambda a: a, True)
+            self.scheduler1.schedule(2000 + 1000 * (n == 15), lambda a: a, True)
 
-            self.player3.setMedia(decorate_audio('sounds/{}/lose.mp3'.format(n)))
-            self.time_function(0, self.player1.stop)
-            self.time_function(0, self.player2.stop)
-            self.time_function(0, self.player3.play)
+            self.player3.setMedia(decorate_audio(f'sounds/{n}/lose.mp3'))
+            self.scheduler1.schedule(0, self.player1.stop)
+            self.scheduler1.schedule(0, self.player2.stop)
+            self.scheduler1.schedule(0, self.player3.play)
             logging.info("Time's up")
 
-            self.time_function(
-                0, self.current_state_q_2.setPixmap, QPixmap('images/question field/correct_{}.png'.format(letter))
+            self.scheduler1.schedule(
+                0, self.current_state_q_2.setPixmap, QPixmap(f'images/question field/correct_{letter}.png')
             )  # зажигаем правильный ответ
-            self.time_function(0, self.current_state_q_2.startFadeInImage)
-            self.time_function(0, self.current_state_q_2.show)
+            self.scheduler1.schedule(0, self.current_state_q_2.startFadeInImage)
+            self.scheduler1.schedule(0, self.current_state_q_2.show)
             for _ in range(2):
-                self.time_function(400, self.current_state_q_2.startFadeOutImage)
-                self.time_function(400, self.current_state_q_2.startFadeInImage)
+                self.scheduler1.schedule(400, self.current_state_q_2.startFadeOutImage)
+                self.scheduler1.schedule(400, self.current_state_q_2.startFadeInImage)
 
-            self.time_function(3000, self.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
+            self.scheduler1.schedule(3000, self.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
             self.clear_all_labels()
 
             for i in range(18, 0, -1):  # скрываем таймер
-                self.time_function(20, self.timer_view.setPixmap, QPixmap('animations/timer/{}.png'.format(i)))
-            self.time_function(20, self.timer_view.setPixmap, QPixmap())
-            self.time_function(0, self.showGameOver, [letter, result_game, self.is_sound])  # показываем проигрыш
+                self.scheduler1.schedule(30, self.timer_view.setPixmap, QPixmap(f'animations/timer/{i}.png'))
+            self.scheduler1.schedule(30, self.timer_view.setPixmap, QPixmap())
+            self.scheduler1.schedule(0, self.showGameOver, [letter, result_game, self.is_sound])  # показываем проигрыш
 
             for i in range(1, 38):  # анимация показа суммы выигрыша
-                self.time_function(20, self.layout_q.setPixmap, QPixmap('animations/sum/{}.png'.format(i)))
-            self.time_function(0, self.amount_q.setText, result_game)  # показываем сумму выигрыша
+                self.scheduler1.schedule(30, self.layout_q.setPixmap, QPixmap(f'animations/sum/{i}.png'))
+            self.scheduler1.schedule(0, self.amount_q.setText, result_game)  # показываем сумму выигрыша
             sql_request(
-                """INSERT INTO results
-                           (name, result, date)
-                           VALUES ("{}", "{}", "{}")
-                        """.format(self.name, result_game, self.date)
+                f'INSERT INTO results (name, result, date) VALUES ("{self.name}", "{result_game}", "{self.date}")'
             )  # записываем в бд выигрыш
-
+        self.scheduler1.start()
         self.seconds_left -= 1
 
     def updateQuestionField(self, changer: bool = False):
@@ -433,18 +446,17 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         """
 
         self.non_active_answers = []
-        text = self.questions[self.current_number - 1][int(changer)][0]
-        self.answers = self.questions[self.current_number - 1][int(changer)][2]
-        self.correct_answer = self.questions[self.current_number - 1][int(changer)][1]
-        self.got_amount = PRICES[self.current_number - 1]
-        for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
-            a.hide()
+        text = self.questions[self.current_question_num - 1][int(changer)][0]
+        self.answers = list(map(str, self.questions[self.current_question_num - 1][int(changer)][2]))
+        self.correct_answer = str(self.questions[self.current_question_num - 1][int(changer)][1])
+        # print(self.correct_answer)  # God mode
+        self.got_amount = PRICES[self.current_question_num - 1]
+        for answer_text_field in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
+            answer_text_field.hide()
         self.question.setText(text)
-        self.answer_A.setText(self.answers[0])
-        self.answer_B.setText(self.answers[1])
-        self.answer_C.setText(self.answers[2])
-        self.answer_D.setText(self.answers[3])
-        logging.info('Q%d set', self.current_number)
+        for i, answer_text_field in enumerate((self.answer_A, self.answer_B, self.answer_C, self.answer_D)):
+            answer_text_field.setText(self.answers[i])
+        logging.info('Q%d set', self.current_question_num)
 
     def keyPressEvent(self, event: QKeyEvent):
         """Метод, обрабатывающий нажатия клавиши клавиатуры
@@ -457,13 +469,13 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         if event.key() < 1500:  # логирование только для клавиш клавиатуры
             logging.info('KP %d', event.key())
-        if event.key() in [Qt.Key.Key_Q, 91, 1049, 1061]:  # Q, Й, [, Х
+        if event.key() in (Qt.Key.Key_Q, 91, 1049, 1061):  # Q, Й, [, Х
             self.checkPosition(200, 601)  # эмулируем выбор ответа A
-        if event.key() in [Qt.Key.Key_W, 93, 1062, 1066]:  # W, Ц, ], Ъ
+        if event.key() in (Qt.Key.Key_W, 93, 1062, 1066):  # W, Ц, ], Ъ
             self.checkPosition(568, 601)  # эмулируем выбор ответа В
-        if event.key() in [Qt.Key.Key_A, 59, 1060, 1046]:  # A, Ф, ;, Ж
+        if event.key() in (Qt.Key.Key_A, 59, 1060, 1046):  # A, Ф, ;, Ж
             self.checkPosition(200, 653)  # эмулируем выбор ответа С
-        if event.key() in [Qt.Key.Key_S, 39, 1067, 1069]:  # S, Ы, ', Э
+        if event.key() in (Qt.Key.Key_S, 39, 1067, 1069):  # S, Ы, ', Э
             self.checkPosition(568, 653)  # эмулируем выбор ответа D
         if event.key() == Qt.Key.Key_1:
             self.checkPosition(766, 100)  # эмулируем выбор «замены вопроса»
@@ -473,10 +485,10 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.checkPosition(902, 100)  # эмулируем выбор «права на ошибку»
         if event.key() == Qt.Key.Key_4:
             self.checkPosition(970, 100)  # эмулируем выбор «забрать деньги»
-        if event.key() in [Qt.Key.Key_M, 1068]:  # M, Ь
+        if event.key() in (Qt.Key.Key_M, 1068):  # M, Ь
             self.is_sound = not self.is_sound  # переключаем звук
             self.sound_btn.setChecked(self.is_sound)
-            for p in [self.player1, self.player2, self.player3, self.player4]:
+            for p in (self.player1, self.player2, self.player3, self.player4):
                 p.setVolume(100 * self.is_sound)
 
     def mousePressEvent(self, event: QMouseEvent):
@@ -502,101 +514,80 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         """
 
         logging.info('MP (%d, %d)', x, y)
-        if self.mode == 'clock' and 539 <= x <= 567 and 641 <= y <= 662:  # показать ответы на вопрос
+
+        if all((self.user_control, self.mode == 'clock', 521 <= x <= 584, 627 <= y <= 665)):
             self.timer = 0
             self.showAnswers()
 
-        if self.control and self.has_shown or self.mode == 'classic':
-            self.timer, n = 0, self.current_number
-            # каждое действие можно совершать при отработанной анимации,
-            # поэтому таймер для time_function можно сбрасывать
+        if not self.user_control or not (self.has_shown or self.mode == 'classic'):
+            return
 
-            if len(self.non_active_answers) in [1, 3]:
-                # 1 неактивный ответ — после использования «права на ошибку»
-                # 3 неактивных ответа — после использования 50:50 и «права на ошибку»
-                self.player4.setMedia(decorate_audio('sounds/double/second_final.mp3'))
-            elif not self.is_x2_now and n not in range(1, 6):
-                # после пятого вопроса каждый ответ озвучивается отдельным треком
-                self.player4.setMedia(decorate_audio('sounds/{}/final_answer.mp3'.format(n)))
-            elif self.is_x2_now:
-                self.player4.setMedia(decorate_audio('sounds/double/first_final.mp3'))
-            if 200 <= x <= 538 and 601 <= y <= 642:  # ответ А
-                if 'A' not in self.non_active_answers:
-                    self.current_state_q.setPixmap(QPixmap('images/question field/chosen_A.png'))
-                    self.current_state_q.startFadeInImage()
-                    if self.mode == 'clock':
-                        self.qttimer.stop()
-                    if n not in [1, 2, 3, 4, 5] or self.is_x2_now:
-                        self.player1.stop()
-                        self.time_function(0, self.player4.play)
-                    logging.info('Answ[A]')
-                    self.time_function(400, self.checkAnswer, self.answer_A, 'A')
-            elif 568 <= x <= 915 and 601 <= y <= 642:  # ответ В
-                if 'B' not in self.non_active_answers:
-                    self.current_state_q.setPixmap(QPixmap('images/question field/chosen_B.png'))
-                    self.current_state_q.startFadeInImage()
-                    if self.mode == 'clock':
-                        self.qttimer.stop()
-                    if n not in [1, 2, 3, 4, 5] or self.is_x2_now:
-                        self.player1.stop()
-                        self.time_function(0, self.player4.play)
-                    logging.info('Answ[B]')
-                    self.time_function(400, self.checkAnswer, self.answer_B, 'B')
-            elif 200 <= x <= 538 and 653 <= y <= 693:  # ответ С
-                if 'C' not in self.non_active_answers:
-                    self.current_state_q.setPixmap(QPixmap('images/question field/chosen_C.png'))
-                    self.current_state_q.startFadeInImage()
-                    if self.mode == 'clock':
-                        self.qttimer.stop()
-                    if n not in [1, 2, 3, 4, 5] or self.is_x2_now:
-                        self.player1.stop()
-                        self.time_function(0, self.player4.play)
-                    logging.info('Answ[C]')
-                    self.time_function(400, self.checkAnswer, self.answer_C, 'C')
-            elif 568 <= x <= 915 and 653 <= y <= 693:  # ответ D
-                if 'D' not in self.non_active_answers:
-                    self.current_state_q.setPixmap(QPixmap('images/question field/chosen_D.png'))
-                    self.current_state_q.startFadeInImage()
-                    if self.mode == 'clock':
-                        self.qttimer.stop()
-                    if n not in [1, 2, 3, 4, 5] or self.is_x2_now:
-                        self.player1.stop()
-                        self.time_function(0, self.player4.play)
-                    logging.info('Answ[D]')
-                    self.time_function(400, self.checkAnswer, self.answer_D, 'D')
+        if len(self.non_active_answers) in (1, 3):
+            # 1 неактивный ответ — после использования «права на ошибку»
+            # 3 неактивных ответа — после использования 50:50 и «права на ошибку»
+            self.player4.setMedia(decorate_audio('sounds/double/second_final.mp3'))
+        elif not self.is_x2_now and self.current_question_num not in range(1, 6):
+            # после пятого вопроса каждый ответ озвучивается отдельным треком
+            self.player4.setMedia(decorate_audio(f'sounds/{self.current_question_num}/final_answer.mp3'))
+        elif self.is_x2_now:
+            self.player4.setMedia(decorate_audio('sounds/double/first_final.mp3'))
+        if 200 <= x <= 538 and 601 <= y <= 642:
+            self.chooseAnswer('A')
+        elif 568 <= x <= 915 and 601 <= y <= 642:
+            self.chooseAnswer('B')
+        elif 200 <= x <= 538 and 653 <= y <= 693:
+            self.chooseAnswer('C')
+        elif 568 <= x <= 915 and 653 <= y <= 693:
+            self.chooseAnswer('D')
+        self.scheduler1.start()
 
-            if 766 <= x <= 816 and 99 <= y <= 129:  # смена вопроса
-                self.lost_change.show()
-                self.lost_change.startFadeInImage()
-                self.useLifeline('change')
-            elif 835 <= x <= 885 and 99 <= y <= 129:  # 50:50
-                self.lost_5050.show()
-                self.lost_5050.startFadeInImage()
-                self.useLifeline('50:50')
-            elif 902 <= x <= 952 and 99 <= y <= 129:  # право на ошибку
-                self.lost_x2.show()
-                self.lost_x2.startFadeInImage()
-                if self.lifelines['x2']:
-                    self.double_dip.show()
-                    self.double_dip.startFadeInImage()
-                self.useLifeline('x2')
-            elif 970 <= x <= 1020 and 99 <= y <= 129:  # забрать деньги
-                self.openConfirmLeave()
+        if 766 <= x <= 816 and 99 <= y <= 129:
+            self.showLostLifeline(self.lost_change)
+            self.useLifeline('change')
+        elif 835 <= x <= 885 and 99 <= y <= 129:
+            self.showLostLifeline(self.lost_5050)
+            self.useLifeline('50:50')
+        elif 902 <= x <= 952 and 99 <= y <= 129:
+            self.showLostLifeline(self.lost_x2)
+            if self.lifelines['x2']:
+                self.double_dip.show()
+                self.double_dip.startFadeInImage()
+            self.useLifeline('x2')
+        elif 970 <= x <= 1020 and 99 <= y <= 129:  # забрать деньги
+            self.openConfirmLeave()
+
+    def showLostLifeline(self, ll_button):
+        ll_button.show()
+        ll_button.startFadeInImage()
+
+    def chooseAnswer(self, letter: str):
+        if letter not in self.non_active_answers:
+            self.current_state_q.setPixmap(QPixmap(f'images/question field/chosen_{letter}.png'))
+            self.current_state_q.startFadeInImage()
+            if self.mode == 'clock':
+                self.player2.stop()
+                self.qttimer.stop()
+            if self.current_question_num not in range(1, 6) or self.is_x2_now:
+                self.scheduler1.schedule(0, self.player1.stop)
+                self.scheduler1.schedule(0, self.player4.play)
+            logging.info(f'Answ[{letter}]')
+            letter_to_button = {'A': self.answer_A, 'B': self.answer_B, 'C': self.answer_C, 'D': self.answer_D}
+            self.scheduler1.schedule(400, self.checkAnswer, letter_to_button[letter], letter)
 
     def clear_all_labels(self):
         """Метод, подчищающий все слои состояния и текстовые блоки"""
 
-        self.time_function(0, self.timer_text.setText, '')
-        self.time_function(0, self.question.setText, '')
-        self.time_function(0, self.answer_A.setText, '')
-        self.time_function(0, self.answer_B.setText, '')
-        self.time_function(0, self.answer_C.setText, '')
-        self.time_function(0, self.answer_D.setText, '')
-        self.time_function(0, self.current_state_q.setPixmap, QPixmap())
-        self.time_function(0, self.current_state_q_2.setPixmap, QPixmap())
-        self.time_function(0, self.current_state_q_3.setPixmap, QPixmap())
+        self.scheduler1.schedule(0, self.timer_text.setText, '')
+        self.scheduler1.schedule(0, self.question.setText, '')
+        self.scheduler1.schedule(0, self.answer_A.setText, '')
+        self.scheduler1.schedule(0, self.answer_B.setText, '')
+        self.scheduler1.schedule(0, self.answer_C.setText, '')
+        self.scheduler1.schedule(0, self.answer_D.setText, '')
+        self.scheduler1.schedule(0, self.current_state_q.setPixmap, QPixmap())
+        self.scheduler1.schedule(0, self.current_state_q_2.setPixmap, QPixmap())
+        self.scheduler1.schedule(0, self.current_state_q_3.setPixmap, QPixmap())
+        self.scheduler1.start()
 
-    @user_control
     def checkAnswer(self, label: AnimationLabel, letter: str):
         """Метод, обрабатывающий ответ игрока и проверяющий правильность ответа
 
@@ -617,208 +608,220 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             letter = num_to_let[self.answers.index(self.correct_answer)]
             # задаём в letter вместо буквы ответа игрока букву правильного ответа
 
-        if self.current_number == 5:
-            self.time_function(2000, lambda a: a, True)
-            self.time_function(0, self.player1.setVolume, 100)
-        elif self.current_number in [6, 7, 8, 9]:
-            self.time_function(2500, lambda a: a, True)
-        elif self.current_number == 10:
-            self.time_function(3000, lambda a: a, True)
-        elif self.current_number in [11, 12]:
-            self.time_function(3500, lambda a: a, True)
-        elif self.current_number in [13, 14]:
-            self.time_function(4500, lambda a: a, True)
-        elif self.current_number == 15:
-            self.time_function(5500, lambda a: a, True)
+        if self.current_question_num in range(1, 5):
+            self.scheduler1.schedule(2000 * self.is_x2_now, lambda a: a, True)
+        elif self.current_question_num == 5:
+            self.scheduler1.schedule(2000, lambda a: a, True)
+            self.scheduler1.schedule(0, self.player1.setVolume, 100)
+        elif self.current_question_num in range(6, 10):
+            self.scheduler1.schedule(2500, lambda a: a, True)
+        elif self.current_question_num == 10:
+            self.scheduler1.schedule(3000, lambda a: a, True)
+        elif self.current_question_num in (11, 12):
+            self.scheduler1.schedule(3500, lambda a: a, True)
+        elif self.current_question_num in (13, 14):
+            self.scheduler1.schedule(4500, lambda a: a, True)
+        elif self.current_question_num == 15:
+            self.scheduler1.schedule(5500, lambda a: a, True)
         # для каждого из номеров вопроса выставляем паузу (задаёт интригу)
 
         if not self.is_x2_now or user_answer == self.correct_answer:
-            n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
+            n = '1-4' if self.current_question_num in range(1, 5) else self.current_question_num
             if self.is_x2_now:  # убираем использованное «право на ошибку»
-                self.time_function(0, self.double_dip.startFadeOutImage)
-                self.is_x2_now = False
+                self.scheduler1.schedule(0, self.double_dip.startFadeOutImage)
                 logging.info('Answ correct (dd used)')
             if user_answer == self.correct_answer:  # правильный ответ без «права на ошибку» — играем музыку
-                self.player2.setMedia(decorate_audio('sounds/{}/correct.mp3'.format(n)))
-                self.time_function(0, self.player4.stop)
-                self.time_function(0, self.player2.play)
+                self.scheduler1.schedule(0, self.player2.setMedia, decorate_audio(f'sounds/{n}/correct.mp3'))
+                self.scheduler1.schedule(0, self.player4.stop)
+                self.scheduler1.schedule(0, self.player2.play)
                 logging.info('Answ correct')
             else:  # неправильный ответ без «права на ошибку»
-                self.player1.setMedia(decorate_audio('sounds/{}/lose.mp3'.format(n)))
-                self.time_function(0, self.player4.stop)
-                self.time_function(0, self.player1.play)
+                self.scheduler1.schedule(0, self.player1.setMedia, decorate_audio(f'sounds/{n}/lose.mp3'))
+                self.scheduler1.schedule(0, self.player4.stop)
+                self.scheduler1.schedule(0, self.player2.stop)
+                self.scheduler1.schedule(0, self.player1.play)
                 logging.info('Answ incorrect')
-            self.time_function(
-                0, self.current_state_q_2.setPixmap, QPixmap('images/question field/correct_{}.png'.format(letter))
+            self.scheduler1.schedule(
+                0, self.current_state_q_2.setPixmap, QPixmap(f'images/question field/correct_{letter}.png')
             )  # зажигаем правильный ответ
-            self.time_function(0, self.current_state_q_2.startFadeInImage)
-            self.time_function(0, self.current_state_q_2.show)
+            self.scheduler1.schedule(0, self.current_state_q_2.startFadeInImage)
+            self.scheduler1.schedule(0, self.current_state_q_2.show)
             for _ in range(2):
-                self.time_function(400, self.current_state_q_2.startFadeOutImage)
-                self.time_function(400, self.current_state_q_2.startFadeInImage)
+                self.scheduler1.schedule(400, self.current_state_q_2.startFadeOutImage)
+                self.scheduler1.schedule(400, self.current_state_q_2.startFadeInImage)
             self.has_shown = False
 
         else:  # если используется «право на ошибку» и неправильный ответ игрока
-            self.time_function(
-                1500, self.current_state_q_3.setPixmap, QPixmap('images/question field/wrong_{}.png'.format(x2_letter))
+            self.scheduler1.schedule(
+                1500, self.current_state_q_3.setPixmap, QPixmap(f'images/question field/wrong_{x2_letter}.png')
             )  # зажигаем серым неправильный ответ
-            self.time_function(0, self.player4.stop)
-            self.player1.setMedia(decorate_audio('sounds/double/first_wrong.mp3'))
-            self.time_function(0, self.player1.play)
-            self.time_function(0, self.double_dip.startFadeOutImage)
+            self.scheduler1.schedule(0, self.player4.stop)
+            self.scheduler1.schedule(0, self.player1.setMedia, decorate_audio('sounds/double/first_wrong.mp3'))
+            self.scheduler1.schedule(0, self.player1.play)
+            self.scheduler1.schedule(0, self.double_dip.startFadeOutImage)
             self.non_active_answers.append(x2_letter)  # добавляем неправильный ответ в список неактивных ответов
 
         if user_answer == self.correct_answer:  # правильный ответ — играем анимации
-            if self.current_number != 15:  # для 15 вопроса отдельные анимации
-                if self.current_number in [5, 10]:
-                    self.time_function(0, self.player1.stop)
+            if self.current_question_num != 15:
+                if self.current_question_num in (5, 10):
+                    self.scheduler1.schedule(0, self.player1.stop)
                     self.clear_all_labels()
-                    self.time_function(0, self.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
+                    self.scheduler1.schedule(0, self.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
                     if self.mode == 'clock':
-                        dial = 1 if n in ['1-4', 5] else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
+                        dial = 1 if n in ('1-4', 5) else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
                         for i in range(self.seconds_left // dial, -1, -1):  # анимируем опустошение таймера
-                            self.time_function(0, self.timer_text.setText, str(i * dial))
-                            self.time_function(20, self.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(i)))
-                        self.time_function(0, self.timer_text.setText, '')
+                            self.scheduler1.schedule(0, self.timer_text.setText, str(i * dial))
+                            self.scheduler1.schedule(30, self.timer_view.setPixmap, QPixmap(f'images/timer/{i}.png'))
+                        self.scheduler1.schedule(0, self.timer_text.setText, '')
                         for i in range(18, 0, -1):  # скрываем его
-                            self.time_function(
-                                20, self.timer_view.setPixmap, QPixmap('animations/timer/{}.png'.format(i))
+                            self.scheduler1.schedule(
+                                30, self.timer_view.setPixmap, QPixmap(f'animations/timer/{i}.png')
                             )
-                        self.time_function(20, self.timer_view.setPixmap, QPixmap())
+                        self.scheduler1.schedule(30, self.timer_view.setPixmap, QPixmap())
                     for i in range(1, 38):  # анимация показа суммы выигрыша
-                        self.time_function(20, self.layout_q.setPixmap, QPixmap('animations/sum/{}.png'.format(i)))
-                    self.time_function(
-                        0, self.amount_q.setText, PRICES[self.current_number]
+                        self.scheduler1.schedule(30, self.layout_q.setPixmap, QPixmap(f'animations/sum/{i}.png'))
+                    self.scheduler1.schedule(
+                        0, self.amount_q.setText, PRICES[self.current_question_num]
                     )  # после 5 и 10 вопросов показываем сумму выигрыша
-                    self.time_function(3700, self.layout_q.setPixmap, QPixmap('images/sum/amount.png'))
-                    self.time_function(750 + 1000 * int(self.current_number == 10), self.amount_q.setText, '')
+                    self.scheduler1.schedule(3700, self.layout_q.setPixmap, QPixmap('images/sum/amount.png'))
+                    self.scheduler1.schedule(
+                        750 + 1000 * int(self.current_question_num == 10), self.amount_q.setText, ''
+                    )
                     self.player3.setMedia(decorate_audio('sounds/lights_down.mp3'))  # играем трек перед вопросом
-                    self.time_function(0, self.player3.play)
+                    self.scheduler1.schedule(0, self.player3.play)
                     # зачищаем всё после показа суммы выигрыша
-                    self.time_function(0, self.layout_q.setPixmap, QPixmap('animations/sum/37.png'))
+                    self.scheduler1.schedule(0, self.layout_q.setPixmap, QPixmap('animations/sum/37.png'))
                     for i in range(37, 0, -1):  # анимация показа блока с вопросом и ответами
-                        self.time_function(20, self.layout_q.setPixmap, QPixmap('animations/sum/{}.png'.format(i)))
-                    self.time_function(0, self.layout_q.setPixmap, QPixmap('images/question field/layout.png'))
-                    logging.info('%d got', self.current_number)
+                        self.scheduler1.schedule(30, self.layout_q.setPixmap, QPixmap(f'animations/sum/{i}.png'))
+                    self.scheduler1.schedule(0, self.layout_q.setPixmap, QPixmap('images/question field/layout.png'))
+                    logging.info('%d got', self.current_question_num)
 
-                self.current_number += 1  # поднимаем номер вопроса
-                if self.current_number - 1 not in [1, 2, 3, 4]:
+                if self.current_question_num not in range(1, 5):
                     # для всех вопросов с 6-го свой бэкграунд-трек
-                    self.time_function(
-                        0, self.player1.setMedia, decorate_audio('sounds/{}/bed.mp3'.format(self.current_number))
+                    self.scheduler1.schedule(
+                        0, self.player1.setMedia, decorate_audio(f'sounds/{self.current_question_num + 1}/bed.mp3')
                     )
                     if self.mode == 'classic':
-                        self.time_function(2500, self.player1.play)
-                elif not self.lifelines['x2']:
+                        self.scheduler1.schedule(2500, self.player1.play)
+                elif len(self.non_active_answers) in (1, 3) or self.is_x2_now:
                     # возвращаем предыдущий трек, если было «право на ошибку» в 1-5 вопросах
-                    self.time_function(0, self.player1.setMedia, decorate_audio('sounds/1-4/bed.mp3'))
-                    self.time_function(8, self.player1.play)
+                    self.scheduler1.schedule(0, self.player1.setMedia, decorate_audio('sounds/1-4/bed.mp3'))
+                    self.scheduler1.schedule(8, self.player1.play)
 
                 if self.mode == 'clock':
-                    if self.current_number not in [2, 3, 4, 5]:
-                        self.player3.setMedia(decorate_audio('sounds/{}/before_clock.mp3'.format(self.current_number)))
+                    if self.current_question_num not in range(1, 5):
+                        self.player3.setMedia(
+                            decorate_audio(f'sounds/{self.current_question_num + 1}/before_clock.mp3')
+                        )
                     else:
                         self.player3.setMedia(decorate_audio('sounds/question_show_clock.mp3'))
 
-                    if self.current_number - 1 in range(1, 5):
-                        self.time_function(500, self.player3.play)
-                    elif self.current_number - 1 in range(5, 10):
-                        self.time_function(2500, self.player3.play)
-                    elif self.current_number - 1 in range(11, 15):
-                        self.time_function(3500, self.player3.play)
-                    self.time_function(0, self.player2.stop)
+                    if self.current_question_num in (5, 10):
+                        self.scheduler1.schedule(1850, self.player3.play)
+                    elif self.current_question_num in range(1, 5):
+                        self.scheduler1.schedule(1000, self.player3.play)
+                    elif self.current_question_num in range(6, 10):
+                        self.scheduler1.schedule(2500, self.player3.play)
+                    else:
+                        self.scheduler1.schedule(3500, self.player3.play)
+                    self.scheduler1.schedule(0, self.player2.stop)
 
-                self.time_function(
-                    800 * (self.current_number - 1 not in [5, 10]),
+                self.scheduler1.schedule(
+                    800 * (self.current_question_num not in (5, 10)),
                     self.current_state_t.setPixmap,
-                    QPixmap('images/money tree/{}.png'.format(self.current_number)),
-                )  # поднимаем уровень на денежном дереве
+                    QPixmap(f'images/money tree/{self.current_question_num + 1}.png'),
+                )
 
                 if self.mode == 'clock':
-                    if self.current_number - 1 not in range(1, 6):
-                        self.time_function(2650, lambda a: a, True)
-                    self.time_function(0, self.current_state_q.setPixmap, QPixmap())
-                    self.time_function(0, self.current_state_q_2.setPixmap, QPixmap())
-                    self.time_function(0, self.current_state_q_3.setPixmap, QPixmap())
-                    self.time_function(300, self.updateQuestionField)
+                    dial = 1 if n == '1-4' else (2 if n in range(5, 10) else (3 if n in range(10, 14) else 6))
+                    for i in range(self.seconds_left // dial, -1, -1):  # анимируем опустошение таймера
+                        self.scheduler1.schedule(0, self.timer_text.setText, str(i * dial))
+                        self.scheduler1.schedule(40, self.timer_view.setPixmap, QPixmap(f'images/timer/{i}.png'))
+                    if self.current_question_num not in list(range(1, 6)) + [10]:
+                        self.scheduler1.schedule(2650 - 500 * int(self.current_question_num == 14), lambda a: a, True)
+                    self.scheduler1.schedule(0, self.current_state_q.setPixmap, QPixmap())
+                    self.scheduler1.schedule(0, self.current_state_q_2.setPixmap, QPixmap())
+                    self.scheduler1.schedule(0, self.current_state_q_3.setPixmap, QPixmap())
+                    self.scheduler1.schedule(300, self.updateQuestionField)
                     # обновляем текстовые блоки вопроса и ответов
-                    self.time_function(0, self.question.startFadeIn)  # показываем вопрос
-                    if self.current_number in [6, 11]:
+                    self.scheduler1.schedule(0, self.question.startFadeIn)  # показываем вопрос
+                    timer_animation_start = self.seconds_left // dial + 1
+                    if self.current_question_num in (5, 10):
                         for i in range(1, 19):  # показываем таймер
-                            self.time_function(
-                                20, self.timer_view.setPixmap, QPixmap('animations/timer/{}.png'.format(i))
+                            self.scheduler1.schedule(
+                                30, self.timer_view.setPixmap, QPixmap(f'animations/timer/{i}.png')
                             )
-                    for i in range(0, 16):  # анимируем пополнение таймера
-                        dial = 1 if n == '1-4' else (2 if n in range(5, 10) else (3 if n in range(10, 14) else 6))
-                        self.time_function(0, self.timer_text.setText, str(i * dial))
-                        self.time_function(50, self.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(i)))
-                    self.time_function(0, self.double_dip.setPixmap, QPixmap('images/show-button.png'))
-                    self.time_function(0, self.double_dip.show)
-                    self.time_function(0, self.double_dip.startFadeInImage)
+                        timer_animation_start = 0
+                    if self.current_question_num == 14:
+                        timer_animation_start = 0
+                    for i in range(timer_animation_start, 16):  # анимируем пополнение таймера
+                        self.scheduler1.schedule(0, self.timer_text.setText, str(i * dial))
+                        self.scheduler1.schedule(50, self.timer_view.setPixmap, QPixmap(f'images/timer/{i}.png'))
+                    self.scheduler1.schedule(0, self.double_dip.setPixmap, QPixmap('images/show-button.png'))
+                    self.scheduler1.schedule(0, self.double_dip.show)
+                    self.scheduler1.schedule(0, self.double_dip.startFadeInImage)
                 else:
-                    self.time_function(0, self.current_state_q.setPixmap, QPixmap())
-                    self.time_function(0, self.current_state_q_2.setPixmap, QPixmap())
-                    self.time_function(0, self.current_state_q_3.setPixmap, QPixmap())
-                    self.time_function(0, self.updateQuestionField)  # обновляем текстовые поля для нового вопроса
-                    self.time_function(0, self.question.startFadeIn)  # показываем вопрос
-                    for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
+                    if self.current_question_num > 10:
+                        self.scheduler1.schedule(1000, lambda a: a, True)
+                    self.scheduler1.schedule(0, self.current_state_q.setPixmap, QPixmap())
+                    self.scheduler1.schedule(0, self.current_state_q_2.setPixmap, QPixmap())
+                    self.scheduler1.schedule(0, self.current_state_q_3.setPixmap, QPixmap())
+                    self.scheduler1.schedule(0, self.updateQuestionField)  # обновляем текстовые поля для нового вопроса
+                    self.scheduler1.schedule(0, self.question.startFadeIn)  # показываем вопрос
+                    for answer_text_field in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
                         # показываем 4 ответа на новый вопрос
-                        self.time_function(100, a.startFadeIn)
-                        self.time_function(0, a.show)
-                    self.time_function(0, self.player2.stop)
+                        self.scheduler1.schedule(100, answer_text_field.startFadeIn)
+                        self.scheduler1.schedule(0, answer_text_field.show)
+                    self.scheduler1.schedule(0, self.player2.stop)
+                self.current_question_num += 1
 
-            else:  # если дошли до 15 вопроса
-                self.time_function(1000, self.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
+            else:  # если прошли 15 вопрос
+                self.scheduler1.schedule(1000, self.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
                 self.clear_all_labels()
                 if self.mode == 'clock':
-                    dial = 1 if n in ['1-4', 5] else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
+                    dial = 1 if n in ('1-4', 5) else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
                     for i in range(self.seconds_left // dial, -1, -1):  # анимируем опустошение таймера
-                        self.time_function(0, self.timer_text.setText, str(i * dial))
-                        self.time_function(20, self.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(i)))
-                    self.time_function(0, self.timer_text.setText, '')
+                        self.scheduler1.schedule(0, self.timer_text.setText, str(i * dial))
+                        self.scheduler1.schedule(20, self.timer_view.setPixmap, QPixmap(f'images/timer/{i}.png'))
+                    self.scheduler1.schedule(0, self.timer_text.setText, '')
                     for i in range(18, 0, -1):  # скрываем его
-                        self.time_function(20, self.timer_view.setPixmap, QPixmap('animations/timer/{}.png'.format(i)))
-                    self.time_function(20, self.timer_view.setPixmap, QPixmap())
+                        self.scheduler1.schedule(30, self.timer_view.setPixmap, QPixmap(f'animations/timer/{i}.png'))
+                    self.scheduler1.schedule(30, self.timer_view.setPixmap, QPixmap())
                 for i in range(1, 38):  # анимация показа суммы выигрыша
-                    self.time_function(20, self.layout_q.setPixmap, QPixmap('animations/sum/{}.png'.format(i)))
-                self.time_function(0, self.amount_q.setText, PRICES[self.current_number])
+                    self.scheduler1.schedule(30, self.layout_q.setPixmap, QPixmap(f'animations/sum/{i}.png'))
+                self.scheduler1.schedule(0, self.amount_q.setText, PRICES[self.current_question_num])
                 sql_request(
-                    """INSERT INTO results
-                            (name, result, date)
-                            VALUES ("{}", "{}", "{}")
-                            """.format(self.name, '3 000 000', self.date)
+                    f'INSERT INTO results (name, result, date) VALUES ("{self.name}", "3 000 000", "{self.date}")'
                 )  # записываем в бд выигрыш
-                self.time_function(1000, self.showWin)  # показываем окно победы
+                self.scheduler1.schedule(1000, self.showWin)  # показываем окно победы
 
         if user_answer != self.correct_answer and not self.is_x2_now:
             # если ответ неправильный и не было активно «право на ошибку»
-            result_game = GUARANTEED_PRICES[self.current_number - 1]
-            self.time_function(0, self.showGameOver, [letter, result_game, self.is_sound])  # показываем проигрыш
-            self.time_function(1000, self.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
+            result_game = GUARANTEED_PRICES[self.current_question_num - 1]
+            self.scheduler1.schedule(0, self.showGameOver, [letter, result_game, self.is_sound])  # показываем проигрыш
+            self.scheduler1.schedule(1000, self.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
             self.clear_all_labels()
             if self.mode == 'clock':
-                dial = 1 if n in ['1-4', 5] else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
+                dial = 1 if n in ('1-4', 5) else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
                 for i in range(self.seconds_left // dial, -1, -1):  # анимируем опустошение таймера
-                    self.time_function(0, self.timer_text.setText, str(i * dial))
-                    self.time_function(20, self.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(i)))
-                self.time_function(0, self.timer_text.setText, '')
+                    self.scheduler1.schedule(0, self.timer_text.setText, str(i * dial))
+                    self.scheduler1.schedule(30, self.timer_view.setPixmap, QPixmap(f'images/timer/{i}.png'))
+                self.scheduler1.schedule(0, self.timer_text.setText, '')
                 for i in range(18, 0, -1):  # скрываем его
-                    self.time_function(20, self.timer_view.setPixmap, QPixmap('animations/timer/{}.png'.format(i)))
-                self.time_function(20, self.timer_view.setPixmap, QPixmap())
+                    self.scheduler1.schedule(30, self.timer_view.setPixmap, QPixmap(f'animations/timer/{i}.png'))
+                self.scheduler1.schedule(30, self.timer_view.setPixmap, QPixmap())
             for i in range(1, 38):  # анимация показа суммы выигрыша
-                self.time_function(20, self.layout_q.setPixmap, QPixmap('animations/sum/{}.png'.format(i)))
-            self.time_function(0, self.amount_q.setText, result_game)  # показываем сумму выигрыша
+                self.scheduler1.schedule(30, self.layout_q.setPixmap, QPixmap(f'animations/sum/{i}.png'))
+            self.scheduler1.schedule(0, self.amount_q.setText, result_game)  # показываем сумму выигрыша
             sql_request(
-                """INSERT INTO results
-                           (name, result, date)
-                           VALUES ("{}", "{}", "{}")
-                        """.format(self.name, result_game, self.date)
+                f'INSERT INTO results (name, result, date) VALUES ("{self.name}", "{result_game}", "{self.date}")'
             )  # записываем в бд выигрыш
 
         if self.is_x2_now:  # если было активно «право на ошибку», то со следующим вопросом снимаем его
             self.is_x2_now = False
 
-    @user_control
+        self.scheduler1.start()
+
     def useLifeline(self, type_ll: str):
         """Метод, использующий подсказку type_ll
 
@@ -834,46 +837,54 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.player3.setMedia(
                     decorate_audio('sounds/change.mp3' if self.mode == 'classic' else 'sounds/change_clock.mp3')
                 )
-                self.time_function(750, self.player3.play)
+                self.scheduler1.schedule(750, self.player3.play)
                 if self.mode == 'clock':
-                    self.time_function(0, self.player1.stop)
-                    self.time_function(0, self.player2.stop)
-                    n = '1-4' if self.current_number in [1, 2, 3, 4] else self.current_number
-                    dial = 1 if n in ['1-4', 5] else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
+                    if self.current_question_num not in range(1, 5):
+                        self.scheduler1.schedule(0, self.player1.stop)
+                    self.scheduler1.schedule(0, self.player2.stop)
+                    n = '1-4' if self.current_question_num in range(1, 5) else self.current_question_num
+                    dial = 1 if n in ('1-4', 5) else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
                     for i in range(0, 16):  # анимируем его пополнение
-                        self.time_function(0, self.timer_text.setText, str(i * dial))
-                        self.time_function(50, self.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(i)))
+                        self.scheduler1.schedule(0, self.timer_text.setText, str(i * dial))
+                        self.scheduler1.schedule(50, self.timer_view.setPixmap, QPixmap(f'images/timer/{i}.png'))
                     self.qttimer.stop()
-                self.time_function(1000, self.updateQuestionField, True)
+                self.scheduler1.schedule(820, self.updateQuestionField, True)
                 if self.is_x2_now:  # на смене вопроса отменяем «право на ошибку»
-                    self.time_function(0, self.double_dip.startFadeOutImage)
-                self.time_function(0, self.question.startFadeIn)
+                    self.scheduler1.schedule(0, self.double_dip.startFadeOutImage)
+                if self.is_x2_now or len(self.non_active_answers) in (1, 3):
+                    n = '1-4' if self.current_question_num in range(1, 5) else self.current_question_num
+                    self.scheduler1.schedule(0, self.player1.setMedia, decorate_audio(f'sounds/{n}/bed.mp3'))
+                    self.scheduler1.schedule(8, self.player1.play)
+                self.scheduler1.schedule(0, self.question.startFadeIn)
                 if self.mode == 'classic':
-                    for a in [self.answer_A, self.answer_B, self.answer_C, self.answer_D]:
-                        self.time_function(100, a.startFadeIn)
-                        self.time_function(0, a.show)
+                    for answer_text_field in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
+                        self.scheduler1.schedule(100, answer_text_field.startFadeIn)
+                        self.scheduler1.schedule(0, answer_text_field.show)
                 else:
-                    self.time_function(0, self.double_dip.setPixmap, QPixmap('images/show-button.png'))
-                    self.time_function(0, self.double_dip.show)  # подменяем кнопку по центру на кнопку показа ответа
-                    self.time_function(0, self.double_dip.startFadeInImage)
+                    self.scheduler1.schedule(0, self.double_dip.setPixmap, QPixmap('images/show-button.png'))
+                    self.scheduler1.schedule(
+                        0, self.double_dip.show
+                    )  # подменяем кнопку по центру на кнопку показа ответа
+                    self.scheduler1.schedule(0, self.double_dip.startFadeInImage)
                     self.has_shown = False
-                self.time_function(0, self.current_state_q.setPixmap, QPixmap())
-                self.time_function(0, self.current_state_q_2.setPixmap, QPixmap())
-                self.time_function(0, self.current_state_q_3.setPixmap, QPixmap())
+                self.scheduler1.schedule(0, self.current_state_q.setPixmap, QPixmap())
+                self.scheduler1.schedule(0, self.current_state_q_2.setPixmap, QPixmap())
+                self.scheduler1.schedule(0, self.current_state_q_3.setPixmap, QPixmap())
                 self.is_x2_now = False
 
             elif type_ll == 'x2':  # право на ошибку
                 self.is_x2_now = True  # активируем подсказку
                 self.player1.setMedia(
-                    decorate_audio('sounds/double/start{}.mp3'.format('_clock' if self.mode == 'clock' else ''))
+                    decorate_audio(f'sounds/double/start{"_clock" if self.mode == "clock" else ""}.mp3')
                 )  # запускаем трек
                 if self.mode == 'clock':
+                    self.player2.stop()
                     self.qttimer.stop()
                 self.player1.play()
 
             elif type_ll == '50:50':  # 50:50
                 self.player3.setMedia(decorate_audio('sounds/50_50.mp3'))  # запускаем трек
-                self.time_function(0, self.player3.play)
+                self.scheduler1.schedule(0, self.player3.play)
                 answs = [self.answer_A, self.answer_B, self.answer_C, self.answer_D]
                 answ_letters = ['A', 'B', 'C', 'D']
                 if self.non_active_answers:  # неактивные ответы от «права на ошибку»
@@ -883,25 +894,26 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 indxs = list(indxs - set([self.answers.index(self.correct_answer)]))
                 # из индексов вырезаем индекс правильного ответа
                 shuffle(indxs)  # перемешиваем индекс, чтобы убрать два неверных ответа СЛУЧАЙНО
-                answs[indxs[0]].setText('')
-                answs[indxs[1]].setText('')
+                self.scheduler1.schedule(250, answs[indxs[0]].setText, '')
+                self.scheduler1.schedule(0, answs[indxs[1]].setText, '')
                 self.non_active_answers += [answ_letters[indxs[0]], answ_letters[indxs[1]]]
                 # добавляем ещё 2 неактивных ответа
 
             self.lifelines[type_ll] = False  # деактивируем дальнейший доступ к подсказке
-            logging.info('- {}-ll'.format(type_ll))
+            self.scheduler1.start()
+            logging.info(f'- {type_ll}-ll')
 
     def restartGame(self):
         """Метод, перезапускающий игру и возвращающий все значения в начальное состояние"""
 
-        self.control = True
+        self.user_control = True
         self.timer, self.is_x2_now = 900, False  # 900 для синхронизации анимации и звука
         self.lifelines = {'change': True, '50:50': True, 'x2': True}
-        for ll in [self.lost_change, self.lost_x2, self.lost_5050]:
-            ll.hide()
+        for ll_button in (self.lost_change, self.lost_x2, self.lost_5050):
+            ll_button.hide()
         self.clear_all_labels()
-        for p in [self.player1, self.player2, self.player3, self.player4]:
-            p.stop()  # останавливаем все музыкальные плееры
+        for player in (self.player1, self.player2, self.player3, self.player4):
+            player.stop()  # останавливаем все музыкальные плееры
         self.layout_q.setPixmap(QPixmap('images/question field/layout.png'))
         self.amount_q.setText('')
         self.startGame(True)  # начинаем игру с repeat = True
@@ -910,7 +922,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         """Метод, показывающий окно для победы"""
 
         self.win = WinWindow(self, self.is_sound)
-        self.control = False  # отключаем управление в игре, чтобы игрок не продолжил игру после победы
+        self.user_control = False  # отключаем управление в игре, чтобы игрок не продолжил игру после победы
         self.win.move(169 + self.x(), 210 + self.y())
         self.win.show()
         logging.info('Game over - player won')
@@ -924,7 +936,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             содержит в себе правильный ответ, несгораемую сумму и is_sound (переключатель звука)
         """
 
-        self.control = False  # отключаем управление в игре, чтобы игрок не продолжил игру после победы
+        self.user_control = False  # отключаем управление в игре, чтобы игрок не продолжил игру после победы
         self.game_over = GameOverWindow(self, state)
         self.game_over.move(169 + self.x(), 210 + self.y())
         self.game_over.show()
@@ -933,7 +945,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
     def openConfirmLeave(self):
         """Метод, показывающий форму для подтверждения кнопки «забрать деньги»"""
 
-        self.control = False
+        self.user_control = False
         num_to_let = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
         letter = num_to_let[self.answers.index(self.correct_answer)]  # получаем букву правильного ответа
         self.confirm_wndw = ConfirmLeaveWindow(self, letter, self.is_sound)
@@ -981,8 +993,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         """Метод, показывающий информацию об игре и разработчике"""
 
         self.about_wndw = AboutWindow(self, self.is_sound)
-        for p in [self.player1, self.player2, self.player4]:
-            p.setVolume(20 * self.is_sound)  # приглушаем треки из игры
+        for player in (self.player1, self.player2, self.player4):
+            player.setVolume(20 * self.is_sound)  # приглушаем треки из игры
         self.player3.setMedia(decorate_audio('sounds/about.mp3'))
         self.player3.play()  # включаем трек для этого окна
         self.about_wndw.move(178 + self.x(), 175 + self.y())
@@ -997,10 +1009,10 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         else:  # иначе
             self.is_sound = False  # отключаем
 
-        for p in [self.player1, self.player2, self.player3, self.player4]:
-            p.setVolume(100 * self.is_sound)  # устанавливаем звук на основе self.is_sound
+        for player in (self.player1, self.player2, self.player3, self.player4):
+            player.setVolume(100 * self.is_sound)  # устанавливаем звук на основе self.is_sound
 
-        if self.current_number in range(1, 6) and self.mode == 'clock':
+        if self.current_question_num in range(1, 6) and self.mode == 'clock':
             self.player1.setVolume(30 * self.is_sound)
 
 
@@ -1050,7 +1062,7 @@ class WinWindow(QDialog, Ui_Win):
         self.close()
         self.player = QMediaPlayer()
         self.player.setMedia(
-            decorate_audio('sounds/quit_game{}.mp3'.format('_clock' if self.parent_.mode == 'clock' else ''))
+            decorate_audio(f'sounds/quit_game{"_clock" if self.parent_.mode == "clock" else ""}.mp3')
         )  # запускаем трек конца игры
         if self.is_sound:
             self.player.play()
@@ -1106,7 +1118,7 @@ class GameOverWindow(QDialog, Ui_GameOver):
         self.close()
         self.player = QMediaPlayer()
         self.player.setMedia(
-            decorate_audio('sounds/quit_game{}.mp3'.format('_clock' if self.parent_.mode == 'clock' else ''))
+            decorate_audio(f'sounds/quit_game{"_clock" if self.parent_.mode == "clock" else ""}.mp3')
         )  # запускаем трек конца игры
         if self.is_sound:
             self.player.play()
@@ -1152,10 +1164,7 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         """Метод, покидающий игру, забирающий деньги и предлагающий сыграть ещё раз"""
 
         sql_request(
-            """INSERT INTO results
-                       (name, result, date)
-                       VALUES ("{}", "{}", "{}")
-                    """.format(self.parent_.name, self.parent_.got_amount, self.parent_.date)
+            f'INSERT INTO results (name, result, date) VALUES ("{self.parent_.name}", "{self.parent_.got_amount}", "{self.parent_.date}")'
         )
         # вставляем результат игры в таблицы
         self.windialog = WinLeaveWindow(self.parent_, (self.correct, self.parent_.got_amount, self.is_sound))
@@ -1163,46 +1172,44 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         self.windialog.move(169 + self.parent_.x(), 210 + self.parent_.y())
         self.windialog.show()
 
-        for p in [self.parent_.player1, self.parent_.player2, self.parent_.player3, self.parent_.player4]:
-            p.stop()  # стопим все плееры
+        for player in (self.parent_.player1, self.parent_.player2, self.parent_.player3, self.parent_.player4):
+            player.stop()  # стопим все плееры
         self.parent_.player1.setMedia(
             decorate_audio(
-                'sounds/{}walk_away{}.mp3'.format(
-                    'great_' if self.parent_.current_number >= 11 else '',
-                    '_clock' if self.parent_.mode == 'clock' else '',
-                )
+                f'sounds/{"great_" if self.parent_.current_question_num >= 11 else ""}walk_away{"_clock" if self.parent_.mode == "clock" else ""}.mp3'
             )
         )  # запускаем музыку на «забрать деньги»
         self.parent_.player1.play()
         if self.parent_.mode == 'clock':
             self.parent_.qttimer.stop()
         self.parent_.current_state_q_2.setPixmap(
-            QPixmap('images/question field/correct_{}.png'.format(self.correct))
+            QPixmap(f'images/question field/correct_{self.correct}.png')
         )  # показываем правильный ответ
         self.parent_.current_state_q_2.startFadeInImage()
         self.parent_.current_state_q_2.show()
 
-        self.parent_.time_function(3000, self.parent_.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
+        self.parent_.scheduler1.schedule(3000, self.parent_.layout_q.setPixmap, QPixmap('animations/sum/1.png'))
         self.parent_.clear_all_labels()
-        n = '1-4' if self.parent_.current_number in [1, 2, 3, 4] else self.parent_.current_number
+        n = '1-4' if self.parent_.current_question_num in range(1, 5) else self.parent_.current_question_num
         if self.parent_.mode == 'clock':
-            dial = 1 if n in ['1-4', 5] else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
+            dial = 1 if n in ('1-4', 5) else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
             for i in range(self.parent_.seconds_left // dial, -1, -1):  # анимируем опустошение таймера
-                self.parent_.time_function(0, self.parent_.timer_text.setText, str(i * dial))
-                self.parent_.time_function(
-                    20, self.parent_.timer_view.setPixmap, QPixmap('images/timer/{}.png'.format(i))
+                self.parent_.scheduler1.schedule(0, self.parent_.timer_text.setText, str(i * dial))
+                self.parent_.scheduler1.schedule(
+                    20, self.parent_.timer_view.setPixmap, QPixmap(f'images/timer/{i}.png')
                 )
-            self.parent_.time_function(0, self.parent_.timer_text.setText, '')
+            self.parent_.scheduler1.schedule(0, self.parent_.timer_text.setText, '')
             for i in range(18, 0, -1):  # скрываем его
-                self.parent_.time_function(
-                    20, self.parent_.timer_view.setPixmap, QPixmap('animations/timer/{}.png'.format(i))
+                self.parent_.scheduler1.schedule(
+                    30, self.parent_.timer_view.setPixmap, QPixmap(f'animations/timer/{i}.png')
                 )
-            self.parent_.time_function(20, self.parent_.timer_view.setPixmap, QPixmap())
+            self.parent_.scheduler1.schedule(30, self.parent_.timer_view.setPixmap, QPixmap())
         for i in range(1, 38):  # анимация показа суммы выигрыша
-            self.parent_.time_function(20, self.parent_.layout_q.setPixmap, QPixmap('animations/sum/{}.png'.format(i)))
-        self.parent_.time_function(
+            self.parent_.scheduler1.schedule(30, self.parent_.layout_q.setPixmap, QPixmap(f'animations/sum/{i}.png'))
+        self.parent_.scheduler1.schedule(
             0, self.parent_.amount_q.setText, self.parent_.got_amount
         )  # показываем сумму выигрыша
+        self.parent_.scheduler1.start()
 
         logging.info('Game over — leave game')
 
@@ -1211,7 +1218,7 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
     def close_wndw(self):
         """Метод, закрывающий окно подтверждения при отмене действия"""
 
-        self.parent_.control = True
+        self.parent_.user_control = True
         self.close()
 
 
@@ -1349,7 +1356,7 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
 
         id_result = self.spinBox.text()  # берём id результата из спинбокса
         result_date = list(filter(lambda x: x[0] == id_result, self.results))[0][1]
-        result = sql_request('DELETE FROM results WHERE date = "{}"'.format(result_date))[0]
+        result = sql_request(f'DELETE FROM results WHERE date = "{result_date}"')[0]
         if 'ERROR' in result:
             raise Exception(result)
         else:
@@ -1432,16 +1439,16 @@ class AboutWindow(QWidget, Ui_About):
     def close_wndw(self):
         """Метод, закрывающий окно при нажатии на кнопку «ОК»"""
 
-        for p in [self.parent_.player1, self.parent_.player2, self.parent_.player4]:
-            p.setVolume(100 * self.is_sound)
+        for player in (self.parent_.player1, self.parent_.player2, self.parent_.player4):
+            player.setVolume(100 * self.is_sound)
         self.parent_.player3.stop()
         self.close()
 
     def closeEvent(self, event: QCloseEvent):
         """Метод, вызывающийся при закрытии окна"""
 
-        for p in [self.parent_.player1, self.parent_.player2, self.parent_.player4]:
-            p.setVolume(100 * self.is_sound)
+        for player in (self.parent_.player1, self.parent_.player2, self.parent_.player4):
+            player.setVolume(100 * self.is_sound)
         self.parent_.player3.stop()
         return super().closeEvent(event)
 
