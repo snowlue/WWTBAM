@@ -80,9 +80,9 @@ def empty_timer(window: 'GameWindow'):
     window.scheduler1.schedule(0, window.timer_text.setText, '')
 
 
-def refill_timer(window: 'GameWindow', seconds_left: int = 0):
+def refill_timer(window: 'GameWindow', question_num: int, seconds_left: int = 0):
     """Пополняет таймер"""
-    n = '1-4' if window.current_question_num + 1 in range(1, 5) else window.current_question_num + 1
+    n = '1-4' if question_num in range(1, 5) else question_num
     dial = 1 if n in ('1-4', 5) else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
     animation_start = seconds_left // dial + 1
     for i in range(animation_start, 16):

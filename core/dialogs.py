@@ -174,7 +174,6 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
 
         self.windialog = WinLeaveWindow(self.parent_, (self.correct_answer, self.parent_.got_amount, self.is_sound))
         self.windialog.move(169 + self.parent_.x(), 210 + self.parent_.y())
-        self.windialog.show()
 
         for player in (self.parent_.player1, self.parent_.player2, self.parent_.player3, self.parent_.player4):
             player.stop()
@@ -195,11 +194,13 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
             self.parent_.current_state_q_2.show()
 
         self.parent_.scheduler1.schedule(3000, lambda: True)
+        self.parent_.scheduler1.schedule(0, self.parent_.double_dip.startFadeOutImage)
         self.parent_.clear_all_labels()
         if self.parent_.mode == 'clock':
             empty_timer(self.parent_)
             hide_timer(self.parent_)
         show_prize(self.parent_, self.parent_.got_amount)
+        self.parent_.scheduler1.schedule(1000, self.windialog.show)
         self.parent_.scheduler1.start()
 
         logging.info('Game over — leave game')
@@ -246,7 +247,7 @@ class ConfirmCloseWindow(QDialog, Ui_ConfirmExit):
         """Завершает игру и закрывает приложение"""
 
         logging.info('Game close')
-        sys.exit()
+        sys.exit(0)
 
 
 class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):

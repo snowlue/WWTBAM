@@ -1,4 +1,5 @@
 import logging
+import sys
 from bisect import bisect_right
 from datetime import datetime
 from random import shuffle
@@ -47,7 +48,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.open_table.triggered.connect(self.open_results_table)
         self.clear_one.triggered.connect(self.open_delete_result_from)
         self.clear_all.triggered.connect(self.open_confirm_clear_all)
-        self.sound_btn.triggered.connect(self.check_sound)
+        self.sound_btn.triggered.connect(self.toggle_sound)
         self.start_game()
 
     def switch_user_control(self, is_available_to_control: bool):
@@ -76,7 +77,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.scheduler1.schedule(0, self.player2.play)
 
         self.questions = get_questions()
-        self.current_question_num = 1  # God mode
+        self.current_question_num = 1  # HACK God mode
 
         # анимация показа блока с вопросом и ответами
         if repeat:
@@ -132,7 +133,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.question.startFadeIn)
             self.scheduler1.schedule(300, lambda: True)
             show_timer(self)
-            refill_timer(self)
+            refill_timer(self, self.current_question_num)
             self.scheduler1.schedule(0, self.double_dip.setPixmap, QPixmap('images/show-button.png'))
             self.scheduler1.schedule(0, self.double_dip.show)
             self.scheduler1.schedule(0, self.double_dip.startFadeInImage)
@@ -179,6 +180,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         self.scheduler1.schedule(0, self.timer_view.setPixmap, QPixmap(f'images/timer/{dial}.png'))
         self.scheduler1.schedule(0, self.timer_text.setText, str(self.seconds_left))
+        self.scheduler1.start()
 
         if self.seconds_left == 0:
             self.qttimer.stop()
@@ -202,13 +204,13 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.timer_text.setText, '')
             self.clear_all_labels()
             hide_timer(self)
-            self.scheduler1.schedule(0, self.show_game_over, [correct_answer_letter, result_game, self.is_sound])
             show_prize(self, result_game)
+            self.scheduler1.schedule(750, self.show_game_over, [correct_answer_letter, result_game, self.is_sound])
 
             sql_request(
                 f'INSERT INTO results (name, result, date) VALUES ("{self.name}", "{result_game}", "{self.date}")'
             )
-        self.scheduler1.start()
+            self.scheduler1.start()
         self.seconds_left -= 1
 
     def keyPressEvent(self, event: QKeyEvent):
@@ -257,9 +259,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if not self.user_control or not self.has_shown and not self.mode == 'classic':
             return
 
-        if len(self.non_active_answers) in (1, 3):
-            # 1 неактивный ответ — после использования «права на ошибку»
-            # 3 неактивных ответа — после использования 50:50 и «права на ошибку»
+        if len(self.non_active_answers) == 1:
+            # 1 неактивный ответ — после использования «права на ошибку», играем second_final
+            # 3 неактивных ответа — после использования 50:50 и «права на ошибку», не играем
             self.player4.setMedia(decorate_audio('sounds/double/second_final.mp3'))
         elif not self.is_x2_now and self.current_question_num not in range(1, 6):
             # после пятого вопроса каждый ответ озвучивается отдельным треком
@@ -297,7 +299,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         text = self.questions[self.current_question_num - 1][int(changer)][0]
         self.answers = list(map(str, self.questions[self.current_question_num - 1][int(changer)][2]))
         self.correct_answer = str(self.questions[self.current_question_num - 1][int(changer)][1])
-        # print(self.correct_answer)  # God mode
+        # print(self.correct_answer)  # HACK God mode
         self.got_amount = MONEYTREE_AMOUNTS[self.current_question_num - 1]
 
         self.question.setText(text)
@@ -309,15 +311,16 @@ class GameWindow(QMainWindow, Ui_MainWindow):
     def clear_all_labels(self):
         """Подчищает все слои состояния и текстовые блоки"""
 
-        for state_label in (self.current_state_q, self.current_state_q_2, self.current_state_q_3, self.double_dip):
+        for state_label in (self.current_state_q, self.current_state_q_2, self.current_state_q_3):
             self.scheduler1.schedule(0, state_label.startFadeOutImage)
+
         self.scheduler1.schedule(100, lambda: True)
         for state_label in (self.current_state_q, self.current_state_q_2, self.current_state_q_3):
             self.scheduler1.schedule(0, state_label.setPixmap, QPixmap())
 
         self.scheduler1.schedule(0, self.question.startFadeOut)
         for label in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
-            self.scheduler1.schedule(100, label.startFadeOut)
+            self.scheduler1.schedule(0, label.startFadeOut)
         self.scheduler1.schedule(100, lambda: True)
 
         for label in (self.question, self.answer_A, self.answer_B, self.answer_C, self.answer_D):
@@ -340,7 +343,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.qttimer.stop()
         if self.current_question_num not in range(1, 6) or self.is_x2_now:
             self.scheduler1.schedule(0, self.player1.stop)
-            self.scheduler1.schedule(0, self.player4.play)
+            if len(self.non_active_answers) != 3:
+                self.scheduler1.schedule(0, self.player4.play)
         logging.info(f'Answ[{letter}]')
         letter_to_button = {'A': self.answer_A, 'B': self.answer_B, 'C': self.answer_C, 'D': self.answer_D}
 
@@ -348,7 +352,12 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         delays = (2000 * self.is_x2_now + 400, 2000, 2500, 3000, 3500, 4500, 5500)
         # находим индекс, куда попадает self.current_question_num
         index = bisect_right((1, 5, 6, 10, 11, 13, 15), self.current_question_num) - 1
-        self.scheduler1.schedule(delays[index], lambda: True)
+        delay = delays[index]
+        if len(self.non_active_answers) == 3:
+            delay = 400
+        elif len(self.non_active_answers) == 2 and self.is_x2_now:
+            delay = 400
+        self.scheduler1.schedule(delay, lambda: True)
         if self.current_question_num == 5:
             self.scheduler1.schedule(0, self.player1.setVolume, 100)
 
@@ -370,6 +379,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.current_state_q_3.setPixmap,
                 QPixmap(f'images/question field/wrong_{user_selected_letter}.png'),
             )
+            self.scheduler1.schedule(0, self.current_state_q_3.startFadeInImage)
             self.scheduler1.schedule(0, self.double_dip.startFadeOutImage)
 
             self.scheduler1.schedule(0, self.player1.setMedia, decorate_audio('sounds/double/first_wrong.mp3'))
@@ -392,13 +402,14 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.show_correct_answer(correct_answer_letter)
 
             result_game = SAFETY_NETS[self.current_question_num - 1]
-            self.scheduler1.schedule(0, self.show_game_over, [correct_answer_letter, result_game, self.is_sound])
             self.scheduler1.schedule(1000, lambda: True)
             self.clear_all_labels()
             if self.mode == 'clock':
                 empty_timer(self)
                 hide_timer(self)
             show_prize(self, result_game)
+            self.scheduler1.schedule(750, self.show_game_over, [correct_answer_letter, result_game, self.is_sound])
+
             sql_request(
                 f'INSERT INTO results (name, result, date) VALUES ("{self.name}", "{result_game}", "{self.date}")'
             )
@@ -424,8 +435,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 empty_timer(self)
                 hide_timer(self)
             show_prize(self, MONEYTREE_AMOUNTS[self.current_question_num])
-            sql_request(f'INSERT INTO results (name, result, date) VALUES ("{self.name}", "3 000 000", "{self.date}")')
             self.scheduler1.schedule(1000, self.show_win)
+            sql_request(f'INSERT INTO results (name, result, date) VALUES ("{self.name}", "3 000 000", "{self.date}")')
 
             self.scheduler1.start()
             return
@@ -505,7 +516,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.question.startFadeIn)
             if self.current_question_num in (5, 10):
                 show_timer(self)
-            refill_timer(self, 0 if self.current_question_num in (5, 10, 14) else self.seconds_left)
+            refill_timer(self, num + 1, 0 if (num := self.current_question_num) in (5, 10, 14) else self.seconds_left)  # noqa: F841, F821
             self.scheduler1.schedule(0, self.double_dip.setPixmap, QPixmap('images/show-button.png'))
             self.scheduler1.schedule(0, self.double_dip.show)
             self.scheduler1.schedule(0, self.double_dip.startFadeInImage)
@@ -540,16 +551,22 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     if self.current_question_num not in range(1, 5):
                         self.scheduler1.schedule(0, self.player1.stop)
                     self.scheduler1.schedule(0, self.player2.stop)
-                    refill_timer(self)
+                    refill_timer(self, self.current_question_num)
                     self.qttimer.stop()
-                self.scheduler1.schedule(820, self.update_question_field, True)
+                self.scheduler1.schedule(820 + 1200 * (self.mode == 'clock'), lambda: True)
+                for state_label in (self.current_state_q, self.current_state_q_2, self.current_state_q_3):
+                    self.scheduler1.schedule(0, state_label.setPixmap, QPixmap())
+                self.scheduler1.schedule(0, self.question.startFadeOut)
+                for label in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
+                    self.scheduler1.schedule(0, label.startFadeOut)
                 if self.is_x2_now:  # на смене вопроса отменяем «право на ошибку»
                     self.scheduler1.schedule(0, self.double_dip.startFadeOutImage)
+                self.scheduler1.schedule(200, self.update_question_field, True)
                 if self.is_x2_now or len(self.non_active_answers) in (1, 3):
                     n = '1-4' if self.current_question_num in range(1, 5) else self.current_question_num
                     self.scheduler1.schedule(0, self.player1.setMedia, decorate_audio(f'sounds/{n}/bed.mp3'))
                     self.scheduler1.schedule(8, self.player1.play)
-                self.scheduler1.schedule(0, self.question.startFadeIn)
+                self.scheduler1.schedule(100, self.question.startFadeIn)
                 if self.mode == 'classic':
                     for answer_text_field in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
                         self.scheduler1.schedule(100, answer_text_field.startFadeIn)
@@ -561,8 +578,6 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     )  # подменяем кнопку по центру на кнопку показа ответа
                     self.scheduler1.schedule(0, self.double_dip.startFadeInImage)
                     self.has_shown = False
-                for state_label in (self.current_state_q, self.current_state_q_2, self.current_state_q_3):
-                    self.scheduler1.schedule(0, state_label.setPixmap, QPixmap())
                 self.is_x2_now = False
 
             elif type_ll == 'x2':  # право на ошибку
@@ -685,7 +700,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.about_wndw.show()
         logging.info('About open')
 
-    def check_sound(self):
+    def toggle_sound(self):
         """Переключает звук (т.е. включает или отключает)"""
 
         if self.sender().isChecked():  # type: ignore | если галочка активна
@@ -698,3 +713,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         if self.current_question_num in range(1, 6) and self.mode == 'clock':
             self.player1.setVolume(30 * self.is_sound)
+
+    def closeEvent(self, event):
+        """Завершает работу приложения при закрытии игрового окна"""
+        sys.exit(0)
