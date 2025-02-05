@@ -29,6 +29,14 @@ class AnimationLabel(QLabel):
         self.animation.setEasingCurve(QEasingCurve.InBack)
         self.animation.start()
 
+    def startFadeOut(self):
+        self.animation.stop()
+        self.animation.setStartValue(QColor(255, 255, 255, 255))
+        self.animation.setEndValue(QColor(255, 255, 255, 0))
+        self.animation.setDuration(300)
+        self.animation.setEasingCurve(QEasingCurve.OutBack)
+        self.animation.start()
+
     def startFadeInImage(self):
         self.effect = QGraphicsOpacityEffect()
         self.setGraphicsEffect(self.effect)
@@ -441,7 +449,7 @@ class Ui_MainWindow(object):
         self.current_state_q_2.setScaledContents(True)
         self.current_state_q_2.setObjectName('current_state_q_2')
 
-        self.current_state_q_3 = QtWidgets.QLabel(self.questionField)
+        self.current_state_q_3 = AnimationLabel(self.questionField)
         self.current_state_q_3.setGeometry(QtCore.QRect(-20, -28, 1142, 226))
         self.current_state_q_3.setText('')
         self.current_state_q_3.setScaledContents(True)
@@ -454,7 +462,7 @@ class Ui_MainWindow(object):
         palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
 
-        self.amount_q = QtWidgets.QLabel(self.questionField)
+        self.amount_q = AnimationLabel(self.questionField)
         self.amount_q.setGeometry(QtCore.QRect(127, 60, 850, 81))
         self.amount_q.setPalette(palette)
         font.setPointSize(33)
@@ -532,7 +540,7 @@ class Ui_MainWindow(object):
         self.timer_view.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.timer_view.setObjectName('timer')
 
-        self.timer_text = QtWidgets.QLabel(self.centralwidget)
+        self.timer_text = AnimationLabel(self.centralwidget)
         self.timer_text.setGeometry(QtCore.QRect(509, 443, 89, 40))
         self.timer_text.setPalette(palette)
         font.setPointSize(27)

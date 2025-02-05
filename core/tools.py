@@ -8,148 +8,36 @@ from types import TracebackType
 from typing import TYPE_CHECKING, Type
 
 from PyQt5.QtCore import QObject, QTime, QTimer, QUrl
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QMediaContent
 from PyQt5.QtWidgets import QHeaderView, QTableWidget, QTableWidgetItem
 
 from core.application import msg
 
+from .constants import SECONDS_FOR_QUESTION
+
 if TYPE_CHECKING:
     from core.game import GameWindow
-
-
-def sql_request(request: str) -> tuple[str, list]:
-    """Метод для запроса данных из базы данных database.sqlite3 и возвращает "OK" или "ERROR" с описанием ошибки
-
-    Параметры
-    ---------
-    request: str
-        текст запроса
-    """
-
-    with sqlite3.connect('database.sqlite3') as con:  # подключаемся к бд
-        cur = con.cursor()  # и задаём курсор по бд
-        try:
-            # выясняем цель запроса
-            if 'select' in request.lower():  # для получения данных из бд?
-                return 'OK', cur.execute(request).fetchall()  # возвращаем выборку
-            else:  # для записи данных в бд?
-                cur.execute(request)  # распаковываем запрос
-                con.commit()
-                return 'OK', []
-        except Exception as ex:
-            return 'ERROR: ' + str(ex), []  # если в запросе ошибка, возвращаем её
-
-
-def get_questions():
-    """Метод для получения и подготовки вопросов из базы данных database.sqlite3 для игры"""
-
-    questions_data, questions = (
-        [sql_request('SELECT * FROM "{}_questions"'.format(i))[1] for i in range(1, 16)],
-        [],
-    )  # извлекаем все вопросы из бд
-
-    for q_unshuffled in questions_data:  # проходимся по списку с вопросами по каждому шагу денежного дерева
-        questions_set = []
-
-        q_shuffled = q_unshuffled.copy()
-        shuffle(q_shuffled)  # перемешиваем список вопросов
-        for q in q_shuffled[:2]:  # берём первые два вопроса
-            text, corr_answ, answs = q[1], q[2], list(q[2:])  # отбираем текст вопроса, правильный и другие три ответа
-            shuffle(answs)  # перемешиваем ответы
-            questions_set.append([text, corr_answ, answs])  # собираем два вопроса — первый и для смены вопроса
-
-        questions.append(questions_set)
-
-    logging.info('Qs are gotten')
-    return questions
-
-
-def makeTable(table: QTableWidget, header: list[str], data: list[list[str]]) -> None:
-    """Метод для генерации таблицы в table с первой строкой header и матрицей data
-
-    Параметры
-    ---------
-    table: QTableWidget
-        виджет таблицы из Qt
-    header: list[str]
-        первая строка таблицы — её заголовок
-    data: list[list[str]]
-        оставшиеся данные таблицы
-    """
-
-    table.setColumnCount(len(header))
-    table.setHorizontalHeaderLabels(header)
-    table.setRowCount(0)
-
-    for i, rowlist in enumerate(data):  # заносим контент из data в table
-        table.setRowCount(table.rowCount() + 1)
-        for j, elem in enumerate(rowlist):
-            table.setItem(i, j, QTableWidgetItem(elem))
-    table.resizeColumnsToContents()
-
-    table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
-    table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
-    table.setEditTriggers(QTableWidget.NoEditTriggers)
-
-
-def decorate_audio(file: str) -> QMediaContent:
-    """Метод, декорирующий путь к аудиофайлу в медиа-контент, понятный для Qt
-
-    Параметры
-    ---------
-    file: str
-        относительный путь к аудиофайлу
-    """
-
-    url = QUrl.fromLocalFile(os.path.abspath(file))  # из пути file определяем QUrl-объект, понятный для QMediaContent
-    return QMediaContent(url)  # создаём из QUrl медиа-контент, понятный для Qt, и возвращаем его
-
-
-def excepthook(exc_type: Type[BaseException], exc_value: BaseException, exc_tb: TracebackType):
-    """Обработчик исключений
-
-    При вызове исключения логирует ошибку в логи и показывает окно, предлагающее отправить ошибку разработчику.
-
-    Параметры
-    ---------
-    exc_type: Type[BaseException]
-        тип вызванного исключения
-    exc_value: BaseException
-        описание исключения
-    exc_tb: TracebackType
-        подробный трейсбек
-    """
-
-    logging.error(
-        str(exc_value) + '\n' + ''.join(traceback.format_exception(exc_type, exc_value, exc_tb))
-    )  # логируем ошибку
-    msg.show()
-    msg.buttonClicked.connect(sys.exit)  # привязываем кнопку «ОК» к завершению приложения
 
 
 class AnimationScheduler(QObject):
     def __init__(self, parent: 'GameWindow'):
         super().__init__(parent)
         self._timer = QTimer(self)
-        self._timer.setInterval(10)  # интервал проверки (10 мс)
-        self._timer.timeout.connect(self._update)
+        self._timer.setInterval(10)
+        self._timer.timeout.connect(self._update)  # в случае истечения интервала в 10 мс вызывает _update
         self._start_time = None  # будет хранить QTime запуска анимации
         self._events = []  # список запланированных событий в виде (относительное время, функция, args, kwargs)
-        self._current_delay = 0
+        self._current_delay = 0  # текущее относительное время; сбрасывается, когда кончается список событий
         self._parent = parent
 
     def schedule(self, delay: int, func, *args, **kwargs):
-        """
-        Запланировать выполнение функции func через delay миллисекунд после старта анимации.
-        """
+        """Планирует выполнение функции func(*args, **kwargs) через delay мс после старта анимации"""
         self._current_delay += delay
         self._events.append((self._current_delay, func, args, kwargs))
 
     def start(self):
-        """
-        Запускаем анимацию – сохраняем текущее время и стартуем таймер.
-        """
-        # сортируем события по времени (на случай, если порядок добавления не по возрастанию)
+        """Запускает анимацию, высвобождая запланированные события"""
         if not self._events:
             return
         self._events.sort(key=lambda event: event[0])
@@ -158,9 +46,7 @@ class AnimationScheduler(QObject):
         self._parent.user_control = False
 
     def _update(self):
-        """
-        Метод, вызываемый периодически таймером: проверяет, какие события пора выполнить.
-        """
+        """Проверяет, какие события пора выполнить (периодически вызывается таймером)"""
         if self._start_time is None:
             return
 
@@ -177,3 +63,122 @@ class AnimationScheduler(QObject):
             self._timer.stop()
             self._parent.user_control = True
             self._current_delay = 0
+
+
+def empty_timer(window: 'GameWindow'):
+    """Опустошает таймер"""
+    n = '1-4' if window.current_question_num in range(1, 5) else window.current_question_num
+    dial = 1 if n in ('1-4', 5) else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
+    
+    if window.has_shown or window.current_question_num == 15:
+        seconds_left = window.seconds_left
+    else:
+        seconds_left = SECONDS_FOR_QUESTION[n]
+    for i in range(seconds_left // dial, -1, -1):
+        window.scheduler1.schedule(0, window.timer_text.setText, str(i * dial))
+        window.scheduler1.schedule(20, window.timer_view.setPixmap, QPixmap(f'images/timer/{i}.png'))
+    window.scheduler1.schedule(0, window.timer_text.setText, '')
+
+
+def refill_timer(window: 'GameWindow', seconds_left: int = 0):
+    """Пополняет таймер"""
+    n = '1-4' if window.current_question_num + 1 in range(1, 5) else window.current_question_num + 1
+    dial = 1 if n in ('1-4', 5) else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
+    animation_start = seconds_left // dial + 1
+    for i in range(animation_start, 16):
+        window.scheduler1.schedule(0, window.timer_text.setText, str(i * dial))
+        window.scheduler1.schedule(50, window.timer_view.setPixmap, QPixmap(f'images/timer/{i}.png'))
+
+
+def hide_timer(window: 'GameWindow'):
+    """Скрывает таймер"""
+    for i in range(18, 0, -1):
+        window.scheduler1.schedule(30, window.timer_view.setPixmap, QPixmap(f'animations/timer/{i}.png'))
+    window.scheduler1.schedule(30, window.timer_view.setPixmap, QPixmap())
+
+
+def show_timer(window: 'GameWindow'):
+    for i in range(1, 19):
+        window.scheduler1.schedule(30, window.timer_view.setPixmap, QPixmap(f'animations/timer/{i}.png'))
+
+
+def show_prize(window: 'GameWindow', amount: str):
+    for i in range(1, 38):
+        window.scheduler1.schedule(30, window.layout_q.setPixmap, QPixmap(f'animations/sum/{i}.png'))
+    window.scheduler1.schedule(0, window.amount_q.setText, amount)
+    window.scheduler1.schedule(0, window.amount_q.startFadeIn)
+
+
+def sql_request(request: str) -> tuple[str, list]:
+    """Отправляет запрос к базе данных database.sqlite3 и возвращает "OK" или "ERROR" с описанием ошибки"""
+
+    with sqlite3.connect('database.sqlite3') as con:
+        cur = con.cursor()
+        try:
+            if 'select' in request.lower():
+                return 'OK', cur.execute(request).fetchall()
+            else:
+                cur.execute(request)
+                con.commit()
+                return 'OK', []
+        except Exception as ex:
+            return 'ERROR: ' + str(ex), []
+
+
+def get_questions():
+    """Получает из базы данных database.sqlite3 вопросы и подготавливает их для игры"""
+
+    questions_data, questions = (
+        [sql_request('SELECT * FROM "{}_questions"'.format(i))[1] for i in range(1, 16)],
+        [],
+    )
+
+    for q_unshuffled in questions_data:
+        questions_set = []
+
+        q_shuffled = q_unshuffled.copy()
+        shuffle(q_shuffled)
+        for q in q_shuffled[:2]:
+            text, corr_answ, answs = q[1], q[2], list(q[2:])
+            shuffle(answs)
+            questions_set.append([text, corr_answ, answs])
+
+        questions.append(questions_set)
+
+    logging.info('Qs are gotten')
+    return questions
+
+
+def make_table(table: QTableWidget, header: list[str], data: list[list[str]]) -> None:
+    """Генерирует таблицу в table с первой строкой header и матрицей data"""
+
+    table.setColumnCount(len(header))
+    table.setHorizontalHeaderLabels(header)
+    table.setRowCount(0)
+
+    for i, rowlist in enumerate(data):
+        table.setRowCount(table.rowCount() + 1)
+        for j, elem in enumerate(rowlist):
+            table.setItem(i, j, QTableWidgetItem(elem))
+    table.resizeColumnsToContents()
+
+    table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+    table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+    table.setEditTriggers(QTableWidget.NoEditTriggers)
+
+
+def decorate_audio(file: str) -> QMediaContent:
+    """Декорирует путь к аудиофайлу в медиа-контент, понятный для Qt"""
+
+    url = QUrl.fromLocalFile(os.path.abspath(file))  # необходим QUrl, т.к. он будет понятен QMediaContent
+    return QMediaContent(url)
+
+
+def excepthook(exc_type: Type[BaseException], exc_value: BaseException, exc_tb: TracebackType):
+    """Обработчик исключений
+
+    При вызове исключения логирует ошибку в логи и показывает окно, предлагающее отправить ошибку разработчику."""
+
+    logging.error(str(exc_value) + '\n' + ''.join(traceback.format_exception(exc_type, exc_value, exc_tb)))
+    msg.show()
+    msg.buttonClicked.connect(sys.exit)
