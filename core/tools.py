@@ -109,6 +109,11 @@ def show_prize(window: 'GameWindow', amount: str):
     window.scheduler1.schedule(0, window.amount_q.startFadeIn)
 
 
+def convert_amount_to_str(amount: int) -> str:
+    """Преобразует сумму в строку с разделителями разрядов"""
+    return '{:_}'.format(amount).replace('_', ' ')
+
+
 def sql_request(request: str) -> tuple[str, list]:
     """Отправляет запрос к базе данных database.sqlite3 и возвращает "OK" или "ERROR" с описанием ошибки"""
 

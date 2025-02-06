@@ -9,11 +9,11 @@ from PyQt5.QtGui import QIcon, QKeyEvent, QMouseEvent, QPixmap
 from PyQt5.QtMultimedia import QMediaPlayer
 from PyQt5.QtWidgets import QMainWindow
 
-from core.constants import MONEYTREE_AMOUNTS, SAFETY_NETS, SECONDS_FOR_QUESTION
+from core.constants import MONEYTREE_AMOUNTS, SAFETY_NETS, SECONDS_FOR_QUESTION, SECONDS_PRICE
 from core.dialogs import (ConfirmAgainWindow, ConfirmClearAll, ConfirmCloseWindow, ConfirmLeaveWindow, GameOverWindow,
                           WinWindow)
-from core.tools import (AnimationScheduler, decorate_audio, empty_timer, get_questions, hide_timer, refill_timer,
-                        show_prize, show_timer, sql_request)
+from core.tools import (AnimationScheduler, convert_amount_to_str, decorate_audio, empty_timer, get_questions,
+                        hide_timer, refill_timer, show_prize, show_timer, sql_request)
 from core.widgets import AboutWindow, DeleteResultWindow, ResultsTableWindow
 from ui import AnimationLabel, Ui_MainWindow
 
@@ -33,6 +33,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.is_x2_now = False
         self.non_active_answers = []
         self.lifelines = {'change': True, '50:50': True, 'x2': True}
+        self.seconds_prize = 0  # приз за сэкономленные секунды в режиме игры на время
+        self.saved_seconds_prize = 0  # приз за секунды сохраняется из seconds_prize после 5 и 10 вопросов
 
         self.player1 = QMediaPlayer()  # для музыки во время вопроса и неправильных ответов
         self.player2 = QMediaPlayer()  # для интро и правильных ответов
@@ -199,7 +201,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             # мигалка правильного ответа
             self.show_correct_answer(correct_answer_letter)
 
-            result_game = SAFETY_NETS[self.current_question_num - 1]
+            result_game = convert_amount_to_str(SAFETY_NETS[self.current_question_num - 1] + self.saved_seconds_prize)
             self.scheduler1.schedule(3000, lambda: True)
             self.scheduler1.schedule(0, self.timer_text.setText, '')
             self.clear_all_labels()
@@ -401,14 +403,14 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
             self.show_correct_answer(correct_answer_letter)
 
-            result_game = SAFETY_NETS[self.current_question_num - 1]
+            result_game = convert_amount_to_str(SAFETY_NETS[self.current_question_num - 1] + self.saved_seconds_prize)
             self.scheduler1.schedule(1000, lambda: True)
             self.clear_all_labels()
             if self.mode == 'clock':
                 empty_timer(self)
                 hide_timer(self)
             show_prize(self, result_game)
-            self.scheduler1.schedule(750, self.show_game_over, [correct_answer_letter, result_game, self.is_sound])
+            self.scheduler1.schedule(750, self.show_game_over, (correct_answer_letter, result_game, self.is_sound))
 
             sql_request(
                 f'INSERT INTO results (name, result, date) VALUES ("{self.name}", "{result_game}", "{self.date}")'
@@ -426,17 +428,21 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.scheduler1.schedule(0, self.player4.stop)
         logging.info('Answ correct')
 
+        self.seconds_prize += SECONDS_PRICE[n] * self.seconds_left
+
         self.show_correct_answer(correct_answer_letter)
 
         if self.current_question_num == 15:  # если ответ на последний вопрос был правильным
             self.scheduler1.schedule(1000, lambda: True)
             self.clear_all_labels()
             if self.mode == 'clock':
+                self.saved_seconds_prize += self.seconds_prize
                 empty_timer(self)
                 hide_timer(self)
-            show_prize(self, MONEYTREE_AMOUNTS[self.current_question_num])
+            prize = convert_amount_to_str(MONEYTREE_AMOUNTS[self.current_question_num] + self.saved_seconds_prize)
+            show_prize(self, prize)
             self.scheduler1.schedule(1000, self.show_win)
-            sql_request(f'INSERT INTO results (name, result, date) VALUES ("{self.name}", "3 000 000", "{self.date}")')
+            sql_request(f'INSERT INTO results (name, result, date) VALUES ("{self.name}", "{prize}", "{self.date}")')
 
             self.scheduler1.start()
             return
@@ -445,9 +451,11 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.player1.stop)
             self.clear_all_labels()
             if self.mode == 'clock':
+                self.saved_seconds_prize += self.seconds_prize
                 empty_timer(self)
                 hide_timer(self)
-            show_prize(self, MONEYTREE_AMOUNTS[self.current_question_num])
+            prize = convert_amount_to_str(MONEYTREE_AMOUNTS[self.current_question_num] + self.saved_seconds_prize)
+            show_prize(self, prize)
             self.scheduler1.schedule(0, self.layout_q.setPixmap, QPixmap('images/sum/amount.png'))
             self.scheduler1.schedule(3700, lambda: True)
             self.scheduler1.schedule(750 + 1000 * (self.current_question_num == 10), self.amount_q.startFadeOut)
@@ -516,7 +524,11 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.question.startFadeIn)
             if self.current_question_num in (5, 10):
                 show_timer(self)
-            refill_timer(self, num + 1, 0 if (num := self.current_question_num) in (5, 10, 14) else self.seconds_left)  # noqa: F841, F821
+            refill_timer(
+                self,
+                self.current_question_num + 1,
+                0 if self.current_question_num in (5, 10, 14) else self.seconds_left,
+            )
             self.scheduler1.schedule(0, self.double_dip.setPixmap, QPixmap('images/show-button.png'))
             self.scheduler1.schedule(0, self.double_dip.show)
             self.scheduler1.schedule(0, self.double_dip.startFadeInImage)

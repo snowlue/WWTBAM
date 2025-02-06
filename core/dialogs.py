@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 if TYPE_CHECKING:
     from core.game import GameWindow
 
-from core.tools import decorate_audio, empty_timer, hide_timer, show_prize, sql_request
+from core.tools import convert_amount_to_str, decorate_audio, empty_timer, hide_timer, show_prize, sql_request
 from core.widgets import GameRules, ResultsTableWindow
 from ui import (Ui_ConfirmAgain, Ui_ConfirmClearAll, Ui_ConfirmExit, Ui_ConfirmLeave, Ui_GameOver, Ui_StartDialog,
                 Ui_Win, Ui_WinLeave)
@@ -161,7 +161,10 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         self.correct_answer = letter if self.parent_.has_shown else ''
         self.is_sound = is_sound
 
-        self.label.setText(self.label.text().replace('{}', self.parent_.got_amount))
+        self.prize = convert_amount_to_str(
+            self.parent_.got_amount + self.parent_.saved_seconds_prize + self.parent_.seconds_prize
+        )
+        self.label.setText(self.label.text().replace('{}', self.prize))
         self.buttonBox.accepted.connect(self.leave)
         self.buttonBox.rejected.connect(self.close_wndw)
 
@@ -169,10 +172,10 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         """Покидает игру, забирает деньги и предлагает сыграть ещё раз"""
 
         sql_request(
-            f'INSERT INTO results (name, result, date) VALUES ("{self.parent_.name}", "{self.parent_.got_amount}", "{self.parent_.date}")'
+            f'INSERT INTO results (name, result, date) VALUES ("{self.parent_.name}", "{self.prize}", "{self.parent_.date}")'
         )
 
-        self.windialog = WinLeaveWindow(self.parent_, (self.correct_answer, self.parent_.got_amount, self.is_sound))
+        self.windialog = WinLeaveWindow(self.parent_, (self.correct_answer, self.prize, self.is_sound))
         self.windialog.move(169 + self.parent_.x(), 210 + self.parent_.y())
 
         for player in (self.parent_.player1, self.parent_.player2, self.parent_.player3, self.parent_.player4):
@@ -199,7 +202,7 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         if self.parent_.mode == 'clock':
             empty_timer(self.parent_)
             hide_timer(self.parent_)
-        show_prize(self.parent_, self.parent_.got_amount)
+        show_prize(self.parent_, self.prize)
         self.parent_.scheduler1.schedule(1000, self.windialog.show)
         self.parent_.scheduler1.start()
 
