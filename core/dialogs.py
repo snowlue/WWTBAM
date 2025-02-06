@@ -102,7 +102,8 @@ class WinWindow(QDialog, Ui_Win):
         self.player.setMedia(decorate_audio(f'sounds/quit_game{"_clock" if self.parent_.mode == "clock" else ""}.mp3'))
         if self.is_sound:
             self.player.play()
-        self.results = ResultsTableWindow()
+        self.results = ResultsTableWindow(True)
+        self.results.move(170 + self.parent_.x(), 93 + self.parent_.y())
         self.results.show()
         logging.info('Game close\n')
 
@@ -136,13 +137,13 @@ class GameOverWindow(QDialog, Ui_GameOver):
 
     def exit(self):
         """Завершает игру и показывает таблицу результатов"""
-        self.parent_.close()
         self.close()
         self.player = QMediaPlayer()
         self.player.setMedia(decorate_audio(f'sounds/quit_game{"_clock" if self.parent_.mode == "clock" else ""}.mp3'))
         if self.is_sound:
             self.player.play()
-        self.results = ResultsTableWindow()
+        self.results = ResultsTableWindow(True)
+        self.results.move(170 + self.parent_.x(), 93 + self.parent_.y())
         self.results.show()
         logging.info('Game close')
 

@@ -1,4 +1,5 @@
 import logging
+import sys
 from typing import TYPE_CHECKING
 
 from PyQt5.QtGui import QCloseEvent, QIcon
@@ -30,7 +31,7 @@ class GameRules(QWidget, Ui_Rules):
 class ResultsTableWindow(QWidget, Ui_ResultsTable):
     """Окно для отображения таблицы результатов"""
 
-    def __init__(self):
+    def __init__(self, close_the_game: bool = False):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
@@ -40,6 +41,8 @@ class ResultsTableWindow(QWidget, Ui_ResultsTable):
         results = [list(map(str, i[1:])) for i in results]
 
         make_table(self.tableWidget, ['Имя', 'Результат', 'Дата и время'], results)
+        if close_the_game:
+            self.okButton.clicked.connect(lambda: sys.exit(0))
         self.okButton.clicked.connect(self.close)
 
 
