@@ -47,7 +47,11 @@ class StartWindow(QDialog, Ui_StartDialog):
 
     def show_rules(self):
         """Показывает правила игры"""
-        self.rules_wndw = GameRules()
+        self.player = QMediaPlayer()
+        self.rules_wndw = GameRules(self.player)
+        self.player.setMedia(decorate_audio('sounds/rules_bed.mp3'))
+        self.player.play()
+        self.rules_wndw.move(self.x() - 118, self.y() - 47)
         self.rules_wndw.show()
 
     def start_game(self, name: str) -> None:

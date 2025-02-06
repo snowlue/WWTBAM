@@ -2,9 +2,10 @@ import logging
 from typing import TYPE_CHECKING
 
 from PyQt5.QtGui import QCloseEvent, QIcon
+from PyQt5.QtMultimedia import QMediaPlayer
 from PyQt5.QtWidgets import QWidget
 
-from core.tools import make_table, sql_request
+from core.tools import decorate_audio, make_table, sql_request
 from ui import Ui_About, Ui_DeleteResult, Ui_ResultsTable, Ui_Rules
 
 if TYPE_CHECKING:
@@ -14,10 +15,16 @@ if TYPE_CHECKING:
 class GameRules(QWidget, Ui_Rules):
     """Окно для показа правил игры"""
 
-    def __init__(self):
+    def __init__(self, player: QMediaPlayer):
         super().__init__()
+        self.player = player
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
+    
+    def closeEvent(self, event: QCloseEvent):
+        self.player.setMedia(decorate_audio('sounds/rules_stop.mp3'))
+        self.player.play()
+        return super().closeEvent(event)
 
 
 class ResultsTableWindow(QWidget, Ui_ResultsTable):

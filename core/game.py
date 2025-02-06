@@ -258,7 +258,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if all((self.user_control, 970 <= x <= 1020, 99 <= y <= 129)):  # забрать деньги
             self.open_confirm_leave()
 
-        if not self.user_control or not self.has_shown and not self.mode == 'classic':
+        if not self.user_control or not self.has_shown and self.mode == 'clock':
             return
 
         if len(self.non_active_answers) == 1:
