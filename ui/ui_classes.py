@@ -497,7 +497,7 @@ class Ui_MainWindow(object):
         self.layout_t = QtWidgets.QLabel(self.moneyTree)
         self.layout_t.setGeometry(QtCore.QRect(0, 0, 411, 480))
         self.layout_t.setText('')
-        self.layout_t.setPixmap(QtGui.QPixmap('images/money tree/layout_alpha.png'))
+        self.layout_t.setPixmap(QtGui.QPixmap('images/money tree/layout.png'))
         self.layout_t.setScaledContents(True)
         self.layout_t.setObjectName('layout_t')
 
@@ -529,7 +529,7 @@ class Ui_MainWindow(object):
         self.background = QtWidgets.QLabel(self.centralwidget)
         self.background.setGeometry(QtCore.QRect(0, 0, 1100, 680))
         self.background.setText('')
-        self.background.setPixmap(QtGui.QPixmap('images/background{}.jpg'.format(choice(list(map(str, range(1, 9)))))))
+        self.background.setPixmap(QtGui.QPixmap('images/background{}.jpg'.format(choice(list(map(str, range(1, 8)))))))
         self.background.setScaledContents(True)
         self.background.setObjectName('background')
 

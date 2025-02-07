@@ -21,7 +21,7 @@ from ui import AnimationLabel, Ui_MainWindow
 class GameWindow(QMainWindow, Ui_MainWindow):
     """Окно, отображащее основной игровой контент"""
 
-    def __init__(self, name: str = '', mode: str = 'classic'):
+    def __init__(self, name: str, mode: str):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
