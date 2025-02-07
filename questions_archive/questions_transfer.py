@@ -1,6 +1,6 @@
 from contextlib import suppress
 import sqlite3
-import pandas as pd
+import pandas as pd  # type: ignore
 import re
 
 data_file = 'База КХСМ.xlsx'
@@ -34,11 +34,11 @@ cursor = conn.cursor()
 
 count = 0
 for _, row in data.iterrows():
-    table_name = f"{row['level']}_questions"
+    table_name = f'{row["level"]}_questions'
 
     answers = {'A': row['option_a'], 'B': row['option_b'], 'C': row['option_c'], 'D': row['option_d']}
 
-    correct_answer = answers[row['answer']]
+    correct_answer = answers[row['answer']]  # type: ignore
     other_answers = [answers[option] for option in answers if option != row['answer']]
 
     with suppress(Exception):

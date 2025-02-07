@@ -138,9 +138,7 @@ class Ui_StartDialog(object):
 class Ui_Rules(object):
     def setupUi(self, Form):
         Form.setObjectName('Form')
-        Form.resize(616, 350)
-        Form.setMinimumSize(QtCore.QSize(616, 293))
-        Form.setMaximumSize(QtCore.QSize(616, 867))
+        Form.setFixedSize(616, 873)
         font = QtGui.QFont()
         font.setFamily('PT Sans')
         font.setPointSize(9)
@@ -191,14 +189,15 @@ class Ui_Rules(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.text_mt.sizePolicy().hasHeightForWidth())
         self.text_mt.setSizePolicy(sizePolicy)
-        self.text_mt.setMaximumSize(QtCore.QSize(391, 233))
+        self.text_mt.setMaximumSize(QtCore.QSize(391, 266))
         self.text_mt.setText(
-            '<html><head/><body><p>Правила просты! Перед вами 15 вопросов и, ответив на каждый из них, вы получите '
-            'виртуальный денежный приз. Чтобы выиграть ₽3 000 000, придётся ответить на все из них!</p><p>У вас есть '
-            'две несгораемые суммы — ₽5 000 на 5 вопросе и ₽100 000 на 10 вопросе. Если вы пройдёте эти вопросы, но '
-            'проиграете, то гарантированно получите эти деньги.</p><p>Сложность вопросов по мере прохождения будет '
-            'увеличиваться, что потребует от вас больших знаний и смекалки. Будет непросто, но это достойно '
-            '₽3 000 000!</p></body></html>'
+            '<html><head/><body><p>Игра проста, как и все лучшие игры!</p><p>Перед вами 15 вопросов и, ответив на '
+            'каждый из них,<br>вы получите виртуальный денежный приз. Если вы хотите выиграть ₽3 000 000, придётся ответить '
+            'на все 15 вопросов!</p><p>Чтобы вы не уходили с пустыми руками, игра предлагает вам<br>две несгораемые суммы — '
+            '₽5 000 на 5 вопросе и ₽100 000<br>на 10 вопросе. В случае если вы пройдёте эти рубежи,<br>но проиграете, то '
+            'гарантированно получите несгораемую сумму.</p><p>Сложность вопросов с прохождением рубежей в ₽5 000<br>и '
+            '₽100 000 будет увеличиваться, что потребует от вас<br>больших знаний и смекалки.</p><p>Будет непросто, но '
+            'это достойно ₽3 000 000!</p></body></html>'
         )
         self.text_mt.setWordWrap(True)
         self.text_mt.setObjectName('text_mt')
@@ -206,7 +205,7 @@ class Ui_Rules(object):
 
         self.picture_mt = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.picture_mt.setSizePolicy(sizePolicy)
-        self.picture_mt.setMaximumSize(QtCore.QSize(172, 233))
+        self.picture_mt.setMaximumSize(QtCore.QSize(172, 266))
         self.picture_mt.setPixmap(QtGui.QPixmap('images/rules/money_tree.png'))
         self.picture_mt.setScaledContents(True)
         self.picture_mt.setObjectName('picture_mt')
@@ -221,12 +220,14 @@ class Ui_Rules(object):
         self.text_ll.setSizePolicy(sizePolicy)
         self.text_ll.setMaximumSize(QtCore.QSize(573, 221))
         self.text_ll.setText(
-            '<html><head/><body><p>Чтобы упростить задачу, предлагаем три подсказки и возможность забрать деньги, '
-            'пополнив таблицу результатов своим выигрышем с указанным именем и датой игры.</p><p><b>«Замена вопроса»'
-            '</b> заменяет текущий вопрос на другой — пригодится, если не разбираетесь в теме вопроса.<br/><b>«50:50»'
-            '</b> убирает два неверных ответа – полезна, если не уверены в своём выборе. <br/><b>«Право на ошибку»</b>'
-            ' даёт вам возможность ошибиться при ответе один раз — отличная страховка на сложных вопросах.<br/>Или вы '
-            'можете покинуть игру с уже заработанным выигрышем, чтобы не потерять всё до несгораемой суммы.</p></body></html>'
+            '<html><head/><body><p>Чтобы упростить задачу, предлагаем четыре подсказки и возможность забрать деньги, '
+            'пополнив таблицу результатов своим выигрышем с указанным именем и датой игры.<br>Для начала игры вам '
+            'необходимо выбрать любые четыре из предложенных опций.</p><p><b>«Замена вопроса»</b> заменяет текущий '
+            'вопрос на другой — пригодится, если не разбираетесь<br>в теме вопроса.<br><b>«50:50»</b> убирает два '
+            'неверных ответа – полезна, если не уверены в своём выборе. <br><b>«Право на ошибку»</b> даёт вам '
+            'возможность ошибиться при ответе один раз — отличная страховка на сложных вопросах.<br><b>«Помощь зала»'
+            '</b> попросит помощи у виртуального зала, который может помочь вам с ответом на вопрос.<br>Или вы можете '
+            'покинуть игру с уже заработанным выигрышем, чтобы не потерять всё<br>до несгораемой суммы.</p></body></html>'
         )
         self.text_ll.setWordWrap(True)
         self.text_ll.setObjectName('text_ll')
@@ -234,9 +235,9 @@ class Ui_Rules(object):
 
         self.picture_ll = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.picture_ll.setSizePolicy(sizePolicy)
-        self.picture_ll.setMaximumSize(QtCore.QSize(566, 58))
+        self.picture_ll.setMaximumSize(QtCore.QSize(566, 53))
         self.picture_ll.setPixmap(QtGui.QPixmap('images/rules/lifelines.png'))
-        self.picture_ll.setScaledContents(False)
+        self.picture_ll.setScaledContents(True)
         self.picture_ll.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.picture_ll.setObjectName('picture_ll')
         self.aboutLifelines.addWidget(self.picture_ll)
@@ -261,7 +262,7 @@ class Ui_Rules(object):
 
         self.picture_ans = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.picture_ans.setSizePolicy(sizePolicy)
-        self.picture_ans.setMaximumSize(QtCore.QSize(566, 112))
+        self.picture_ans.setMaximumSize(QtCore.QSize(566, 91))
         self.picture_ans.setPixmap(QtGui.QPixmap('images/rules/question_field.png'))
         self.picture_ans.setScaledContents(True)
         self.picture_ans.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
@@ -969,13 +970,13 @@ class Ui_About(object):
         year = datetime.today().year
         self.ruText.setText(
             '<html><body><p><span style="font-weight:600;">Игра «Кто хочет стать Миллионером?»</span></p><p>Игра, '
-            'написанная на Python и основанная на популярном интеллектуальном телешоу <br/>«Who Wants to Be a '
+            'написанная на Python и основанная на популярном интеллектуальном телешоу <br>«Who Wants to Be a '
             'Millionaire?»</p><p><a href="https://github.com/snowlue/"><span style="text-decoration: underline; '
             'color:#3453D0;">© Павел Овчинников, {}</span></a></p></body></html>'.format(year)
         )
         self.enText.setText(
             '<html><body><p><span style="font-weight:600;">The Game «Who Want to Be a Millionaire?»</span></p><p>'
-            'The game was written on Python and based<br/>on popular intellectual TV show <br/>«Who Wants to Be a '
+            'The game was written on Python and based<br>on popular intellectual TV show <br>«Who Wants to Be a '
             'Millionaire?»</p><p><a href="https://github.com/snowlue/"><span style="text-decoration: underline; '
             'color:#3453D0;">© Pavel Ovchinnikov, {}</span></a></p></body></html>'.format(year)
         )

@@ -2,6 +2,7 @@ import logging
 import sys
 from typing import TYPE_CHECKING
 
+from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtMultimedia import QMediaPlayer
 from PyQt5.QtWidgets import QWidget
@@ -16,15 +17,16 @@ if TYPE_CHECKING:
 class GameRules(QWidget, Ui_Rules):
     """Окно для показа правил игры"""
 
-    def __init__(self, player: QMediaPlayer):
+    def __init__(self, players: tuple[QMediaPlayer, QMediaPlayer]):
         super().__init__()
-        self.player = player
+        self.player1, self.player2 = players
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
     
     def closeEvent(self, event: QCloseEvent):
-        self.player.setMedia(decorate_audio('sounds/rules_stop.mp3'))
-        self.player.play()
+        self.player2.setMedia(decorate_audio('sounds/rules_stop.mp3'))
+        self.player2.play()
+        QTimer.singleShot(300, self.player1.stop)
         return super().closeEvent(event)
 
 
