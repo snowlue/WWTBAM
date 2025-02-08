@@ -36,22 +36,22 @@ class AnimationLabel(QLabel):
         self.animation.setEasingCurve(QEasingCurve.OutBack)
         self.animation.start()
 
-    def startFadeInImage(self):
+    def startFadeInImage(self, duration: int = 200):
         self.effect = QGraphicsOpacityEffect()
         self.setGraphicsEffect(self.effect)
 
         self.animation = QPropertyAnimation(self.effect, b'opacity')
-        self.animation.setDuration(200)
+        self.animation.setDuration(duration)
         self.animation.setStartValue(0)
         self.animation.setEndValue(1)
         self.animation.start()
 
-    def startFadeOutImage(self):
+    def startFadeOutImage(self, duration: int = 200):
         self.effect = QGraphicsOpacityEffect()
         self.setGraphicsEffect(self.effect)
 
         self.animation = QPropertyAnimation(self.effect, b'opacity')
-        self.animation.setDuration(200)
+        self.animation.setDuration(duration)
         self.animation.setStartValue(1)
         self.animation.setEndValue(0)
         self.animation.start()
@@ -526,12 +526,18 @@ class Ui_MainWindow(object):
         self.lost_x2.setScaledContents(True)
         self.lost_x2.setObjectName('lost_x2')
 
-        self.background = QtWidgets.QLabel(self.centralwidget)
-        self.background.setGeometry(QtCore.QRect(0, 0, 1100, 680))
-        self.background.setText('')
-        self.background.setPixmap(QtGui.QPixmap('images/background{}.jpg'.format(choice(list(map(str, range(1, 8)))))))
-        self.background.setScaledContents(True)
-        self.background.setObjectName('background')
+        self.background_1 = QtWidgets.QLabel(self.centralwidget)
+        self.background_1.setGeometry(QtCore.QRect(0, 0, 1100, 680))
+        self.background_1.setText('')
+        self.background_1.setScaledContents(True)
+        self.background_1.setObjectName('background')
+
+        self.background_2 = AnimationLabel(self.centralwidget)
+        self.background_2.setGeometry(QtCore.QRect(0, 0, 1100, 680))
+        self.background_2.setText('')
+        self.background_2.setScaledContents(True)
+        self.background_2.setObjectName('background_2')
+        self.background_2.hide()
 
         self.timer_view = QtWidgets.QLabel(self.centralwidget)
         self.timer_view.setGeometry(QtCore.QRect(215, 419, 678, 64))
@@ -695,7 +701,8 @@ class Ui_MainWindow(object):
         self.answer_C.raise_()
         self.answer_D.raise_()
         self.double_dip.raise_()
-        self.background.raise_()
+        self.background_1.raise_()
+        self.background_2.raise_()
         self.questionField.raise_()
         self.layoutWidget.raise_()
         self.timer_view.raise_()

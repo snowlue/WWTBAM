@@ -22,7 +22,7 @@ class GameRules(QWidget, Ui_Rules):
         self.player1, self.player2 = players
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
-    
+
     def closeEvent(self, event: QCloseEvent):
         self.player2.setMedia(decorate_audio('sounds/rules_stop.mp3'))
         self.player2.play()
