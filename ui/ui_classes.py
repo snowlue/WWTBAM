@@ -1,5 +1,4 @@
 from datetime import datetime  # год в копирайте в «О приложении»
-from random import choice  # выбирает фон
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, Qt, QVariant, QVariantAnimation, pyqtSlot
@@ -552,6 +551,139 @@ class Ui_MainWindow(object):
         self.timer_text.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.timer_text.setObjectName('timer_text')
 
+        self.ata_layout = QLabel(self.centralwidget)
+        self.ata_layout.setObjectName('ata_layout')
+        self.ata_layout.setGeometry(QtCore.QRect(503, 15, 226, 331))
+        self.ata_layout.setPixmap(QtGui.QPixmap('../../images/ata.png'))
+        self.ata_layout.setScaledContents(True)
+        self.ata_a_prcnt = QLabel(self.centralwidget)
+        self.ata_a_prcnt.setObjectName('ata_a_prcnt')
+        self.ata_a_prcnt.setGeometry(QtCore.QRect(517, 28, 49, 22))
+        font5 = QtGui.QFont()
+        font5.setFamily('Verdana')
+        font5.setPointSize(11)
+        font5.setBold(True)
+        font5.setWeight(75)
+        self.ata_a_prcnt.setFont(font5)
+        self.ata_a_prcnt.setStyleSheet('color: rgb(255, 255, 255);')
+        self.ata_a_prcnt.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.ata_b_prcnt = QLabel(self.centralwidget)
+        self.ata_b_prcnt.setObjectName('ata_b_prcnt')
+        self.ata_b_prcnt.setGeometry(QtCore.QRect(566, 28, 49, 22))
+        self.ata_b_prcnt.setFont(font5)
+        self.ata_b_prcnt.setStyleSheet('color: rgb(255, 255, 255);')
+        self.ata_b_prcnt.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.ata_c_prcnt = QLabel(self.centralwidget)
+        self.ata_c_prcnt.setObjectName('ata_c_prcnt')
+        self.ata_c_prcnt.setGeometry(QtCore.QRect(619, 28, 49, 22))
+        self.ata_c_prcnt.setFont(font5)
+        self.ata_c_prcnt.setStyleSheet('color: rgb(255, 255, 255);')
+        self.ata_c_prcnt.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.ata_d_prcnt = QLabel(self.centralwidget)
+        self.ata_d_prcnt.setObjectName('ata_d_prcnt')
+        self.ata_d_prcnt.setGeometry(QtCore.QRect(668, 28, 49, 22))
+        self.ata_d_prcnt.setFont(font5)
+        self.ata_d_prcnt.setStyleSheet('color: rgb(255, 255, 255);')
+        self.ata_d_prcnt.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
+        self.verticalLayoutWidget.setObjectName('verticalLayoutWidget')
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(526, 49, 31, 182))
+        self.ata_a = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
+        self.ata_a.setSpacing(0)
+        self.ata_a.setObjectName('ata_a')
+        self.ata_a.setContentsMargins(0, 0, 0, 0)
+        self.verticalSpacer = QtWidgets.QSpacerItem(
+            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
+
+        self.ata_a.addItem(self.verticalSpacer)
+
+        self.ata_a_score = QLabel(self.verticalLayoutWidget)
+        self.ata_a_score.setObjectName('ata_a_score')
+        self.ata_a_score.setEnabled(True)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.ata_a_score.sizePolicy().hasHeightForWidth())
+        self.ata_a_score.setSizePolicy(sizePolicy)
+        self.ata_a_score.setMaximumSize(QtCore.QSize(29, 180))
+        self.ata_a_score.setPixmap(QtGui.QPixmap('../../images/ata_score.png'))
+        self.ata_a_score.setScaledContents(True)
+
+        self.ata_a.addWidget(self.ata_a_score)
+
+        self.verticalLayoutWidget_2 = QtWidgets.QWidget(self.centralwidget)
+        self.verticalLayoutWidget_2.setObjectName('verticalLayoutWidget_2')
+        self.verticalLayoutWidget_2.setGeometry(QtCore.QRect(575, 49, 31, 182))
+        self.ata_b = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_2)
+        self.ata_b.setSpacing(0)
+        self.ata_b.setObjectName('ata_b')
+        self.ata_b.setContentsMargins(0, 0, 0, 0)
+        self.verticalSpacer_2 = QtWidgets.QSpacerItem(
+            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
+
+        self.ata_b.addItem(self.verticalSpacer_2)
+
+        self.ata_b_score = QLabel(self.verticalLayoutWidget_2)
+        self.ata_b_score.setObjectName('ata_b_score')
+        self.ata_b_score.setEnabled(True)
+        sizePolicy.setHeightForWidth(self.ata_b_score.sizePolicy().hasHeightForWidth())
+        self.ata_b_score.setSizePolicy(sizePolicy)
+        self.ata_b_score.setMaximumSize(QtCore.QSize(29, 180))
+        self.ata_b_score.setPixmap(QtGui.QPixmap('../../images/ata_score.png'))
+        self.ata_b_score.setScaledContents(True)
+
+        self.ata_b.addWidget(self.ata_b_score)
+
+        self.verticalLayoutWidget_3 = QtWidgets.QWidget(self.centralwidget)
+        self.verticalLayoutWidget_3.setObjectName('verticalLayoutWidget_3')
+        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(628, 49, 31, 182))
+        self.ata_c = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_3)
+        self.ata_c.setSpacing(0)
+        self.ata_c.setObjectName('ata_c')
+        self.ata_c.setContentsMargins(0, 0, 0, 0)
+        self.verticalSpacer_3 = QtWidgets.QSpacerItem(
+            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
+
+        self.ata_c.addItem(self.verticalSpacer_3)
+
+        self.ata_c_score = QLabel(self.verticalLayoutWidget_3)
+        self.ata_c_score.setObjectName('ata_c_score')
+        self.ata_c_score.setEnabled(True)
+        sizePolicy.setHeightForWidth(self.ata_c_score.sizePolicy().hasHeightForWidth())
+        self.ata_c_score.setSizePolicy(sizePolicy)
+        self.ata_c_score.setMaximumSize(QtCore.QSize(29, 180))
+        self.ata_c_score.setPixmap(QtGui.QPixmap('../../images/ata_score.png'))
+        self.ata_c_score.setScaledContents(True)
+
+        self.ata_c.addWidget(self.ata_c_score)
+
+        self.verticalLayoutWidget_4 = QtWidgets.QWidget(self.centralwidget)
+        self.verticalLayoutWidget_4.setObjectName('verticalLayoutWidget_4')
+        self.verticalLayoutWidget_4.setGeometry(QtCore.QRect(677, 49, 30, 182))
+        self.ata_d = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_4)
+        self.ata_d.setSpacing(0)
+        self.ata_d.setObjectName('ata_d')
+        self.ata_d.setContentsMargins(0, 0, 0, 0)
+        self.verticalSpacer_4 = QtWidgets.QSpacerItem(
+            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
+
+        self.ata_d.addItem(self.verticalSpacer_4)
+
+        self.ata_d_score = QLabel(self.verticalLayoutWidget_4)
+        self.ata_d_score.setObjectName('ata_d_score')
+        self.ata_d_score.setEnabled(True)
+        sizePolicy.setHeightForWidth(self.ata_d_score.sizePolicy().hasHeightForWidth())
+        self.ata_d_score.setSizePolicy(sizePolicy)
+        self.ata_d_score.setMaximumSize(QtCore.QSize(29, 180))
+        self.ata_d_score.setPixmap(QtGui.QPixmap('../../images/ata_score.png'))
+        self.ata_d_score.setScaledContents(True)
+
+        self.ata_d.addWidget(self.ata_d_score)
+
         self.layout_q.raise_()
         self.amount_q.raise_()
         self.current_state_q.raise_()
@@ -568,6 +700,15 @@ class Ui_MainWindow(object):
         self.layoutWidget.raise_()
         self.timer_view.raise_()
         self.timer_text.raise_()
+        self.ata_layout.raise_()
+        self.ata_a_prcnt.raise_()
+        self.ata_b_prcnt.raise_()
+        self.ata_c_prcnt.raise_()
+        self.ata_d_prcnt.raise_()
+        self.verticalLayoutWidget.raise_()
+        self.verticalLayoutWidget_2.raise_()
+        self.verticalLayoutWidget_3.raise_()
+        self.verticalLayoutWidget_4.raise_()
 
         self.setTextInUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)

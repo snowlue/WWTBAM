@@ -1,5 +1,6 @@
 import logging
 import os
+import random
 import sqlite3
 import sys
 import traceback
@@ -69,7 +70,7 @@ def empty_timer(window: 'GameWindow'):
     """Опустошает таймер"""
     n = '1-4' if window.current_question_num in range(1, 5) else window.current_question_num
     dial = 1 if n in ('1-4', 5) else (2 if n in range(6, 11) else (3 if n in range(11, 15) else 6))
-    
+
     if window.has_shown or window.current_question_num == 15:
         seconds_left = window.seconds_left
     else:
@@ -112,6 +113,32 @@ def show_prize(window: 'GameWindow', amount: str):
 def convert_amount_to_str(amount: int) -> str:
     """Преобразует сумму в строку с разделителями разрядов"""
     return '{:_}'.format(amount).replace('_', ' ')
+
+
+def ask_audience(question_number: int):
+    """Симулирует помощь зала"""
+
+    if question_number in range(1, 6):
+        correct_min, correct_max = 70, 100
+    elif question_number in range(6, 11):
+        correct_min, correct_max = 50, 80
+    elif question_number in range(11, 16):
+        correct_min, correct_max = 30, 60
+    else:
+        correct_min, correct_max = 10, 60
+
+    correct_percentage = random.randint(correct_min, correct_max)
+    remaining = 100 - correct_percentage
+
+    other_votes = [random.random() for _ in range(3)]
+    total = sum(other_votes)
+    other_percentages = [round(x / total * remaining) for x in other_votes]
+
+    diff = remaining - sum(other_percentages)
+    other_percentages[0] += diff
+    random.shuffle(other_percentages)
+
+    return correct_percentage, other_percentages
 
 
 def sql_request(request: str) -> tuple[str, list]:
