@@ -269,7 +269,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if not self.user_control:
             return
 
-        if all((866 <= x <= 916, 100 <= y <= 130, self.used_lifelines_counter < 3)):
+        if all((866 <= x <= 916, 100 <= y <= 130, self.used_lifelines_counter < 4)):
             self.show_selecting_lifeline('home')
             return
         elif not self.has_shown:
@@ -289,7 +289,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         else:
             self.show_selecting_answer('')
             
-        if self.used_lifelines_counter == 3:
+        if self.used_lifelines_counter == 4:
             return
 
         if 766 <= x <= 816 and 66 <= y <= 96:
@@ -339,7 +339,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if all((self.user_control, self.mode == 'clock', 521 <= x <= 584, 627 <= y <= 665)):
             self.show_answers()
 
-        if all((self.user_control, 866 <= x <= 916, 100 <= y <= 130, self.used_lifelines_counter < 3)):  # забрать деньги
+        if all((self.user_control, 866 <= x <= 916, 100 <= y <= 130, self.used_lifelines_counter < 4)):  # забрать деньги
             self.open_confirm_leave()
 
         if not self.user_control or not self.has_shown and self.mode == 'clock':
@@ -365,7 +365,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.choose_answer('D')
         self.scheduler1.start()
         
-        if self.used_lifelines_counter == 3:
+        if self.used_lifelines_counter == 4:
             return
 
         if 766 <= x <= 816 and 66 <= y <= 96:
@@ -780,7 +780,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         elif type_ll == 'ata':
             ...  # TODO: прописать логику Ask the Audience
         
-        if self.used_lifelines_counter == 3:
+        if self.used_lifelines_counter == 4:
             for label_suffix in ('change', '5050', 'x2', 'ata', 'home'):
                 self.__getattribute__(f'deactivated_{label_suffix}').show()
 
