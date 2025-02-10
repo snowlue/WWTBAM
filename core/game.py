@@ -6,14 +6,13 @@ from random import randint, shuffle
 
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QIcon, QKeyEvent, QMouseEvent, QPixmap
-from PyQt5.QtMultimedia import QMediaPlayer
 from PyQt5.QtWidgets import QMainWindow
 
 from core.constants import MONEYTREE_AMOUNTS, SAFETY_NETS, SECONDS_FOR_QUESTION, SECONDS_PRICE
 from core.dialogs import (ConfirmAgainWindow, ConfirmClearAll, ConfirmCloseWindow, ConfirmLeaveWindow, GameOverWindow,
                           WinWindow)
-from core.tools import (AnimationScheduler, convert_amount_to_str, decorate_audio, empty_timer, get_questions,
-                        hide_timer, refill_timer, show_prize, show_timer, sql_request)
+from core.tools import (AnimationScheduler, LoopingMediaPlayer, convert_amount_to_str, decorate_audio, empty_timer,
+                        get_questions, hide_timer, refill_timer, show_prize, show_timer, sql_request)
 from core.widgets import AboutWindow, DeleteResultWindow, ResultsTableWindow
 from ui import AnimationLabel, Ui_MainWindow
 
@@ -39,10 +38,11 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.non_active_answers = []
         self.lifelines = {'change': True, '50:50': True, 'x2': True}
 
-        self.player1 = QMediaPlayer()  # для музыки во время вопроса и неправильных ответов
-        self.player2 = QMediaPlayer()  # для интро и правильных ответов
-        self.player3 = QMediaPlayer()  # для музыки перед вопросом, подсказки 50:50 и смены вопроса
-        self.player4 = QMediaPlayer()  # для подсказки x2
+        self.player1 = LoopingMediaPlayer(self)  # для музыки во время вопроса и неправильных ответов
+        self.player2 = LoopingMediaPlayer(self)  # для интро и правильных ответов
+        self.player3 = LoopingMediaPlayer(self)  # для музыки перед вопросом, подсказки 50:50 и смены вопроса
+        self.player4 = LoopingMediaPlayer(self)  # для подсказки x2
+
         self.is_sound = True
         self.scheduler1 = AnimationScheduler(self)
         self.scheduler2 = AnimationScheduler(self)  # для анимации ответов, запасной
@@ -74,9 +74,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         self.scheduler1.schedule(1000 - 200 * repeat, lambda: True)
         if self.mode == 'classic':
-            self.player2.setMedia(decorate_audio('sounds/intro.mp3' if not repeat else 'sounds/new_start.mp3'))
+            self.player2.set_media(decorate_audio('sounds/intro.mp3' if not repeat else 'sounds/new_start.mp3'))
         else:
-            self.player2.setMedia(
+            self.player2.set_media(
                 decorate_audio('sounds/intro_clock.mp3' if not repeat else 'sounds/new_start_clock.mp3')
             )
             if repeat:
@@ -89,7 +89,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.scheduler1.schedule(0, self.player2.play)
 
         self.questions = get_questions()
-        self.current_question_num = 1  # HACK God mode
+        self.current_question_num = 5  # HACK God mode
 
         # анимация показа блока с вопросом и ответами
         if repeat:
@@ -133,13 +133,13 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.show_answers)
 
         n = '1-4' if self.current_question_num in range(1, 5) else self.current_question_num
-        self.player1.setMedia(decorate_audio(f'sounds/{n}/bed.mp3'))
+        self.player1.set_media(decorate_audio(f'sounds/{n}/bed.mp3'))
         self.scheduler1.schedule(500 if self.mode != 'clock' else 0, self.player1.play)
         if not self.is_sound:
             self.scheduler1.schedule(0, self.player1.setVolume, 30 if self.mode == 'clock' else 100)
 
         if self.mode == 'clock':
-            self.player3.setMedia(decorate_audio('sounds/question_show_clock.mp3'))
+            self.player3.set_media(decorate_audio('sounds/question_show_clock.mp3'))
             self.scheduler1.schedule(500, self.player3.play)
             self.scheduler1.schedule(300, self.update_question_field)
             self.scheduler1.schedule(0, self.question.startFadeIn)
@@ -175,10 +175,10 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.seconds_left = SECONDS_FOR_QUESTION[n]
 
             if n in ('1-4', 5):
-                self.player2.setMedia(decorate_audio(f'sounds/{n}/clock.mp3'))
+                self.player2.set_media(decorate_audio(f'sounds/{n}/clock.mp3'))
                 self.scheduler2.schedule(500, self.player2.play)
             else:
-                self.player1.setMedia(decorate_audio(f'sounds/{n}/bed_clock.mp3'))
+                self.player1.set_media(decorate_audio(f'sounds/{n}/bed_clock.mp3'))
                 self.scheduler2.schedule(500, self.player1.play)
                 self.scheduler2.schedule(0, self.player3.stop)
         self.scheduler2.start()
@@ -202,7 +202,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
             self.scheduler1.schedule(2000 + 1000 * (n == 15), lambda: True)
 
-            self.player3.setMedia(decorate_audio(f'sounds/{n}/lose.mp3'))
+            self.player3.set_media(decorate_audio(f'sounds/{n}/lose.mp3'))
             self.scheduler1.schedule(0, self.player1.stop)
             self.scheduler1.schedule(0, self.player2.stop)
             self.scheduler1.schedule(0, self.player3.play)
@@ -274,12 +274,12 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if len(self.non_active_answers) == 1:
             # 1 неактивный ответ — после использования «права на ошибку», играем second_final
             # 3 неактивных ответа — после использования 50:50 и «права на ошибку», не играем
-            self.player4.setMedia(decorate_audio('sounds/double/second_final.mp3'))
+            self.player4.set_media(decorate_audio('sounds/double/second_final.mp3'))
         elif not self.is_x2_now and self.current_question_num not in range(1, 6):
             # после пятого вопроса каждый ответ озвучивается отдельным треком
-            self.player4.setMedia(decorate_audio(f'sounds/{self.current_question_num}/final_answer.mp3'))
+            self.player4.set_media(decorate_audio(f'sounds/{self.current_question_num}/final_answer.mp3'))
         elif self.is_x2_now:
-            self.player4.setMedia(decorate_audio('sounds/double/first_final.mp3'))
+            self.player4.set_media(decorate_audio('sounds/double/first_final.mp3'))
 
         if 200 <= x <= 538 and 601 <= y <= 642:
             self.choose_answer('A')
@@ -311,7 +311,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         text = self.questions[self.current_question_num - 1][int(changer)][0]
         self.answers = list(map(str, self.questions[self.current_question_num - 1][int(changer)][2]))
         self.correct_answer = str(self.questions[self.current_question_num - 1][int(changer)][1])
-        # print(self.correct_answer)  # HACK God mode
+        print(self.correct_answer)  # HACK God mode
         self.got_amount = MONEYTREE_AMOUNTS[self.current_question_num - 1]
 
         self.question.setText(text)
@@ -394,7 +394,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.current_state_q_3.startFadeInImage)
             self.scheduler1.schedule(0, self.double_dip.startFadeOutImage)
 
-            self.scheduler1.schedule(0, self.player1.setMedia, decorate_audio('sounds/double/first_wrong.mp3'))
+            self.scheduler1.schedule(0, self.player1.set_media, decorate_audio('sounds/double/first_wrong.mp3'))
             self.scheduler1.schedule(0, self.player1.play)
             self.scheduler1.schedule(0, self.player4.stop)
 
@@ -406,7 +406,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             return
 
         elif user_answer != self.correct_answer:  # неправильный ответ без «права на ошибку»
-            self.scheduler1.schedule(0, self.player1.setMedia, decorate_audio(f'sounds/{n}/lose.mp3'))
+            self.scheduler1.schedule(0, self.player1.set_media, decorate_audio(f'sounds/{n}/lose.mp3'))
             self.scheduler1.schedule(0, self.player1.play)
             self.scheduler1.schedule(0, self.player2.stop)
             self.scheduler1.schedule(0, self.player4.stop)
@@ -441,7 +441,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         # правильный ответ без или с «правом на ошибку»
         if self.is_x2_now:
             self.scheduler1.schedule(0, self.double_dip.startFadeOutImage)
-        self.scheduler1.schedule(0, self.player2.setMedia, decorate_audio(f'sounds/{n}/correct.mp3'))
+        self.scheduler1.schedule(0, self.player2.set_media, decorate_audio(f'sounds/{n}/correct.mp3'))
         self.scheduler1.schedule(0, self.player2.play)
         self.scheduler1.schedule(0, self.player4.stop)
         logging.info('Answ correct')
@@ -498,7 +498,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.layout_q.setPixmap, QPixmap('images/sum/amount.png'))
             self.scheduler1.schedule(3700, lambda: True)
             self.scheduler1.schedule(750 + 1000 * (self.current_question_num == 10), self.amount_q.startFadeOut)
-            self.player3.setMedia(decorate_audio('sounds/lights_down.mp3'))
+            self.player3.set_media(decorate_audio('sounds/lights_down.mp3'))
             self.scheduler1.schedule(0, self.player3.play)
 
             if self.mode == 'classic':
@@ -531,14 +531,14 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         if self.current_question_num in range(1, 5) and (len(self.non_active_answers) in (1, 3) or self.is_x2_now):
             # возвращаем предыдущий трек, если было «право на ошибку» в 1-5 вопросах
-            self.scheduler1.schedule(0, self.player1.setMedia, decorate_audio('sounds/1-4/bed.mp3'))
+            self.scheduler1.schedule(0, self.player1.set_media, decorate_audio('sounds/1-4/bed.mp3'))
             self.scheduler1.schedule(8, self.player1.play)
 
         if self.mode == 'clock':
             if self.current_question_num not in range(1, 5):
-                self.player3.setMedia(decorate_audio(f'sounds/{self.current_question_num + 1}/before_clock.mp3'))
+                self.player3.set_media(decorate_audio(f'sounds/{self.current_question_num + 1}/before_clock.mp3'))
             else:
-                self.player3.setMedia(decorate_audio('sounds/question_show_clock.mp3'))
+                self.player3.set_media(decorate_audio('sounds/question_show_clock.mp3'))
 
             if self.current_question_num in (5, 10, 14):  # запускаем смену фона
                 new_num = {5: '6-10', 10: '11-14', 14: '15'}[self.current_question_num]
@@ -611,7 +611,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             if self.current_question_num not in range(1, 5):
                 # для всех вопросов с 6-го свой бэкграунд-трек
                 self.scheduler1.schedule(
-                    0, self.player1.setMedia, decorate_audio(f'sounds/{self.current_question_num + 1}/bed.mp3')
+                    0, self.player1.set_media, decorate_audio(f'sounds/{self.current_question_num + 1}/bed.mp3')
                 )
                 self.scheduler1.schedule(0, self.player1.play)
 
@@ -629,7 +629,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         if self.lifelines[type_ll]:
             if type_ll == 'change':  # замена вопроса
-                self.player3.setMedia(
+                self.player3.set_media(
                     decorate_audio('sounds/change.mp3' if self.mode == 'classic' else 'sounds/change_clock.mp3')
                 )
                 self.scheduler1.schedule(750, self.player3.play)
@@ -650,7 +650,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.scheduler1.schedule(200, self.update_question_field, True)
                 if self.is_x2_now or len(self.non_active_answers) in (1, 3):
                     n = '1-4' if self.current_question_num in range(1, 5) else self.current_question_num
-                    self.scheduler1.schedule(0, self.player1.setMedia, decorate_audio(f'sounds/{n}/bed.mp3'))
+                    self.scheduler1.schedule(0, self.player1.set_media, decorate_audio(f'sounds/{n}/bed.mp3'))
                     self.scheduler1.schedule(8, self.player1.play)
                 self.scheduler1.schedule(100, self.question.startFadeIn)
                 if self.mode == 'classic':
@@ -668,7 +668,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
             elif type_ll == 'x2':  # право на ошибку
                 self.is_x2_now = True
-                self.player1.setMedia(
+                self.player1.set_media(
                     decorate_audio(f'sounds/double/start{"_clock" if self.mode == "clock" else ""}.mp3')
                 )
                 if self.mode == 'clock':
@@ -677,7 +677,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.player1.play()
 
             elif type_ll == '50:50':  # 50:50
-                self.player3.setMedia(decorate_audio('sounds/50_50.mp3'))
+                self.player3.set_media(decorate_audio('sounds/50_50.mp3'))
                 self.scheduler1.schedule(0, self.player3.play)
                 answs = [self.answer_A, self.answer_B, self.answer_C, self.answer_D]
                 answ_letters = ['A', 'B', 'C', 'D']
@@ -780,7 +780,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.about_wndw = AboutWindow(self, self.is_sound)
         for player in (self.player1, self.player2, self.player4):
             player.setVolume(20 * self.is_sound)
-        self.player3.setMedia(decorate_audio('sounds/about.mp3'))
+        self.player3.set_media(decorate_audio('sounds/about.mp3'))
         self.player3.play()
         self.about_wndw.move(178 + self.x(), 175 + self.y())
         self.about_wndw.show()

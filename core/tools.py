@@ -10,18 +10,19 @@ from typing import TYPE_CHECKING, Type
 
 from PyQt5.QtCore import QObject, QTime, QTimer, QUrl
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtMultimedia import QMediaContent
+from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtWidgets import QHeaderView, QTableWidget, QTableWidgetItem
 
 from core.application import msg
-
-from .constants import SECONDS_FOR_QUESTION
+from core.constants import LOOP_POINTS, SECONDS_FOR_QUESTION
 
 if TYPE_CHECKING:
     from core.game import GameWindow
 
 
 class AnimationScheduler(QObject):
+    """Планировщик анимаций, необходим для своевременного проигрывания анимаций."""
+
     def __init__(self, parent: 'GameWindow'):
         super().__init__(parent)
         self._timer = QTimer(self)
@@ -64,6 +65,31 @@ class AnimationScheduler(QObject):
             self._timer.stop()
             self._parent.user_control = True
             self._current_delay = 0
+
+
+class LoopingMediaPlayer(QMediaPlayer):
+    """Реализация `QMediaPlayer`, зацикливающая фоновую музыку, для которой прописан момент зацикливания в `LOOP_POINTS`"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.current_file = ''
+        self.mediaStatusChanged.connect(self.handle_media_status_changed)
+
+    def set_media(self, media: QMediaContent):
+        """Устанавливает медиа, аналогично QMediaPlayer.setMedia"""
+        self.current_file = 'sounds/' + os.path.relpath(media.canonicalUrl().toLocalFile(), 'sounds')
+        self.setMedia(media)
+
+    def handle_media_status_changed(self, status):
+        if status != QMediaPlayer.MediaStatus.EndOfMedia:
+            return
+
+        start_position = LOOP_POINTS.get(self.current_file, None)
+        if start_position is None:
+            return
+
+        self.setPosition(start_position)
+        self.play()
 
 
 def empty_timer(window: 'GameWindow'):

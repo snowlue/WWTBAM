@@ -22,4 +22,10 @@ SAFETY_NETS = [0] * 5 + [5_000] * 5 + [100_000] * 5
 SECONDS_FOR_QUESTION = {'1-4': 15, 5: 15} | {i: 30 for i in range(6, 11)} | {i: 45 for i in range(11, 15)} | {15: 90}
 
 SECONDS_PRICE = {'1-4': 30, 5: 30} | {i: 308 for i in range(6, 11)} | {i: 1650 for i in range(11, 15)} | {15: 3945}
-# todo: прописать зацикливание плееров, чтобы фоновая музыка играла бесконечно
+
+LOOP_POINTS = (
+    {f'sounds/{i}/before_clock.mp3': 15975 for i in range(6, 16)}
+    | {f'sounds/{i}/bed.mp3': 0 for i in range(5, 16)}
+    | {'sounds/1-4/bed.mp3': 0, 'sounds/rules_bed.mp3': 0}
+    | {'sounds/double/first_wrong.mp3': 17017}
+)

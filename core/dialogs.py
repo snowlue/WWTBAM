@@ -9,7 +9,8 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 if TYPE_CHECKING:
     from core.game import GameWindow
 
-from core.tools import convert_amount_to_str, decorate_audio, empty_timer, hide_timer, show_prize, sql_request
+from core.tools import (LoopingMediaPlayer, convert_amount_to_str, decorate_audio, empty_timer, hide_timer, show_prize,
+                        sql_request)
 from core.widgets import GameRules, ResultsTableWindow
 from ui import (Ui_ConfirmAgain, Ui_ConfirmClearAll, Ui_ConfirmExit, Ui_ConfirmLeave, Ui_GameOver, Ui_StartDialog,
                 Ui_Win, Ui_WinLeave)
@@ -47,10 +48,10 @@ class StartWindow(QDialog, Ui_StartDialog):
 
     def show_rules(self):
         """Показывает правила игры"""
-        self.player1 = QMediaPlayer()  # для фоновой музыки
-        self.player2 = QMediaPlayer()  # для звука остановки
+        self.player1 = LoopingMediaPlayer(self)  # для фоновой музыки
+        self.player2 = QMediaPlayer(self)  # для звука остановки
         self.rules_wndw = GameRules((self.player1, self.player2))
-        self.player1.setMedia(decorate_audio('sounds/rules_bed.mp3'))
+        self.player1.set_media(decorate_audio('sounds/rules_bed.mp3'))
         self.player1.play()
         self.rules_wndw.move(self.x() - 118, self.y() - 308)
         self.rules_wndw.show()
@@ -186,7 +187,7 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
 
         for player in (self.parent_.player1, self.parent_.player2, self.parent_.player3, self.parent_.player4):
             player.stop()
-        self.parent_.player1.setMedia(
+        self.parent_.player1.set_media(
             decorate_audio(
                 f'sounds/{"great_" if self.parent_.current_question_num >= 11 else ""}walk_away{"_clock" if self.parent_.mode == "clock" else ""}.mp3'
             )
