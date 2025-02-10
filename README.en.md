@@ -13,7 +13,7 @@ Hints, questions, virtual rubles, and all the game’s features — everything y
 Beat your records and compete with your friends using the high-score table. 🏆  
 Get smarter and test your knowledge! 📚
 
-<img src='https://user-images.githubusercontent.com/22418658/174429377-64ba6964-35cc-4dfc-9690-b3812e091299.png' alt='App screenshot' height='350' width='520'>
+<img src='https://github.com/user-attachments/assets/744e94a9-4a64-48f9-9b61-8e56b9ea229e' alt='App screenshot' height='541' width='800'>
 
 ## How to Run:
 
@@ -37,13 +37,14 @@ Get smarter and test your knowledge! 📚
 
 - At the start of the game, you can choose a timed mode (similar to the Clock Format introduced in the U.S. in 2008).
 - Answer questions by clicking on A, B, C, or D with your mouse or pressing Q, W, A, S on your keyboard:
-    - ₽5,000 at question 5 and ₽100,000 at question 10 are guaranteed amounts — if you pass these milestones, you will receive these sums even if you lose.
+    - ₽5,000 at question 5 and ₽100,000 at question 10 are guaranteed amounts — if you pass these milestones, you will receive the sum even if you lose.
     - Your main goal is to reach ₽3,000,000.
-- Use hints by clicking on them with your mouse or pressing 1, 2, or 3 on your keyboard:
-    - "Replace Question" swaps the current question with another of the same difficulty.
+- Use up to three lifelines by clicking on them with your mouse or pressing 1, 2, 3 or 4 on your keyboard:
+    - "Switch the Question" swaps the current question with another of the same difficulty.
     - 50:50 removes two incorrect answers to make it easier.
-    - "Second Chance" allows you to answer again if your first answer is wrong.
-- You can take the money and leave the game by clicking on the home icon or pressing 4 on your keyboard.
+    - "Double Dip" allows you to answer again if your first answer is wrong.
+    - "Ask the Audience" shows the audience answer statistics to help you choose the correct answer.
+- You can take the money and leave the game by clicking on the home icon or pressing 5 on your keyboard.
 - View the high-score table and add your results by playing the game.
 
 

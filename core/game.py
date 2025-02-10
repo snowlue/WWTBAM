@@ -243,13 +243,15 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if event.key() in (Qt.Key.Key_S, 39, 1067, 1069):  # S, Ы, ', Э
             self.response_to_event(568, 653)  # эмулируем выбор ответа D
         if event.key() == Qt.Key.Key_1:
-            self.response_to_event(766, 100)  # эмулируем выбор «замены вопроса»
+            self.response_to_event(766, 66)  # эмулируем выбор «замены вопроса»
         if event.key() == Qt.Key.Key_2:
-            self.response_to_event(835, 100)  # эмулируем выбор 50:50
+            self.response_to_event(835, 66)  # эмулируем выбор 50:50
         if event.key() == Qt.Key.Key_3:
-            self.response_to_event(902, 100)  # эмулируем выбор «права на ошибку»
+            self.response_to_event(902, 66)  # эмулируем выбор «права на ошибку»
         if event.key() == Qt.Key.Key_4:
-            self.response_to_event(970, 100)  # эмулируем выбор «забрать деньги»
+            self.response_to_event(800, 100)  # эмулируем выбор «помощи зала»
+        if event.key() == Qt.Key.Key_5:
+            self.response_to_event(866, 100)  # эмулируем выбор «забрать деньги»
         if event.key() in (Qt.Key.Key_M, 1068):  # M, Ь
             self.is_sound = not self.is_sound  # переключаем звук
             self.sound_btn.setChecked(self.is_sound)
