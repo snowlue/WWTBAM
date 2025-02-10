@@ -18,7 +18,7 @@ from ui import AnimationLabel, Ui_MainWindow
 
 
 class GameWindow(QMainWindow, Ui_MainWindow):
-    """Окно, отображащее основной игровой контент"""
+    """Окно, отображающее основной игровой контент"""
 
     def __init__(self, name: str, mode: str):
         super().__init__()
@@ -28,6 +28,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.name = name
         self.mode = mode
         self.background_num = randint(1, 7)
+        
+        self.hovered_answer = ''
+        self.hovered_lifeline = ''
 
         self.has_shown = True if self.mode == 'classic' else False
         self.seconds_left = 0
@@ -36,7 +39,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         self.is_x2_now = False
         self.non_active_answers = []
-        self.lifelines = {'change': True, '50:50': True, 'x2': True}
+        self.lifelines = {'change': True, '50:50': True, 'x2': True, 'ata': True}
+        self.used_lifelines_counter = 0
 
         self.player1 = LoopingMediaPlayer(self)  # для музыки во время вопроса и неправильных ответов
         self.player2 = LoopingMediaPlayer(self)  # для интро и правильных ответов
@@ -89,7 +93,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.scheduler1.schedule(0, self.player2.play)
 
         self.questions = get_questions()
-        self.current_question_num = 5  # HACK God mode
+        self.current_question_num = 1  # HACK God mode
 
         # анимация показа блока с вопросом и ответами
         if repeat:
@@ -231,33 +235,101 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if event.key() < 1500:  # логирование только для клавиш клавиатуры
             logging.info('KP %d', event.key())
         if event.key() in (Qt.Key.Key_Q, 91, 1049, 1061):  # Q, Й, [, Х
-            self.response_event(200, 601)  # эмулируем выбор ответа A
+            self.response_to_event(200, 601)  # эмулируем выбор ответа A
         if event.key() in (Qt.Key.Key_W, 93, 1062, 1066):  # W, Ц, ], Ъ
-            self.response_event(568, 601)  # эмулируем выбор ответа В
+            self.response_to_event(568, 601)  # эмулируем выбор ответа В
         if event.key() in (Qt.Key.Key_A, 59, 1060, 1046):  # A, Ф, ;, Ж
-            self.response_event(200, 653)  # эмулируем выбор ответа С
+            self.response_to_event(200, 653)  # эмулируем выбор ответа С
         if event.key() in (Qt.Key.Key_S, 39, 1067, 1069):  # S, Ы, ', Э
-            self.response_event(568, 653)  # эмулируем выбор ответа D
+            self.response_to_event(568, 653)  # эмулируем выбор ответа D
         if event.key() == Qt.Key.Key_1:
-            self.response_event(766, 100)  # эмулируем выбор «замены вопроса»
+            self.response_to_event(766, 100)  # эмулируем выбор «замены вопроса»
         if event.key() == Qt.Key.Key_2:
-            self.response_event(835, 100)  # эмулируем выбор 50:50
+            self.response_to_event(835, 100)  # эмулируем выбор 50:50
         if event.key() == Qt.Key.Key_3:
-            self.response_event(902, 100)  # эмулируем выбор «права на ошибку»
+            self.response_to_event(902, 100)  # эмулируем выбор «права на ошибку»
         if event.key() == Qt.Key.Key_4:
-            self.response_event(970, 100)  # эмулируем выбор «забрать деньги»
+            self.response_to_event(970, 100)  # эмулируем выбор «забрать деньги»
         if event.key() in (Qt.Key.Key_M, 1068):  # M, Ь
             self.is_sound = not self.is_sound  # переключаем звук
             self.sound_btn.setChecked(self.is_sound)
             for p in (self.player1, self.player2, self.player3, self.player4):
                 p.setVolume(100 * self.is_sound)
+    
+    def mouseMoveEvent(self, event: QMouseEvent):
+        """Обрабатывает события от движения мыши"""
+
+        # print(event.x(), event.y(), self.user_control, self.has_shown)  # HACK God mode
+        self.response_to_move(event.x(), event.y())  # делегируем обработку события на response_to_move
+        return super().mouseMoveEvent(event)
+    
+    def response_to_move(self, x: int, y: int):
+        if not self.user_control:
+            return
+
+        if all((866 <= x <= 916, 100 <= y <= 130, self.used_lifelines_counter < 3)):
+            self.show_selecting_lifeline('home')
+            return
+        elif not self.has_shown:
+            self.show_selecting_lifeline('')
+
+        if not self.has_shown:
+            return
+
+        if 200 <= x <= 538 and 601 <= y <= 642:
+            self.show_selecting_answer('A')
+        elif 568 <= x <= 915 and 601 <= y <= 642:
+            self.show_selecting_answer('B')
+        elif 200 <= x <= 538 and 653 <= y <= 693:
+            self.show_selecting_answer('C')
+        elif 568 <= x <= 915 and 653 <= y <= 693:
+            self.show_selecting_answer('D')
+        else:
+            self.show_selecting_answer('')
+            
+        if self.used_lifelines_counter == 3:
+            return
+
+        if 766 <= x <= 816 and 66 <= y <= 96:
+            self.show_selecting_lifeline('change')
+        elif 835 <= x <= 885 and 66 <= y <= 96:
+            self.show_selecting_lifeline('5050')
+        elif 902 <= x <= 952 and 66 <= y <= 96:
+            self.show_selecting_lifeline('x2')
+        elif 800 <= x <= 850 and 100 <= y <= 130:
+            self.show_selecting_lifeline('ata')
+        else:
+            self.show_selecting_lifeline('')
+    
+    def show_selecting_lifeline(self, ll_type: str):
+        if not ll_type and self.hovered_lifeline:
+            self.current_state_ll.setPixmap(QPixmap())
+            self.hovered_lifeline = ''
+            return
+        
+        if ll_type != self.hovered_lifeline:
+            self.current_state_ll.setPixmap(QPixmap(f'images/money tree/{ll_type}/hover.png'))
+            self.current_state_ll.startFadeInImage()
+            self.hovered_lifeline = ll_type
+    
+    def show_selecting_answer(self, letter: str):
+        if not letter and self.hovered_answer:
+            self.current_state_q.setPixmap(QPixmap())
+            self.hovered_answer = ''
+            return
+
+        if letter != self.hovered_answer and letter not in self.non_active_answers:
+            self.current_state_q.setPixmap(QPixmap(f'images/question field/chosen_{letter}.png'))
+            self.current_state_q.startFadeInImage()
+            self.hovered_answer = letter
 
     def mousePressEvent(self, event: QMouseEvent):
-        """Обрабатывает события от мыши"""
+        """Обрабатывает события от нажатий кнопок мыши"""
 
-        self.response_event(event.x(), event.y())  # делегируем обработку события на checkPosition
+        self.response_to_event(event.x(), event.y())  # делегируем обработку события на response_to_event
+        return super().mousePressEvent(event)
 
-    def response_event(self, x: int, y: int):
+    def response_to_event(self, x: int, y: int):
         """Обрабатывает события от мыши и клавиатуры"""
 
         logging.info('MP (%d, %d)', x, y)
@@ -265,7 +337,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if all((self.user_control, self.mode == 'clock', 521 <= x <= 584, 627 <= y <= 665)):
             self.show_answers()
 
-        if all((self.user_control, 970 <= x <= 1020, 99 <= y <= 129)):  # забрать деньги
+        if all((self.user_control, 866 <= x <= 916, 100 <= y <= 130, self.used_lifelines_counter < 3)):  # забрать деньги
             self.open_confirm_leave()
 
         if not self.user_control or not self.has_shown and self.mode == 'clock':
@@ -290,19 +362,25 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         elif 568 <= x <= 915 and 653 <= y <= 693:
             self.choose_answer('D')
         self.scheduler1.start()
+        
+        if self.used_lifelines_counter == 3:
+            return
 
-        if 766 <= x <= 816 and 99 <= y <= 129:
+        if 766 <= x <= 816 and 66 <= y <= 96:
             self.show_lost_lifeline(self.lost_change)
             self.use_lifeline('change')
-        elif 835 <= x <= 885 and 99 <= y <= 129:
+        elif 835 <= x <= 885 and 66 <= y <= 96:
             self.show_lost_lifeline(self.lost_5050)
             self.use_lifeline('50:50')
-        elif 902 <= x <= 952 and 99 <= y <= 129:
+        elif 902 <= x <= 952 and 66 <= y <= 96:
             self.show_lost_lifeline(self.lost_x2)
             if self.lifelines['x2']:
                 self.double_dip.show()
                 self.double_dip.startFadeInImage()
             self.use_lifeline('x2')
+        elif 800 <= x <= 850 and 100 <= y <= 130:
+            self.show_lost_lifeline(self.lost_ata)
+            self.use_lifeline('ata')
 
     def update_question_field(self, changer: bool = False):
         """Обновляет текстовые поля вопроса и ответов"""
@@ -311,7 +389,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         text = self.questions[self.current_question_num - 1][int(changer)][0]
         self.answers = list(map(str, self.questions[self.current_question_num - 1][int(changer)][2]))
         self.correct_answer = str(self.questions[self.current_question_num - 1][int(changer)][1])
-        print(self.correct_answer)  # HACK God mode
+        # print(self.correct_answer)  # HACK God mode
         self.got_amount = MONEYTREE_AMOUNTS[self.current_question_num - 1]
 
         self.question.setText(text)
@@ -584,7 +662,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         for _ in range(2):
             self.scheduler1.schedule(400, self.current_state_q_2.startFadeOutImage)
             self.scheduler1.schedule(400, self.current_state_q_2.startFadeInImage)
-        self.has_shown = False
+        if self.mode == 'clock':
+            self.has_shown = False
 
     def show_next_question(self):
         """Показывает следующий вопрос"""
@@ -627,73 +706,85 @@ class GameWindow(QMainWindow, Ui_MainWindow):
     def use_lifeline(self, type_ll: str):
         """Активирует подсказку и запускает соответствующие анимации и звуки"""
 
-        if self.lifelines[type_ll]:
-            if type_ll == 'change':  # замена вопроса
-                self.player3.set_media(
-                    decorate_audio('sounds/change.mp3' if self.mode == 'classic' else 'sounds/change_clock.mp3')
-                )
-                self.scheduler1.schedule(750, self.player3.play)
+        if not self.lifelines[type_ll]:
+            return
+        
+        self.used_lifelines_counter += 1
+
+        if type_ll == 'change':  # замена вопроса
+            self.player3.set_media(
+                decorate_audio('sounds/change.mp3' if self.mode == 'classic' else 'sounds/change_clock.mp3')
+            )
+            self.scheduler1.schedule(750, self.player3.play)
+            if self.mode == 'clock':
+                if self.current_question_num not in range(1, 5):
+                    self.scheduler1.schedule(0, self.player1.stop)
+                self.scheduler1.schedule(0, self.player2.stop)
+                refill_timer(self, self.current_question_num)
+                self.qttimer.stop()
+            self.scheduler1.schedule(820 + 1200 * (self.mode == 'clock'), lambda: True)
+            for state_label in (self.current_state_q, self.current_state_q_2, self.current_state_q_3):
+                self.scheduler1.schedule(0, state_label.setPixmap, QPixmap())
+            self.scheduler1.schedule(0, self.question.startFadeOut)
+            for label in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
+                self.scheduler1.schedule(0, label.startFadeOut)
+            if self.is_x2_now:  # на смене вопроса отменяем «право на ошибку»
+                self.scheduler1.schedule(0, self.double_dip.startFadeOutImage)
+            self.scheduler1.schedule(200, self.update_question_field, True)
+            if self.is_x2_now or len(self.non_active_answers) in (1, 3):
+                n = '1-4' if self.current_question_num in range(1, 5) else self.current_question_num
+                self.scheduler1.schedule(0, self.player1.set_media, decorate_audio(f'sounds/{n}/bed.mp3'))
+                self.scheduler1.schedule(8, self.player1.play)
+            self.scheduler1.schedule(100, self.question.startFadeIn)
+            if self.mode == 'classic':
+                for answer_text_field in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
+                    self.scheduler1.schedule(100, answer_text_field.startFadeIn)
+                    self.scheduler1.schedule(0, answer_text_field.show)
+            else:
+                self.scheduler1.schedule(0, self.double_dip.setPixmap, QPixmap('images/show-button.png'))
+                self.scheduler1.schedule(
+                    0, self.double_dip.show
+                )  # подменяем кнопку по центру на кнопку показа ответа
+                self.scheduler1.schedule(0, self.double_dip.startFadeInImage)
                 if self.mode == 'clock':
-                    if self.current_question_num not in range(1, 5):
-                        self.scheduler1.schedule(0, self.player1.stop)
-                    self.scheduler1.schedule(0, self.player2.stop)
-                    refill_timer(self, self.current_question_num)
-                    self.qttimer.stop()
-                self.scheduler1.schedule(820 + 1200 * (self.mode == 'clock'), lambda: True)
-                for state_label in (self.current_state_q, self.current_state_q_2, self.current_state_q_3):
-                    self.scheduler1.schedule(0, state_label.setPixmap, QPixmap())
-                self.scheduler1.schedule(0, self.question.startFadeOut)
-                for label in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
-                    self.scheduler1.schedule(0, label.startFadeOut)
-                if self.is_x2_now:  # на смене вопроса отменяем «право на ошибку»
-                    self.scheduler1.schedule(0, self.double_dip.startFadeOutImage)
-                self.scheduler1.schedule(200, self.update_question_field, True)
-                if self.is_x2_now or len(self.non_active_answers) in (1, 3):
-                    n = '1-4' if self.current_question_num in range(1, 5) else self.current_question_num
-                    self.scheduler1.schedule(0, self.player1.set_media, decorate_audio(f'sounds/{n}/bed.mp3'))
-                    self.scheduler1.schedule(8, self.player1.play)
-                self.scheduler1.schedule(100, self.question.startFadeIn)
-                if self.mode == 'classic':
-                    for answer_text_field in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
-                        self.scheduler1.schedule(100, answer_text_field.startFadeIn)
-                        self.scheduler1.schedule(0, answer_text_field.show)
-                else:
-                    self.scheduler1.schedule(0, self.double_dip.setPixmap, QPixmap('images/show-button.png'))
-                    self.scheduler1.schedule(
-                        0, self.double_dip.show
-                    )  # подменяем кнопку по центру на кнопку показа ответа
-                    self.scheduler1.schedule(0, self.double_dip.startFadeInImage)
                     self.has_shown = False
-                self.is_x2_now = False
+            self.is_x2_now = False
 
-            elif type_ll == 'x2':  # право на ошибку
-                self.is_x2_now = True
-                self.player1.set_media(
-                    decorate_audio(f'sounds/double/start{"_clock" if self.mode == "clock" else ""}.mp3')
-                )
-                if self.mode == 'clock':
-                    self.player2.stop()
-                    self.qttimer.stop()
-                self.player1.play()
+        elif type_ll == 'x2':  # право на ошибку
+            self.is_x2_now = True
+            self.player1.set_media(
+                decorate_audio(f'sounds/double/start{"_clock" if self.mode == "clock" else ""}.mp3')
+            )
+            if self.mode == 'clock':
+                self.player2.stop()
+                self.qttimer.stop()
+            self.player1.play()
 
-            elif type_ll == '50:50':  # 50:50
-                self.player3.set_media(decorate_audio('sounds/50_50.mp3'))
-                self.scheduler1.schedule(0, self.player3.play)
-                answs = [self.answer_A, self.answer_B, self.answer_C, self.answer_D]
-                answ_letters = ['A', 'B', 'C', 'D']
-                if self.non_active_answers:  # неактивные ответы от «права на ошибку»
-                    indxs = set([0, 1, 2, 3]) - set([answ_letters.index(self.non_active_answers[0])])
-                else:
-                    indxs = set([0, 1, 2, 3])
-                indxs = list(indxs - set([self.answers.index(self.correct_answer)]))  # вырезаем правильный ответ
-                shuffle(indxs)  # убрать два неверных ответа СЛУЧАЙНО
-                self.scheduler1.schedule(250, answs[indxs[0]].setText, '')
-                self.scheduler1.schedule(0, answs[indxs[1]].setText, '')
-                self.non_active_answers += [answ_letters[indxs[0]], answ_letters[indxs[1]]]
+        elif type_ll == '50:50':  # 50:50
+            self.player3.set_media(decorate_audio('sounds/50_50.mp3'))
+            self.scheduler1.schedule(0, self.player3.play)
+            answs = [self.answer_A, self.answer_B, self.answer_C, self.answer_D]
+            answ_letters = ['A', 'B', 'C', 'D']
+            if self.non_active_answers:  # неактивные ответы от «права на ошибку»
+                indxs = set([0, 1, 2, 3]) - set([answ_letters.index(self.non_active_answers[0])])
+            else:
+                indxs = set([0, 1, 2, 3])
+            indxs = list(indxs - set([self.answers.index(self.correct_answer)]))  # вырезаем правильный ответ
+            shuffle(indxs)  # убрать два неверных ответа СЛУЧАЙНО
+            self.scheduler1.schedule(250, answs[indxs[0]].setText, '')
+            self.scheduler1.schedule(0, answs[indxs[1]].setText, '')
+            self.non_active_answers += [answ_letters[indxs[0]], answ_letters[indxs[1]]]
+        
+        elif type_ll == 'ata':
+            ...  # TODO: прописать логику Ask the Audience
+        
+        if self.used_lifelines_counter == 3:
+            for label_suffix in ('change', '5050', 'x2', 'ata', 'home'):
+                self.__getattribute__(f'deactivated_{label_suffix}').show()
 
-            self.lifelines[type_ll] = False
-            self.scheduler1.start()
-            logging.info(f'- {type_ll}-ll')
+        self.lifelines[type_ll] = False
+        self.scheduler1.start()
+        logging.info(f'- {type_ll}-ll')
 
     def restart_game(self):
         """Перезапускает игру и возвращает все значения в начальное состояние"""

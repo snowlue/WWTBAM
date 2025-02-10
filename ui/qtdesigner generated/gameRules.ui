@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>616</width>
-    <height>350</height>
+    <width>624</width>
+    <height>886</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>616</width>
-    <height>293</height>
+    <width>624</width>
+    <height>886</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>616</width>
-    <height>867</height>
+    <width>624</width>
+    <height>886</height>
    </size>
   </property>
   <property name="font">
@@ -63,8 +63,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>595</width>
-        <height>874</height>
+        <width>624</width>
+        <height>886</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -93,8 +93,8 @@
          </property>
          <property name="font">
           <font>
+           <family>PT Sans</family>
            <pointsize>11</pointsize>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -121,12 +121,12 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>391</width>
-             <height>233</height>
+             <width>420</width>
+             <height>266</height>
             </size>
            </property>
            <property name="text">
-            <string notr="true">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Правила просты. Перед вами 15 вопросов с разной стоимостью. Чтобы выиграть 3 000 000 виртуальных рублей, придётся ответить на все из них.&lt;/p&gt;&lt;p&gt;Вам представляются две несгораемые суммы в 5 000 рублей на пятом вопросе и в 100 000 рублей на 10 вопросе. Если вы проиграете, то гарантированно получите эти деньги, как только пройдёте эти рубежи.&lt;/p&gt;&lt;p&gt;Сложность вопросов по мере прохождения будет увеличиваться, что потребует от вас больших знаний и смекалки. Будет непросто, но это достойно 3 000 000 рублей!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string notr="true">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Игра проста, как и все лучшие игры!&lt;/p&gt;&lt;p&gt;Перед вами 15 вопросов и, ответив на каждый из них, вы получите виртуальный денежный приз. Если вы хотите выиграть ₽3 000 000, придётся ответить на все 15 вопросов!&lt;/p&gt;&lt;p&gt;Чтобы вы не уходили с пустыми руками, игра предлагает вам две несгораемые суммы — ₽5 000 на 5 вопросе и ₽100 000 на 10 вопросе. В случае если вы пройдёте эти рубежи, но проиграете,&lt;br&gt;то гарантированно получите несгораемую сумму.&lt;/p&gt;&lt;p&gt;Сложность вопросов с прохождением рубежей в ₽5 000 и ₽100 000 будет увеличиваться, что потребует от вас больших знаний и смекалки.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Будет непросто, но это достойно ₽3 000 000!&lt;/b&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -144,14 +144,14 @@
            <property name="maximumSize">
             <size>
              <width>172</width>
-             <height>233</height>
+             <height>266</height>
             </size>
            </property>
            <property name="text">
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap>../images/rules/money_tree.png</pixmap>
+            <pixmap>../../images/rules/money_tree.png</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -175,12 +175,12 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>573</width>
-             <height>221</height>
+             <width>602</width>
+             <height>262</height>
             </size>
            </property>
            <property name="text">
-            <string notr="true">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Чтобы упростить задачу, предлагаем три подсказки и возможность забрать деньги, пополнив таблицу результатов своим выигрышем с указанным именем и датой игры.&lt;/p&gt;&lt;p&gt;1-я подсказка «Замена вопроса» заменяет текущий вопрос на другой — пригодится, если не разбираетесь в теме вопроса. (клик по подсказке или 1 на клавиатуре)&lt;br/&gt;2-я подсказка «50:50» убирает два неверных ответа – полезна, если не уверены в своём выборе. (клик по подсказке или 2 на клавиатуре)&lt;br/&gt;И 3-я подсказка «Право на ошибку» даёт вам возможность ошибиться при ответе один раз — отличная страховка на сложных вопросах. (клик по подсказке или 3 на клавиатуре)&lt;br/&gt;Или вы можете покинуть игру с уже заработанным выигрышем, чтобы не потерять всё до несгораемой суммы. (клик по иконке «домой» или 4 на клавиатуре)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string notr="true">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Чтобы упростить задачу, предлагаем четыре подсказки и возможность забрать деньги, пополнив таблицу результатов своим выигрышем с указанным именем и датой игры.&lt;/p&gt;&lt;p&gt;Во время игры у вас есть возможность выбрать любые три из предложенных опций.&lt;br&gt;Будьте осторожны, ведь как только вы выберете третью опцию, выбор двух оставшихся будет закрыт. &lt;b&gt;Расходуйте подсказки разумно!&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;b&gt;«Замена вопроса»&lt;/b&gt; заменяет текущий вопрос на другой — пригодится, если не разбираетесь&lt;br&gt;в теме вопроса.&lt;br&gt;&lt;b&gt;«50:50»&lt;/b&gt; убирает два неверных ответа – полезна, если не уверены в своём выборе. &lt;br&gt;&lt;b&gt;«Право на ошибку»&lt;/b&gt; даёт вам возможность ошибиться при ответе один раз — отличная страховка на сложных вопросах.&lt;br&gt;&lt;b&gt;«Помощь зала»&lt;/b&gt; попросит помощи у виртуального зала, который может помочь вам с ответом на вопрос.&lt;br&gt;Или вы можете покинуть игру с уже заработанным выигрышем, чтобы не потерять всё&lt;br&gt;до несгораемой суммы.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -197,8 +197,8 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>566</width>
-             <height>58</height>
+             <width>602</width>
+             <height>56</height>
             </size>
            </property>
            <property name="text">
@@ -208,10 +208,10 @@
             <enum>Qt::PlainText</enum>
            </property>
            <property name="pixmap">
-            <pixmap>../images/rules/lifelines.png</pixmap>
+            <pixmap>../../images/rules/lifelines.png</pixmap>
            </property>
            <property name="scaledContents">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -247,12 +247,12 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>573</width>
-             <height>98</height>
+             <width>602</width>
+             <height>51</height>
             </size>
            </property>
            <property name="text">
-            <string notr="true">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Блок с вопросом и ответами на выбор отображается внизу. В большом верхнем поле отображается вопрос, а под ним четыре ответа: A, B, C и D (нажимайте на ответ или Q, W, A и S на клавиатуре). Выбранный ответ будет отмечаться оранжевым цветом, правильный — зелёным, а неправильный в «праве на ошибку» — серым. Выбирайте ответ с умом!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string notr="true">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Блок с вопросом и ответами на выбор отображается внизу. В большом верхнем поле отображается вопрос, а под ним четыре ответа: A, B, C и D. Выбранный ответ будет отмечаться оранжевым цветом, а правильный — зелёным. Выбирайте ответ с умом!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -269,8 +269,8 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>566</width>
-             <height>112</height>
+             <width>602</width>
+             <height>103</height>
             </size>
            </property>
            <property name="text">
@@ -280,7 +280,7 @@
             <enum>Qt::PlainText</enum>
            </property>
            <property name="pixmap">
-            <pixmap>../images/rules/question_field.png</pixmap>
+            <pixmap>../../images/rules/question_field.png</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -308,8 +308,8 @@
          </property>
          <property name="font">
           <font>
+           <family>PT Sans</family>
            <pointsize>11</pointsize>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>

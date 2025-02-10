@@ -3,7 +3,7 @@ import sys
 from typing import TYPE_CHECKING
 
 from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QCloseEvent, QIcon
+from PyQt5.QtGui import QCloseEvent, QIcon, QMouseEvent
 from PyQt5.QtMultimedia import QMediaPlayer
 from PyQt5.QtWidgets import QWidget
 
@@ -20,8 +20,40 @@ class GameRules(QWidget, Ui_Rules):
     def __init__(self, players: tuple[QMediaPlayer, QMediaPlayer]):
         super().__init__()
         self.player1, self.player2 = players
+        self.player3 = QMediaPlayer()  # для звуков подсказок
+        self.player3.setVolume(70)
         self.setupUi(self)
         self.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.setMouseTracking(True)
+        self.grabMouse()
+        self.state = ''
+    
+    def mouseMoveEvent(self, event: QMouseEvent):
+        self.response_to_event(event.x(), event.y())
+        return super().mouseMoveEvent(event)
+    
+    def response_to_event(self, x: int, y: int):
+        state = self.state
+        if 441 <= x <= 611 and 46 <= y <= 313:
+            state = 'safety_net'
+        elif 600 <= y <= 656:
+            if 56 <= x <= 142:
+                state = 'ping1'
+            elif 162 <= x <= 248:
+                state = 'ping2'
+            elif 268 <= x <= 354:
+                state = 'ping3'
+            elif 374 <= x <= 460:
+                state = 'ping4'
+            elif 480 <= x <= 566:
+                state = 'ping5'
+        else:
+            state = self.state = ''
+        
+        if state != self.state:
+            self.state = state
+            self.player3.setMedia(decorate_audio(f'sounds/rules/{state}.mp3'))
+            self.player3.play()
 
     def closeEvent(self, event: QCloseEvent):
         self.player2.setMedia(decorate_audio('sounds/rules_stop.mp3'))

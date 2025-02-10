@@ -53,7 +53,7 @@ class StartWindow(QDialog, Ui_StartDialog):
         self.rules_wndw = GameRules((self.player1, self.player2))
         self.player1.set_media(decorate_audio('sounds/rules_bed.mp3'))
         self.player1.play()
-        self.rules_wndw.move(self.x() - 118, self.y() - 308)
+        self.rules_wndw.move(self.x() - 122, self.y() - 315)
         self.rules_wndw.show()
 
     def start_game(self, name: str) -> None:
@@ -65,9 +65,10 @@ class StartWindow(QDialog, Ui_StartDialog):
         self.game = GameWindow(name, mode)
         self.game.show()
 
-        self.game.lost_change.hide()
-        self.game.lost_5050.hide()
-        self.game.lost_x2.hide()
+        for label in (self.game.lost_change, self.game.lost_5050, self.game.lost_x2, self.game.lost_ata):
+            label.hide()
+        for label_suffix in ('change', '5050', 'x2', 'ata', 'home'):
+            self.game.__getattribute__(f'deactivated_{label_suffix}').hide()
         self.game.double_dip.hide()
 
         self.close()

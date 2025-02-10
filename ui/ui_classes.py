@@ -137,7 +137,7 @@ class Ui_StartDialog(object):
 class Ui_Rules(object):
     def setupUi(self, Form):
         Form.setObjectName('Form')
-        Form.setFixedSize(616, 873)
+        Form.setFixedSize(624, 886)
         font = QtGui.QFont()
         font.setFamily('PT Sans')
         font.setPointSize(9)
@@ -153,7 +153,7 @@ class Ui_Rules(object):
         self.scrollArea.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.scrollArea.setObjectName('scrollArea')
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 595, 874))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 624, 933))
         self.scrollAreaWidgetContents.setObjectName('scrollAreaWidgetContents')
         self.verticalLayout = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout.setContentsMargins(10, 10, 10, 10)
@@ -188,15 +188,15 @@ class Ui_Rules(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.text_mt.sizePolicy().hasHeightForWidth())
         self.text_mt.setSizePolicy(sizePolicy)
-        self.text_mt.setMaximumSize(QtCore.QSize(391, 266))
+        self.text_mt.setMaximumSize(QtCore.QSize(420, 266))
         self.text_mt.setText(
             '<html><head/><body><p>Игра проста, как и все лучшие игры!</p><p>Перед вами 15 вопросов и, ответив на '
-            'каждый из них,<br>вы получите виртуальный денежный приз. Если вы хотите выиграть ₽3 000 000, придётся ответить '
-            'на все 15 вопросов!</p><p>Чтобы вы не уходили с пустыми руками, игра предлагает вам<br>две несгораемые суммы — '
-            '₽5 000 на 5 вопросе и ₽100 000<br>на 10 вопросе. В случае если вы пройдёте эти рубежи,<br>но проиграете, то '
-            'гарантированно получите несгораемую сумму.</p><p>Сложность вопросов с прохождением рубежей в ₽5 000<br>и '
-            '₽100 000 будет увеличиваться, что потребует от вас<br>больших знаний и смекалки.</p><p>Будет непросто, но '
-            'это достойно ₽3 000 000!</p></body></html>'
+            'каждый из них, вы получите виртуальный денежный приз. Если вы хотите выиграть ₽3 000 000, придётся ответить '
+            'на все 15 вопросов!</p><p>Чтобы вы не уходили с пустыми руками, игра предлагает вам две несгораемые суммы — '
+            '₽5 000 на 5 вопросе и ₽100 000 на 10 вопросе. В случае если вы пройдёте эти рубежи, но проиграете,<br>то '
+            'гарантированно получите несгораемую сумму.</p><p>Сложность вопросов с прохождением рубежей в ₽5 000 и '
+            '₽100 000 будет увеличиваться, что потребует от вас больших знаний<br>и смекалки.</p><p><b>Будет непросто, '
+            'но это достойно ₽3 000 000!</b></p></body></html>'
         )
         self.text_mt.setWordWrap(True)
         self.text_mt.setObjectName('text_mt')
@@ -217,16 +217,18 @@ class Ui_Rules(object):
 
         self.text_ll = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.text_ll.setSizePolicy(sizePolicy)
-        self.text_ll.setMaximumSize(QtCore.QSize(573, 221))
+        self.text_ll.setMaximumSize(QtCore.QSize(602, 262))
         self.text_ll.setText(
             '<html><head/><body><p>Чтобы упростить задачу, предлагаем четыре подсказки и возможность забрать деньги, '
-            'пополнив таблицу результатов своим выигрышем с указанным именем и датой игры.<br>Для начала игры вам '
-            'необходимо выбрать любые четыре из предложенных опций.</p><p><b>«Замена вопроса»</b> заменяет текущий '
-            'вопрос на другой — пригодится, если не разбираетесь<br>в теме вопроса.<br><b>«50:50»</b> убирает два '
-            'неверных ответа – полезна, если не уверены в своём выборе. <br><b>«Право на ошибку»</b> даёт вам '
-            'возможность ошибиться при ответе один раз — отличная страховка на сложных вопросах.<br><b>«Помощь зала»'
-            '</b> попросит помощи у виртуального зала, который может помочь вам с ответом на вопрос.<br>Или вы можете '
-            'покинуть игру с уже заработанным выигрышем, чтобы не потерять всё<br>до несгораемой суммы.</p></body></html>'
+            'пополнив таблицу результатов своим выигрышем с указанным именем и датой игры.</p><p>Во время игры у вас есть '
+            'возможность выбрать любые три из предложенных опций.<br>Будьте осторожны, ведь как только вы выберете '
+            'третью опцию, выбор двух оставшихся будет закрыт. <b>Расходуйте подсказки разумно!</b></p><p><b>«Замена '
+            'вопроса»</b> заменяет текущий вопрос на другой — пригодится, если не разбираетесь<br>в теме вопроса.<br>'
+            '<b>«50:50»</b> убирает два неверных ответа – полезна, если не уверены в своём выборе. <br><b>«Право на '
+            'ошибку»</b> даёт вам возможность ошибиться при ответе один раз — отличная страховка на сложных вопросах.'
+            '<br><b>«Помощь зала»</b> попросит помощи у виртуального зала, который может помочь вам с ответом<br>на вопрос.'
+            '<br>Или вы можете покинуть игру с уже заработанным выигрышем, чтобы не потерять всё<br>до несгораемой '
+            'суммы.</p></body></html>'
         )
         self.text_ll.setWordWrap(True)
         self.text_ll.setObjectName('text_ll')
@@ -234,7 +236,7 @@ class Ui_Rules(object):
 
         self.picture_ll = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.picture_ll.setSizePolicy(sizePolicy)
-        self.picture_ll.setMaximumSize(QtCore.QSize(566, 53))
+        self.picture_ll.setMaximumSize(QtCore.QSize(602, 56))
         self.picture_ll.setPixmap(QtGui.QPixmap('images/rules/lifelines.png'))
         self.picture_ll.setScaledContents(True)
         self.picture_ll.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
@@ -249,7 +251,7 @@ class Ui_Rules(object):
         self.text_ans = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.text_ans.setSizePolicy(sizePolicy)
         self.text_ans.setMinimumSize(QtCore.QSize(0, 0))
-        self.text_ans.setMaximumSize(QtCore.QSize(573, 98))
+        self.text_ans.setMaximumSize(QtCore.QSize(602, 51))
         self.text_ans.setText(
             '<html><head/><body><p>Блок с вопросом и ответами на выбор отображается внизу. В большом верхнем поле '
             'отображается вопрос, а под ним четыре ответа: A, B, C и D. Выбранный ответ будет отмечаться оранжевым '
@@ -261,7 +263,7 @@ class Ui_Rules(object):
 
         self.picture_ans = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.picture_ans.setSizePolicy(sizePolicy)
-        self.picture_ans.setMaximumSize(QtCore.QSize(566, 91))
+        self.picture_ans.setMaximumSize(QtCore.QSize(602, 103))
         self.picture_ans.setPixmap(QtGui.QPixmap('images/rules/question_field.png'))
         self.picture_ans.setScaledContents(True)
         self.picture_ans.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
@@ -302,6 +304,8 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName('centralwidget')
         MainWindow.setCentralWidget(self.centralwidget)
+        self.centralwidget.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        MainWindow.setMouseTracking(True)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1100, 25))
         self.menubar.setObjectName('menubar')
@@ -510,21 +514,63 @@ class Ui_MainWindow(object):
         self.lost_change = AnimationLabel(self.moneyTree)
         self.lost_change.setGeometry(QtCore.QRect(0, 0, 411, 480))
         self.lost_change.setText('')
-        self.lost_change.setPixmap(QtGui.QPixmap('images/money tree/lost_change.png'))
+        self.lost_change.setPixmap(QtGui.QPixmap('images/money tree/change/lost.png'))
         self.lost_change.setScaledContents(True)
         self.lost_change.setObjectName('lost_change')
         self.lost_5050 = AnimationLabel(self.moneyTree)
         self.lost_5050.setGeometry(QtCore.QRect(0, 0, 411, 480))
         self.lost_5050.setText('')
-        self.lost_5050.setPixmap(QtGui.QPixmap('images/money tree/lost_5050.png'))
+        self.lost_5050.setPixmap(QtGui.QPixmap('images/money tree/5050/lost.png'))
         self.lost_5050.setScaledContents(True)
         self.lost_5050.setObjectName('lost_5050')
         self.lost_x2 = AnimationLabel(self.moneyTree)
         self.lost_x2.setGeometry(QtCore.QRect(0, 0, 411, 480))
         self.lost_x2.setText('')
-        self.lost_x2.setPixmap(QtGui.QPixmap('images/money tree/lost_x2.png'))
+        self.lost_x2.setPixmap(QtGui.QPixmap('images/money tree/x2/lost.png'))
         self.lost_x2.setScaledContents(True)
         self.lost_x2.setObjectName('lost_x2')
+        self.lost_ata = AnimationLabel(self.moneyTree)
+        self.lost_ata.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.lost_ata.setText('')
+        self.lost_ata.setPixmap(QtGui.QPixmap('images/money tree/ata/lost.png'))
+        self.lost_ata.setScaledContents(True)
+        self.lost_ata.setObjectName('lost_ata')
+        
+        self.deactivated_change = AnimationLabel(self.moneyTree)
+        self.deactivated_change.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.deactivated_change.setText('')
+        self.deactivated_change.setPixmap(QtGui.QPixmap('images/money tree/change/deactivated.png'))
+        self.deactivated_change.setScaledContents(True)
+        self.deactivated_change.setObjectName('deactivated_change')
+        self.deactivated_5050 = AnimationLabel(self.moneyTree)
+        self.deactivated_5050.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.deactivated_5050.setText('')
+        self.deactivated_5050.setPixmap(QtGui.QPixmap('images/money tree/5050/deactivated.png'))
+        self.deactivated_5050.setScaledContents(True)
+        self.deactivated_5050.setObjectName('deactivated_5050')
+        self.deactivated_x2 = AnimationLabel(self.moneyTree)
+        self.deactivated_x2.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.deactivated_x2.setText('')
+        self.deactivated_x2.setPixmap(QtGui.QPixmap('images/money tree/x2/deactivated.png'))
+        self.deactivated_x2.setScaledContents(True)
+        self.deactivated_x2.setObjectName('deactivated_x2')
+        self.deactivated_ata = AnimationLabel(self.moneyTree)
+        self.deactivated_ata.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.deactivated_ata.setText('')
+        self.deactivated_ata.setPixmap(QtGui.QPixmap('images/money tree/ata/deactivated.png'))
+        self.deactivated_ata.setScaledContents(True)
+        self.deactivated_ata.setObjectName('deactivated_ata')
+        self.deactivated_home = AnimationLabel(self.moneyTree)
+        self.deactivated_home.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.deactivated_home.setText('')
+        self.deactivated_home.setPixmap(QtGui.QPixmap('images/money tree/home/deactivated.png'))
+        self.deactivated_home.setScaledContents(True)
+        self.deactivated_home.setObjectName('deactivated_home')
+        self.current_state_ll = AnimationLabel(self.moneyTree)
+        self.current_state_ll.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.current_state_ll.setText('')
+        self.current_state_ll.setScaledContents(True)
+        self.current_state_ll.setObjectName('current_state_ll')
 
         self.background_1 = QtWidgets.QLabel(self.centralwidget)
         self.background_1.setGeometry(QtCore.QRect(0, 0, 1100, 680))
@@ -701,6 +747,10 @@ class Ui_MainWindow(object):
         self.answer_C.raise_()
         self.answer_D.raise_()
         self.double_dip.raise_()
+        self.lost_change.raise_()
+        self.lost_5050.raise_()
+        self.lost_x2.raise_()
+        self.lost_ata.raise_()
         self.background_1.raise_()
         self.background_2.raise_()
         self.questionField.raise_()
