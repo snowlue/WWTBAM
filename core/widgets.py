@@ -27,11 +27,11 @@ class GameRules(QWidget, Ui_Rules):
         self.setMouseTracking(True)
         self.grabMouse()
         self.state = ''
-    
+
     def mouseMoveEvent(self, event: QMouseEvent):
         self.response_to_event(event.x(), event.y())
         return super().mouseMoveEvent(event)
-    
+
     def response_to_event(self, x: int, y: int):
         state = self.state
         if 441 <= x <= 611 and 46 <= y <= 313:
@@ -49,14 +49,14 @@ class GameRules(QWidget, Ui_Rules):
                 state = 'ping5'
         else:
             state = self.state = ''
-        
+
         if state != self.state:
             self.state = state
             self.player3.setMedia(decorate_audio(f'sounds/rules/{state}.mp3'))
             self.player3.play()
 
     def closeEvent(self, event: QCloseEvent):
-        self.player2.setMedia(decorate_audio('sounds/rules_stop.mp3'))
+        self.player2.setMedia(decorate_audio('sounds/rules/stop.mp3'))
         self.player2.play()
         QTimer.singleShot(300, self.player1.stop)
         return super().closeEvent(event)

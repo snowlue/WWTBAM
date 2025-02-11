@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 if TYPE_CHECKING:
     from core.game import GameWindow
 
+from core.constants import MONEYTREE_AMOUNTS
 from core.tools import (LoopingMediaPlayer, convert_amount_to_str, decorate_audio, empty_timer, hide_timer, show_prize,
                         sql_request)
 from core.widgets import GameRules, ResultsTableWindow
@@ -51,7 +52,7 @@ class StartWindow(QDialog, Ui_StartDialog):
         self.player1 = LoopingMediaPlayer(self)  # для фоновой музыки
         self.player2 = QMediaPlayer(self)  # для звука остановки
         self.rules_wndw = GameRules((self.player1, self.player2))
-        self.player1.set_media(decorate_audio('sounds/rules_bed.mp3'))
+        self.player1.set_media(decorate_audio('sounds/rules/bed.mp3'))
         self.player1.play()
         self.rules_wndw.move(self.x() - 122, self.y() - 315)
         self.rules_wndw.show()
@@ -67,8 +68,7 @@ class StartWindow(QDialog, Ui_StartDialog):
 
         for label in (self.game.lost_change, self.game.lost_5050, self.game.lost_x2, self.game.lost_ata):
             label.hide()
-        for label_suffix in ('change', '5050', 'x2', 'ata', 'home'):
-            self.game.__getattribute__(f'deactivated_{label_suffix}').hide()
+        self.game.deactivated_home.hide()
         self.game.double_dip.hide()
 
         self.close()
@@ -84,6 +84,12 @@ class WinWindow(QDialog, Ui_Win):
 
         self.parent_ = parent
         self.is_sound = is_sound
+
+        if self.parent_.mode == 'clock':
+            prize = convert_amount_to_str(MONEYTREE_AMOUNTS[-1] + self.parent_.saved_seconds_prize)
+            self.label.setText(
+                self.label.text().replace(f'заветные ₽{convert_amount_to_str(MONEYTREE_AMOUNTS[-1])}', f'₽{prize}')
+            )
 
         self.buttonBox.accepted.connect(self.restart)
         self.buttonBox.rejected.connect(self.exit)

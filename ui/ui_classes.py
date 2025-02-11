@@ -6,6 +6,8 @@ from PyQt5.QtGui import QColor, QFontDatabase, QPalette
 from PyQt5.QtWidgets import QGraphicsOpacityEffect, QLabel
 
 import ui.font_resources as font_resources  # noqa: F401 | ресурсы шрифтов
+from core.constants import MONEYTREE_AMOUNTS, SAFETY_NETS
+from core.tools import convert_amount_to_str
 
 
 class AnimationLabel(QLabel):
@@ -189,14 +191,20 @@ class Ui_Rules(object):
         sizePolicy.setHeightForWidth(self.text_mt.sizePolicy().hasHeightForWidth())
         self.text_mt.setSizePolicy(sizePolicy)
         self.text_mt.setMaximumSize(QtCore.QSize(420, 266))
+        length_tree = len(MONEYTREE_AMOUNTS) - 1
+        max_prize = convert_amount_to_str(MONEYTREE_AMOUNTS[-1])
+        safety_nets = list(set(SAFETY_NETS))[1:]
+        milestones = [SAFETY_NETS.index(net) for net in safety_nets]
+        safety_nets = [convert_amount_to_str(net) for net in safety_nets]
         self.text_mt.setText(
-            '<html><head/><body><p>Игра проста, как и все лучшие игры!</p><p>Перед вами 15 вопросов и, ответив на '
-            'каждый из них, вы получите виртуальный денежный приз. Если вы хотите выиграть ₽3 000 000, придётся ответить '
-            'на все 15 вопросов!</p><p>Чтобы вы не уходили с пустыми руками, игра предлагает вам две несгораемые суммы — '
-            '₽5 000 на 5 вопросе и ₽100 000 на 10 вопросе. В случае если вы пройдёте эти рубежи, но проиграете,<br>то '
-            'гарантированно получите несгораемую сумму.</p><p>Сложность вопросов с прохождением рубежей в ₽5 000 и '
-            '₽100 000 будет увеличиваться, что потребует от вас больших знаний<br>и смекалки.</p><p><b>Будет непросто, '
-            'но это достойно ₽3 000 000!</b></p></body></html>'
+            f'<html><head/><body><p>Игра проста, как и все лучшие игры!</p><p>Перед вами {length_tree} вопросов и, '
+            f'ответив на каждый из них, вы получите виртуальный денежный приз. Если вы хотите выиграть ₽{max_prize}, '
+            f'придётся ответить на все {length_tree} вопросов!</p><p>Чтобы вы не уходили с пустыми руками, игра '
+            f'предлагает вам две несгораемые суммы — ₽{safety_nets[0]} на {milestones[0]} вопросе и ₽{safety_nets[1]} '
+            f'на {milestones[1]} вопросе. В случае если вы пройдёте эти рубежи, но проиграете,<br>то гарантированно '
+            f'получите несгораемую сумму.</p><p>Сложность вопросов с прохождением рубежей в ₽{safety_nets[0]} и '
+            f'₽{safety_nets[1]} будет увеличиваться, что потребует от вас больших знаний<br>и смекалки.</p><p><b>Будет '
+            f'непросто, но это достойно ₽{max_prize}!</b></p></body></html>'
         )
         self.text_mt.setWordWrap(True)
         self.text_mt.setObjectName('text_mt')
@@ -535,31 +543,6 @@ class Ui_MainWindow(object):
         self.lost_ata.setPixmap(QtGui.QPixmap('images/money tree/ata/lost.png'))
         self.lost_ata.setScaledContents(True)
         self.lost_ata.setObjectName('lost_ata')
-        
-        self.deactivated_change = AnimationLabel(self.moneyTree)
-        self.deactivated_change.setGeometry(QtCore.QRect(0, 0, 411, 480))
-        self.deactivated_change.setText('')
-        self.deactivated_change.setPixmap(QtGui.QPixmap('images/money tree/change/deactivated.png'))
-        self.deactivated_change.setScaledContents(True)
-        self.deactivated_change.setObjectName('deactivated_change')
-        self.deactivated_5050 = AnimationLabel(self.moneyTree)
-        self.deactivated_5050.setGeometry(QtCore.QRect(0, 0, 411, 480))
-        self.deactivated_5050.setText('')
-        self.deactivated_5050.setPixmap(QtGui.QPixmap('images/money tree/5050/deactivated.png'))
-        self.deactivated_5050.setScaledContents(True)
-        self.deactivated_5050.setObjectName('deactivated_5050')
-        self.deactivated_x2 = AnimationLabel(self.moneyTree)
-        self.deactivated_x2.setGeometry(QtCore.QRect(0, 0, 411, 480))
-        self.deactivated_x2.setText('')
-        self.deactivated_x2.setPixmap(QtGui.QPixmap('images/money tree/x2/deactivated.png'))
-        self.deactivated_x2.setScaledContents(True)
-        self.deactivated_x2.setObjectName('deactivated_x2')
-        self.deactivated_ata = AnimationLabel(self.moneyTree)
-        self.deactivated_ata.setGeometry(QtCore.QRect(0, 0, 411, 480))
-        self.deactivated_ata.setText('')
-        self.deactivated_ata.setPixmap(QtGui.QPixmap('images/money tree/ata/deactivated.png'))
-        self.deactivated_ata.setScaledContents(True)
-        self.deactivated_ata.setObjectName('deactivated_ata')
         self.deactivated_home = AnimationLabel(self.moneyTree)
         self.deactivated_home.setGeometry(QtCore.QRect(0, 0, 411, 480))
         self.deactivated_home.setText('')

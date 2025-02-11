@@ -28,7 +28,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.name = name
         self.mode = mode
         self.background_num = randint(1, 7)
-        
+
         self.hovered_answer = ''
         self.hovered_lifeline = ''
 
@@ -68,15 +68,19 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         """Запускает анимацию начала игры и показывает первый вопрос"""
 
         current_background = f'images/backgrounds/{self.background_num}/1-5.jpg'
-        self.scheduler1.schedule(0, self.background_1.setPixmap, QPixmap(current_background))
+
+        if not repeat:
+            self.scheduler1.schedule(0, self.background_1.setPixmap, QPixmap(current_background))
+
+        self.date = datetime.today().strftime('%d.%m.%Y %H:%M')
+        self.scheduler1.schedule(1000 - 200 * repeat, lambda: True)
+
         if repeat:
+            self.scheduler1.schedule(0, self.background_1.setPixmap, QPixmap(current_background))
             self.scheduler1.schedule(0, self.background_2.startFadeOutImage, 200)
             self.scheduler1.schedule(200, self.background_2.hide)
         self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(current_background))
 
-        self.date = datetime.today().strftime('%d.%m.%Y %H:%M')
-
-        self.scheduler1.schedule(1000 - 200 * repeat, lambda: True)
         if self.mode == 'classic':
             self.player2.set_media(decorate_audio('sounds/intro.mp3' if not repeat else 'sounds/new_start.mp3'))
         else:
@@ -257,14 +261,14 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.sound_btn.setChecked(self.is_sound)
             for p in (self.player1, self.player2, self.player3, self.player4):
                 p.setVolume(100 * self.is_sound)
-    
+
     def mouseMoveEvent(self, event: QMouseEvent):
         """Обрабатывает события от движения мыши"""
 
         # print(event.x(), event.y(), self.user_control, self.has_shown)  # HACK God mode
         self.response_to_move(event.x(), event.y())  # делегируем обработку события на response_to_move
         return super().mouseMoveEvent(event)
-    
+
     def response_to_move(self, x: int, y: int):
         if not self.user_control:
             return
@@ -288,7 +292,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.show_selecting_answer('D')
         else:
             self.show_selecting_answer('')
-            
+
         if self.used_lifelines_counter == 4:
             return
 
@@ -302,18 +306,18 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.show_selecting_lifeline('ata')
         else:
             self.show_selecting_lifeline('')
-    
+
     def show_selecting_lifeline(self, ll_type: str):
         if not ll_type and self.hovered_lifeline:
             self.current_state_ll.setPixmap(QPixmap())
             self.hovered_lifeline = ''
             return
-        
+
         if ll_type != self.hovered_lifeline:
             self.current_state_ll.setPixmap(QPixmap(f'images/money tree/{ll_type}/hover.png'))
             self.current_state_ll.startFadeInImage()
             self.hovered_lifeline = ll_type
-    
+
     def show_selecting_answer(self, letter: str):
         if not letter and self.hovered_answer:
             self.current_state_q.setPixmap(QPixmap())
@@ -339,7 +343,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if all((self.user_control, self.mode == 'clock', 521 <= x <= 584, 627 <= y <= 665)):
             self.show_answers()
 
-        if all((self.user_control, 866 <= x <= 916, 100 <= y <= 130, self.used_lifelines_counter < 4)):  # забрать деньги
+        if all(
+            (self.user_control, 866 <= x <= 916, 100 <= y <= 130, self.used_lifelines_counter < 4)
+        ):  # забрать деньги
             self.open_confirm_leave()
 
         if not self.user_control or not self.has_shown and self.mode == 'clock':
@@ -364,7 +370,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         elif 568 <= x <= 915 and 653 <= y <= 693:
             self.choose_answer('D')
         self.scheduler1.start()
-        
+
         if self.used_lifelines_counter == 4:
             return
 
@@ -431,7 +437,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.current_state_q.setPixmap(QPixmap(f'images/question field/chosen_{letter}.png'))
         self.current_state_q.startFadeInImage()
         if self.mode == 'clock':
-            self.player2.stop()
+            self.player2.pause()
             self.qttimer.stop()
         if self.current_question_num not in range(1, 6) or self.is_x2_now:
             self.scheduler1.schedule(0, self.player1.stop)
@@ -480,6 +486,21 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
             self.non_active_answers.append(user_selected_letter)
             self.is_x2_now = False
+
+            if self.mode == 'clock':
+                self.scheduler1.schedule(
+                    3000, self.player3.set_media, decorate_audio('sounds/resume_after_lifeline_clock.mp3')
+                )
+                self.scheduler1.schedule(0, self.player3.play)
+                if self.current_question_num in range(1, 6):
+                    self.scheduler1.schedule(0, self.player1.set_media, decorate_audio('sounds/1-4/bed.mp3'))
+                    self.scheduler1.schedule(8, self.player1.play)
+                    self.scheduler1.schedule(0, self.player2.play)
+                else:
+                    self.scheduler1.schedule(0, self.player1.set_media, decorate_audio(f'sounds/{n}/bed_clock.mp3'))
+                    self.scheduler1.schedule(0, self.player1.setPosition, self.player_seconds_position)
+                    self.scheduler1.schedule(0, self.player1.play)
+                self.scheduler1.schedule(0, self.qttimer.start)
 
             logging.info('Answ incorrect (dd used)')
             self.scheduler1.start()
@@ -556,16 +577,13 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             return
 
         if self.current_question_num in (5, 10):
-            # возвращаем светлый фон
-            # old_num = {5: '1-5', 10: '6-10'}[self.current_question_num]
-            # old_background = f'images/backgrounds/{self.background_num}/{old_num}.jpg'
-            # self.scheduler1.schedule(0, self.background_1.setPixmap, QPixmap(old_background))
-            self.scheduler1.schedule(0, self.background_1.setPixmap, self.background_2.pixmap().copy())
-            self.scheduler1.schedule(0, self.background_2.hide)
-            default_background = f'images/backgrounds/{self.background_num}/1-5.jpg'
-            self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(default_background))
-            self.scheduler1.schedule(0, self.background_2.show)
-            self.scheduler1.schedule(0, self.background_2.startFadeInImage, 1000)
+            if self.mode == 'classic':
+                self.scheduler1.schedule(0, self.background_1.setPixmap, self.background_2.pixmap().copy())
+                self.scheduler1.schedule(0, self.background_2.hide)
+                default_background = f'images/backgrounds/{self.background_num}/1-5.jpg'
+                self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(default_background))
+                self.scheduler1.schedule(0, self.background_2.show)
+                self.scheduler1.schedule(0, self.background_2.startFadeInImage, 1000)
 
             self.scheduler1.schedule(0, self.player1.stop)
             self.clear_all_labels()
@@ -603,11 +621,11 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
             self.scheduler1.schedule(2000, lambda: True)
 
-        if self.current_question_num == 14:  # запускаем смену фона
+        if self.current_question_num == 14 and self.mode == 'classic':  # запускаем смену фона
             new_background = f'images/backgrounds/{self.background_num}/15.jpg'
             self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(new_background))
             self.scheduler1.schedule(0, self.background_2.show)
-            self.scheduler1.schedule(0, self.background_2.startFadeInImage, 1000)
+            self.scheduler1.schedule(0, self.background_2.startFadeInImage, 5000)
 
         if self.current_question_num in range(1, 5) and (len(self.non_active_answers) in (1, 3) or self.is_x2_now):
             # возвращаем предыдущий трек, если было «право на ошибку» в 1-5 вопросах
@@ -625,7 +643,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 new_background = f'images/backgrounds/{self.background_num}/{new_num}.jpg'
                 self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(new_background))
                 self.scheduler1.schedule(0, self.background_2.show)
-                self.scheduler1.schedule(0, self.background_2.startFadeInImage, 1000)
+                self.scheduler1.schedule(
+                    0, self.background_2.startFadeInImage, 1000 + 4000 * (self.current_question_num == 14)
+                )
 
             delays = (1000, 1350, 2500, 1350, 3500)
             index = bisect_right((1, 5, 6, 10, 11), self.current_question_num) - 1
@@ -641,10 +661,6 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.scheduler1.schedule(0, self.show_next_question)
 
         if self.current_question_num in (3, 7, 12):
-            # переносим background_2 на background_1 и скрываем background_2, чтобы плавно сменить фон на следующем вопросе
-            # current_num = {3: '1-5', 7: '6-10', 12: '11-14'}[self.current_question_num]
-            # current_background = f'images/backgrounds/{self.background_num}/{current_num}.jpg'
-            # self.scheduler1.schedule(0, self.background_1.setPixmap, QPixmap(current_background))
             self.scheduler1.schedule(0, self.background_1.setPixmap, self.background_2.pixmap().copy())
             self.scheduler1.schedule(0, self.background_2.hide)
 
@@ -710,7 +726,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         if not self.lifelines[type_ll]:
             return
-        
+
         self.used_lifelines_counter += 1
 
         if type_ll == 'change':  # замена вопроса
@@ -719,7 +735,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             )
             self.scheduler1.schedule(750, self.player3.play)
             if self.mode == 'clock':
-                if self.current_question_num not in range(1, 5):
+                if self.current_question_num not in range(1, 6):
                     self.scheduler1.schedule(0, self.player1.stop)
                 self.scheduler1.schedule(0, self.player2.stop)
                 refill_timer(self, self.current_question_num)
@@ -744,9 +760,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     self.scheduler1.schedule(0, answer_text_field.show)
             else:
                 self.scheduler1.schedule(0, self.double_dip.setPixmap, QPixmap('images/show-button.png'))
-                self.scheduler1.schedule(
-                    0, self.double_dip.show
-                )  # подменяем кнопку по центру на кнопку показа ответа
+                self.scheduler1.schedule(0, self.double_dip.show)  # подменяем кнопку по центру на кнопку показа ответа
                 self.scheduler1.schedule(0, self.double_dip.startFadeInImage)
                 if self.mode == 'clock':
                     self.has_shown = False
@@ -754,11 +768,11 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         elif type_ll == 'x2':  # право на ошибку
             self.is_x2_now = True
-            self.player1.set_media(
-                decorate_audio(f'sounds/double/start{"_clock" if self.mode == "clock" else ""}.mp3')
-            )
+            if self.mode == 'clock' and self.current_question_num not in range(1, 6):
+                self.player_seconds_position = self.player1.position()
+            self.player1.set_media(decorate_audio(f'sounds/double/start{"_clock" if self.mode == "clock" else ""}.mp3'))
             if self.mode == 'clock':
-                self.player2.stop()
+                self.player2.pause()
                 self.qttimer.stop()
             self.player1.play()
 
@@ -776,13 +790,12 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(250, answs[indxs[0]].setText, '')
             self.scheduler1.schedule(0, answs[indxs[1]].setText, '')
             self.non_active_answers += [answ_letters[indxs[0]], answ_letters[indxs[1]]]
-        
+
         elif type_ll == 'ata':
             ...  # TODO: прописать логику Ask the Audience
-        
+
         if self.used_lifelines_counter == 4:
-            for label_suffix in ('change', '5050', 'x2', 'ata', 'home'):
-                self.__getattribute__(f'deactivated_{label_suffix}').show()
+            self.deactivated_home.show()
 
         self.lifelines[type_ll] = False
         self.scheduler1.start()
@@ -793,9 +806,13 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         self.user_control = True
         self.is_x2_now = False
-        self.lifelines = {'change': True, '50:50': True, 'x2': True}
+        self.lifelines = {'change': True, '50:50': True, 'x2': True, 'ata': True}
+        self.used_lifelines_counter = 0
+        self.saved_seconds_prize = 0
+        self.seconds_prize = 0
         for ll_button in (self.lost_change, self.lost_x2, self.lost_5050):
             ll_button.hide()
+        self.deactivated_home.hide()
         self.clear_all_labels()
         self.scheduler1.start()
         for player in (self.player1, self.player2, self.player3, self.player4):
