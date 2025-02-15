@@ -1,3 +1,5 @@
+from PyQt5.QtGui import QIcon
+
 MONEYTREE_AMOUNTS = [
     0,
     500,
@@ -29,3 +31,5 @@ LOOP_POINTS = (
     | {'sounds/1-4/bed.mp3': 0, 'sounds/rules/bed.mp3': 0}
     | {'sounds/double/first_wrong.mp3': 17017}
 )
+
+APP_ICON: QIcon = None  # type: ignore | Will be set in application.py

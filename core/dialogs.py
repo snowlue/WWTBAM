@@ -2,14 +2,14 @@ import logging
 import sys
 from typing import TYPE_CHECKING
 
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QMediaPlayer
 from PyQt5.QtWidgets import QDialog, QMessageBox
 
 if TYPE_CHECKING:
     from core.game import GameWindow
 
-from core.constants import MONEYTREE_AMOUNTS
+from core.constants import APP_ICON, MONEYTREE_AMOUNTS
 from core.tools import (LoopingMediaPlayer, convert_amount_to_str, decorate_audio, empty_timer, hide_timer, show_prize,
                         sql_request)
 from core.widgets import GameRules, ResultsTableWindow
@@ -23,13 +23,13 @@ class StartWindow(QDialog, Ui_StartDialog):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.setWindowIcon(APP_ICON)
         self.ok_button.clicked.connect(self.get_name)
         self.rulebook_button.clicked.connect(self.show_rules)
         self.exit_button.clicked.connect(sys.exit)
         self.msg = QMessageBox()
         self.msg.setWindowTitle('Некорректное имя')
-        self.msg.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.msg.setWindowIcon(APP_ICON)
         self.msg.setIcon(QMessageBox.Warning)
 
     def get_name(self) -> None:
@@ -80,7 +80,7 @@ class WinWindow(QDialog, Ui_Win):
     def __init__(self, parent: 'GameWindow', is_sound: bool):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.setWindowIcon(APP_ICON)
 
         self.parent_ = parent
         self.is_sound = is_sound
@@ -123,7 +123,7 @@ class GameOverWindow(QDialog, Ui_GameOver):
     def __init__(self, parent: 'GameWindow', state: tuple[str, str, bool]):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.setWindowIcon(APP_ICON)
 
         self.parent_ = parent
         self.is_sound = state[2]
@@ -169,7 +169,7 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
     def __init__(self, parent: 'GameWindow', letter: str, is_sound: bool):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.setWindowIcon(APP_ICON)
 
         self.parent_ = parent
         self.correct_answer = letter if self.parent_.has_shown else ''
@@ -237,7 +237,7 @@ class ConfirmAgainWindow(QDialog, Ui_ConfirmAgain):
     def __init__(self, parent: 'GameWindow'):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.setWindowIcon(APP_ICON)
         self.parent_ = parent
         self.buttonBox.accepted.connect(self.restart)
         self.buttonBox.rejected.connect(self.close)
@@ -256,7 +256,7 @@ class ConfirmCloseWindow(QDialog, Ui_ConfirmExit):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.setWindowIcon(APP_ICON)
         self.buttonBox.accepted.connect(self.exit)
         self.buttonBox.rejected.connect(self.close)
 
@@ -273,7 +273,7 @@ class ConfirmClearAll(QDialog, Ui_ConfirmClearAll):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.setWindowIcon(APP_ICON)
         self.buttonBox.accepted.connect(self.delete_all_data)
         self.buttonBox.rejected.connect(self.close)
 

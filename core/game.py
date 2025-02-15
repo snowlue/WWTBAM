@@ -5,10 +5,10 @@ from datetime import datetime
 from random import randint, shuffle
 
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QIcon, QKeyEvent, QMouseEvent, QPixmap
+from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QMainWindow
 
-from core.constants import MONEYTREE_AMOUNTS, SAFETY_NETS, SECONDS_FOR_QUESTION, SECONDS_PRICE
+from core.constants import APP_ICON, MONEYTREE_AMOUNTS, SAFETY_NETS, SECONDS_FOR_QUESTION, SECONDS_PRICE
 from core.dialogs import (ConfirmAgainWindow, ConfirmClearAll, ConfirmCloseWindow, ConfirmLeaveWindow, GameOverWindow,
                           WinWindow)
 from core.tools import (AnimationScheduler, LoopingMediaPlayer, convert_amount_to_str, decorate_audio, empty_timer,
@@ -21,9 +21,10 @@ class GameWindow(QMainWindow, Ui_MainWindow):
     """Окно, отображающее основной игровой контент"""
 
     def __init__(self, name: str, mode: str):
+        
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.setWindowIcon(APP_ICON)
         self.user_control = False  # реагирует ли игра на действия игрока
         self.name = name
         self.mode = mode
@@ -451,9 +452,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         # находим индекс, куда попадает self.current_question_num
         index = bisect_right((1, 5, 6, 10, 11, 13, 15), self.current_question_num) - 1
         delay = delays[index]
-        if len(self.non_active_answers) == 3:
-            delay = 400
-        elif len(self.non_active_answers) == 2 and self.is_x2_now:
+        if len(self.non_active_answers) == 3 or len(self.non_active_answers) == 2 and self.is_x2_now:
             delay = 400
         self.scheduler1.schedule(delay, lambda: True)
         if self.current_question_num == 5:
@@ -703,23 +702,23 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.double_dip.setPixmap, QPixmap('images/show-button.png'))
             self.scheduler1.schedule(0, self.double_dip.show)
             self.scheduler1.schedule(0, self.double_dip.startFadeInImage)
+            return
+    
+        if self.current_question_num not in range(1, 5):
+            # для всех вопросов с 6-го свой бэкграунд-трек
+            self.scheduler1.schedule(
+                0, self.player1.set_media, decorate_audio(f'sounds/{self.current_question_num + 1}/bed.mp3')
+            )
+            self.scheduler1.schedule(0, self.player1.play)
 
-        else:
-            if self.current_question_num not in range(1, 5):
-                # для всех вопросов с 6-го свой бэкграунд-трек
-                self.scheduler1.schedule(
-                    0, self.player1.set_media, decorate_audio(f'sounds/{self.current_question_num + 1}/bed.mp3')
-                )
-                self.scheduler1.schedule(0, self.player1.play)
-
-            if self.current_question_num > 10:
-                self.scheduler1.schedule(1000, lambda: True)
-            self.scheduler1.schedule(0, self.update_question_field)
-            self.scheduler1.schedule(0, self.question.startFadeIn)
-            for answer_text_field in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
-                self.scheduler1.schedule(100, answer_text_field.startFadeIn)
-                self.scheduler1.schedule(0, answer_text_field.show)
-            self.scheduler1.schedule(1000, self.player2.stop)
+        if self.current_question_num > 10:
+            self.scheduler1.schedule(1000, lambda: True)
+        self.scheduler1.schedule(0, self.update_question_field)
+        self.scheduler1.schedule(0, self.question.startFadeIn)
+        for answer_text_field in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
+            self.scheduler1.schedule(100, answer_text_field.startFadeIn)
+            self.scheduler1.schedule(0, answer_text_field.show)
+        self.scheduler1.schedule(1000, self.player2.stop)
 
     def use_lifeline(self, type_ll: str):
         """Активирует подсказку и запускает соответствующие анимации и звуки"""

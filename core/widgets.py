@@ -3,10 +3,11 @@ import sys
 from typing import TYPE_CHECKING
 
 from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QCloseEvent, QIcon, QMouseEvent
+from PyQt5.QtGui import QCloseEvent, QMouseEvent
 from PyQt5.QtMultimedia import QMediaPlayer
 from PyQt5.QtWidgets import QWidget
 
+from core.constants import APP_ICON
 from core.tools import decorate_audio, make_table, sql_request
 from ui import Ui_About, Ui_DeleteResult, Ui_ResultsTable, Ui_Rules
 
@@ -23,7 +24,7 @@ class GameRules(QWidget, Ui_Rules):
         self.player3 = QMediaPlayer()  # для звуков подсказок
         self.player3.setVolume(70)
         self.setupUi(self)
-        self.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.setWindowIcon(APP_ICON)
         self.setMouseTracking(True)
         self.grabMouse()
         self.state = ''
@@ -68,7 +69,7 @@ class ResultsTableWindow(QWidget, Ui_ResultsTable):
     def __init__(self, close_the_game: bool = False):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.setWindowIcon(APP_ICON)
 
         results = sql_request('SELECT * from results')[1]
         results = sorted(results, key=lambda x: int(str(x[2]).replace(' ', '')), reverse=True)  # сортируем по выигрышу
@@ -86,7 +87,7 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.setWindowIcon(APP_ICON)
         self.refresh_table()
         self.deleteButton.clicked.connect(self.delete_action)
 
@@ -112,7 +113,7 @@ class DeleteResultWindow(QWidget, Ui_DeleteResult):
         result_date = list(filter(lambda x: x[0] == id_result, self.results))[0][1]
         result = sql_request(f'DELETE FROM results WHERE date = "{result_date}"')[0]
         if 'ERROR' in result:
-            raise Exception(result)
+            raise IndexError(result)
         else:
             logging.info('R%d delete', id_result)
         self.refresh_table()
@@ -124,7 +125,7 @@ class AboutWindow(QWidget, Ui_About):
     def __init__(self, parent: 'GameWindow', is_sound: bool):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon('images/app_icon.ico'))
+        self.setWindowIcon(APP_ICON)
         self.enText.hide()
         self.parent_ = parent
         self.is_sound = is_sound

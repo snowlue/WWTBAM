@@ -56,7 +56,7 @@ class AnimationScheduler(QObject):
         # Найдём все события, время которых наступило
         due_events = [event for event in self._events if event[0] <= elapsed]
         for event in due_events:
-            delay, func, args, kwargs = event
+            _, func, args, kwargs = event
             func(*args, **kwargs)
             self._events.remove(event)
 
