@@ -28,7 +28,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.user_control = False  # реагирует ли игра на действия игрока
         self.name = name
         self.mode = mode
-        self.background_num = randint(1, 7)
+        self.background_num = randint(1, 9)
 
         self.hovered_answer = ''
         self.hovered_lifeline = ''
@@ -73,7 +73,11 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if not repeat:
             self.scheduler1.schedule(0, self.background_1.setPixmap, QPixmap(current_background))
 
-        self.date = datetime.today().strftime('%d.%m.%Y %H:%M')
+        date_raw = datetime.today()
+        self.date = date_raw.strftime('%d.%m.%Y %H:%M')
+        if date_raw.month == 12 and date_raw.day >= 10 or date_raw.month == 1 and date_raw.day <= 20:
+            self.layout_t.setPixmap(QPixmap('images/money tree/layout_christmas.png'))
+
         self.scheduler1.schedule(800, lambda: True)
 
         if repeat:
@@ -256,15 +260,15 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if event.key() in (Qt.Key.Key_S, 39, 1067, 1069):  # S, Ы, ', Э
             self.response_to_event(568, 653)  # эмулируем выбор ответа D
         if event.key() == Qt.Key.Key_1:
-            self.response_to_event(766, 66)  # эмулируем выбор «замены вопроса»
+            self.response_to_event(766, 43)  # эмулируем выбор «замены вопроса»
         if event.key() == Qt.Key.Key_2:
-            self.response_to_event(835, 66)  # эмулируем выбор 50:50
+            self.response_to_event(835, 43)  # эмулируем выбор 50:50
         if event.key() == Qt.Key.Key_3:
-            self.response_to_event(902, 66)  # эмулируем выбор «права на ошибку»
+            self.response_to_event(902, 43)  # эмулируем выбор «права на ошибку»
         if event.key() == Qt.Key.Key_4:
-            self.response_to_event(800, 100)  # эмулируем выбор «помощи зала»
+            self.response_to_event(800, 77)  # эмулируем выбор «помощи зала»
         if event.key() == Qt.Key.Key_5:
-            self.response_to_event(866, 100)  # эмулируем выбор «забрать деньги»
+            self.response_to_event(866, 77)  # эмулируем выбор «забрать деньги»
         if event.key() in (Qt.Key.Key_M, 1068):  # M, Ь
             self.is_sound = not self.is_sound  # переключаем звук
             self.sound_btn.setChecked(self.is_sound)
@@ -282,7 +286,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if not self.user_control:
             return
 
-        if all((866 <= x <= 916, 100 <= y <= 130, self.used_lifelines_counter < 4)):
+        if all((866 <= x <= 916, 77 <= y <= 107, self.used_lifelines_counter < 4)):
             self.show_selecting_lifeline('home')
             return
         elif not self.has_shown:
@@ -305,13 +309,13 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if self.used_lifelines_counter == 4:
             return
 
-        if 766 <= x <= 816 and 66 <= y <= 96:
+        if 766 <= x <= 816 and 43 <= y <= 73:
             self.show_selecting_lifeline('change')
-        elif 835 <= x <= 885 and 66 <= y <= 96:
+        elif 835 <= x <= 885 and 43 <= y <= 73:
             self.show_selecting_lifeline('5050')
-        elif 902 <= x <= 952 and 66 <= y <= 96:
+        elif 902 <= x <= 952 and 43 <= y <= 63:
             self.show_selecting_lifeline('x2')
-        elif 800 <= x <= 850 and 100 <= y <= 130:
+        elif 800 <= x <= 850 and 77 <= y <= 107:
             self.show_selecting_lifeline('ata')
         else:
             self.show_selecting_lifeline('')
@@ -353,7 +357,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.show_answers()
 
         if all(
-            (self.user_control, 866 <= x <= 916, 100 <= y <= 130, self.used_lifelines_counter < 4)
+            (self.user_control, 866 <= x <= 916, 77 <= y <= 107, self.used_lifelines_counter < 4)
         ):  # забрать деньги
             self.open_confirm_leave()
 
@@ -383,19 +387,19 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if self.used_lifelines_counter == 4:
             return
 
-        if 766 <= x <= 816 and 66 <= y <= 96:
+        if 766 <= x <= 816 and 43 <= y <= 73:
             self.show_lost_lifeline(self.lost_change)
             self.use_lifeline('change')
-        elif 835 <= x <= 885 and 66 <= y <= 96:
+        elif 835 <= x <= 885 and 43 <= y <= 73:
             self.show_lost_lifeline(self.lost_5050)
             self.use_lifeline('50:50')
-        elif 902 <= x <= 952 and 66 <= y <= 96:
+        elif 902 <= x <= 952 and 43 <= y <= 73:
             self.show_lost_lifeline(self.lost_x2)
             if self.lifelines['x2']:
                 self.double_dip.show()
                 self.double_dip.startFadeInImage()
             self.use_lifeline('x2')
-        elif 800 <= x <= 850 and 100 <= y <= 130:
+        elif 800 <= x <= 850 and 77 <= y <= 107:
             self.show_lost_lifeline(self.lost_ata)
             self.use_lifeline('ata')
 
@@ -406,7 +410,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         text = self.questions[self.current_question_num - 1][int(changer)][0]
         self.answers = list(map(str, self.questions[self.current_question_num - 1][int(changer)][2]))
         self.correct_answer = str(self.questions[self.current_question_num - 1][int(changer)][1])
-        print(self.correct_answer)  # HACK God mode
+        # print(self.correct_answer)  # HACK God mode
         self.got_amount = MONEYTREE_AMOUNTS[self.current_question_num - 1]
 
         self.question.setText(text)
