@@ -560,7 +560,7 @@ class Ui_MainWindow(object):
         self.background_1.setGeometry(QtCore.QRect(0, 0, 1100, 680))
         self.background_1.setText('')
         self.background_1.setScaledContents(True)
-        self.background_1.setObjectName('background')
+        self.background_1.setObjectName('background_1')
 
         self.background_2 = AnimationLabel(self.centralwidget)
         self.background_2.setGeometry(QtCore.QRect(0, 0, 1100, 680))
@@ -721,6 +721,22 @@ class Ui_MainWindow(object):
         self.ata_d_score.setScaledContents(True)
 
         self.ata_d.addWidget(self.ata_d_score)
+        
+        big_logo_position = QtCore.QRect(227, 98, 300, 300)
+        self.big_logo_1 = AnimationLabel(self.centralwidget)
+        self.big_logo_1.setObjectName(u"big_logo_1")
+        self.big_logo_1.setGeometry(big_logo_position)
+        self.big_logo_1.setPixmap(QtGui.QPixmap(u"images/logo/intro.png"))
+        self.big_logo_1.setScaledContents(True)
+        self.big_logo_1.hide()
+
+        self.big_logo_2 = AnimationLabel(self.centralwidget)
+        self.big_logo_2.setObjectName(u"big_logo_2")
+        self.big_logo_2.setGeometry(big_logo_position)
+        # self.big_logo_2.setPixmap(QtGui.QPixmap(u"images/logo/1-5.png"))
+        self.big_logo_2.setScaledContents(True)
+        self.big_logo_2.hide()
+        
 
         self.layout_q.raise_()
         self.amount_q.raise_()
@@ -743,6 +759,8 @@ class Ui_MainWindow(object):
         self.layoutWidget.raise_()
         self.timer_view.raise_()
         self.timer_text.raise_()
+        self.big_logo_1.raise_()
+        self.big_logo_2.raise_()
         self.ata_layout.raise_()
         self.ata_a_prcnt.raise_()
         self.ata_b_prcnt.raise_()

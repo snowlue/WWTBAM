@@ -74,13 +74,15 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.background_1.setPixmap, QPixmap(current_background))
 
         self.date = datetime.today().strftime('%d.%m.%Y %H:%M')
-        self.scheduler1.schedule(1000 - 200 * repeat, lambda: True)
+        self.scheduler1.schedule(800, lambda: True)
 
         if repeat:
+            self.scheduler1.schedule(0, self.big_logo_1.setPixmap, QPixmap('images/logo/intro.png'))
+            self.scheduler1.schedule(0, self.big_logo_2.startFadeOutImage, 200)
             self.scheduler1.schedule(0, self.background_1.setPixmap, QPixmap(current_background))
             self.scheduler1.schedule(0, self.background_2.startFadeOutImage, 200)
-            self.scheduler1.schedule(200, self.background_2.hide)
-        self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(current_background))
+        self.scheduler1.schedule(200, self.big_logo_2.setPixmap, QPixmap('images/logo/1-5.png'))
+        self.scheduler1.schedule(200, self.background_2.setPixmap, QPixmap(current_background))
 
         if self.mode == 'classic':
             self.player2.set_media(decorate_audio('sounds/intro.mp3' if not repeat else 'sounds/new_start.mp3'))
@@ -95,6 +97,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if repeat:
             self.double_dip.hide()
 
+        if not repeat:
+            self.scheduler1.schedule(0, self.big_logo_1.show)
+            self.scheduler1.schedule(0, self.big_logo_1.startFadeInImage, 1000)
         self.scheduler1.schedule(0, self.player2.play)
 
         self.questions = get_questions()
@@ -126,6 +131,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.current_state_q.setPixmap,
                 QPixmap(f'images/question field/chosen_{i}.png'),
             )
+            self.scheduler1.schedule(0, self.current_state_q.startFadeInImage)
 
         self.scheduler1.schedule(
             450 - 80 * (repeat and self.mode == 'clock'), self.current_state_q.setPixmap, QPixmap()
@@ -140,6 +146,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(500, self.update_question_field)
             self.scheduler1.schedule(0, self.question.startFadeIn)
             self.scheduler1.schedule(0, self.show_answers)
+            self.scheduler1.schedule(0, self.big_logo_2.show)
+            self.scheduler1.schedule(0, self.big_logo_2.startFadeInImage, 1000)
 
         n = '1-4' if self.current_question_num in range(1, 5) else self.current_question_num
         self.player1.set_media(decorate_audio(f'sounds/{n}/bed.mp3'))
@@ -398,7 +406,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         text = self.questions[self.current_question_num - 1][int(changer)][0]
         self.answers = list(map(str, self.questions[self.current_question_num - 1][int(changer)][2]))
         self.correct_answer = str(self.questions[self.current_question_num - 1][int(changer)][1])
-        # print(self.correct_answer)  # HACK God mode
+        print(self.correct_answer)  # HACK God mode
         self.got_amount = MONEYTREE_AMOUNTS[self.current_question_num - 1]
 
         self.question.setText(text)
@@ -510,10 +518,15 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.player1.play)
             self.scheduler1.schedule(0, self.player2.stop)
             self.scheduler1.schedule(0, self.player4.stop)
+            
+            # ставим проигрышный логотип
+            self.scheduler1.schedule(0, self.big_logo_1.setPixmap, self.big_logo_2.pixmap().copy())
+            self.scheduler1.schedule(0, self.big_logo_2.setPixmap, QPixmap('images/logo/wrong.png'))
+            self.scheduler1.schedule(0, self.big_logo_2.show)
+            self.scheduler1.schedule(0, self.big_logo_2.startFadeInImage, 1000)
 
             # ставим проигрышный фон
             self.scheduler1.schedule(0, self.background_1.setPixmap, self.background_2.pixmap().copy())
-            self.scheduler1.schedule(0, self.background_2.hide)
             default_background = f'images/backgrounds/{self.background_num}/wrong.jpg'
             self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(default_background))
             self.scheduler1.schedule(0, self.background_2.show)
@@ -551,10 +564,15 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.show_correct_answer(correct_answer_letter)
 
         if self.current_question_num == 15:  # если ответ на последний вопрос был правильным
+            # ставим логотип победы
+            self.scheduler1.schedule(0, self.big_logo_1.setPixmap, QPixmap('images/logo/15.png'))
+            self.scheduler1.schedule(0, self.big_logo_2.setPixmap, QPixmap('images/logo/millionaire.png'))
+            self.scheduler1.schedule(0, self.big_logo_2.show)
+            self.scheduler1.schedule(0, self.big_logo_2.startFadeInImage, 1000)
+            
             # возвращаем светлый фон
             old_background = f'images/backgrounds/{self.background_num}/15.jpg'
             self.scheduler1.schedule(0, self.background_1.setPixmap, QPixmap(old_background))
-            self.scheduler1.schedule(0, self.background_2.hide)
             default_background = f'images/backgrounds/{self.background_num}/1-5.jpg'
             self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(default_background))
             self.scheduler1.schedule(0, self.background_2.show)
@@ -577,8 +595,14 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         if self.current_question_num in (5, 10):
             if self.mode == 'classic':
+                # возвращаем интро-логотип
+                self.scheduler1.schedule(0, self.big_logo_1.setPixmap, self.big_logo_2.pixmap().copy())
+                self.scheduler1.schedule(0, self.big_logo_2.setPixmap, QPixmap('images/logo/intro.png'))
+                self.scheduler1.schedule(0, self.big_logo_2.show)
+                self.scheduler1.schedule(0, self.big_logo_2.startFadeInImage, 1000)
+                
+                # возвращаем светлый фон
                 self.scheduler1.schedule(0, self.background_1.setPixmap, self.background_2.pixmap().copy())
-                self.scheduler1.schedule(0, self.background_2.hide)
                 default_background = f'images/backgrounds/{self.background_num}/1-5.jpg'
                 self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(default_background))
                 self.scheduler1.schedule(0, self.background_2.show)
@@ -605,26 +629,29 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.scheduler1.schedule(30, self.layout_q.setPixmap, QPixmap(f'animations/sum/{i}.png'))
             self.scheduler1.schedule(0, self.layout_q.setPixmap, QPixmap('images/question field/layout.png'))
 
-            if self.mode == 'classic':
-                self.scheduler1.schedule(0, self.background_2.hide)
 
             logging.info('%d got', self.current_question_num)
 
-        if self.mode == 'classic':
-            if self.current_question_num in (5, 10):  # запускаем смену фона
-                new_num = {5: '6-10', 10: '11-14', 14: '15'}[self.current_question_num]
-                new_background = f'images/backgrounds/{self.background_num}/{new_num}.jpg'
-                self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(new_background))
-                self.scheduler1.schedule(0, self.background_2.show)
-                self.scheduler1.schedule(0, self.background_2.startFadeInImage, 1000)
+        new_num = {5: '6-10', 10: '11-14', 14: '15'}.get(self.current_question_num)
+        if new_num and self.mode == 'classic':
+            self.scheduler1.schedule(2000 * (new_num == '15'), lambda: True)
 
-            self.scheduler1.schedule(2000, lambda: True)
-
-        if self.current_question_num == 14 and self.mode == 'classic':  # запускаем смену фона
-            new_background = f'images/backgrounds/{self.background_num}/15.jpg'
+            # запускаем смену фона
+            new_background = f'images/backgrounds/{self.background_num}/{new_num}.jpg'
             self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(new_background))
             self.scheduler1.schedule(0, self.background_2.show)
-            self.scheduler1.schedule(0, self.background_2.startFadeInImage, 5000)
+            self.scheduler1.schedule(0, self.background_2.startFadeInImage, 1000 + 4000 * (new_num == '15'))
+            
+            # запускаем смену логотипа
+            old_logo = 'images/logo/11-14.png' if new_num == '15' else 'images/logo/intro.png'
+            self.scheduler1.schedule(0, self.big_logo_1.setPixmap, QPixmap(old_logo))
+            self.scheduler1.schedule(0, self.big_logo_2.setPixmap, QPixmap(f'images/logo/{new_num}.png'))
+            self.scheduler1.schedule(0, self.big_logo_2.show)
+            self.scheduler1.schedule(0, self.big_logo_2.startFadeInImage, 1000 + 4000 * (new_num == '15'))
+
+            self.scheduler1.schedule(2000 * (new_num != '15'), lambda: True)
+        elif self.mode == 'classic':
+            self.scheduler1.schedule(2000, lambda: True)
 
         if self.current_question_num in range(1, 5) and (len(self.non_active_answers) in (1, 3) or self.is_x2_now):
             # возвращаем предыдущий трек, если было «право на ошибку» в 1-5 вопросах
@@ -637,14 +664,20 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             else:
                 self.player3.set_media(decorate_audio('sounds/question_show_clock.mp3'))
 
-            if self.current_question_num in (5, 10, 14):  # запускаем смену фона
-                new_num = {5: '6-10', 10: '11-14', 14: '15'}[self.current_question_num]
+            new_num = {5: '6-10', 10: '11-14', 14: '15'}.get(self.current_question_num)
+            if new_num:  # запускаем смену фона и логотипа
                 new_background = f'images/backgrounds/{self.background_num}/{new_num}.jpg'
                 self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(new_background))
                 self.scheduler1.schedule(0, self.background_2.show)
                 self.scheduler1.schedule(
-                    0, self.background_2.startFadeInImage, 1000 + 4000 * (self.current_question_num == 14)
+                    0, self.background_2.startFadeInImage, 1000 + 4000 * (new_num == '15')
                 )
+                
+                old_logo = 'images/logo/11-14.png' if new_num == '15' else 'images/logo/intro.png'
+                self.scheduler1.schedule(0, self.big_logo_1.setPixmap, QPixmap(old_logo))
+                self.scheduler1.schedule(0, self.big_logo_2.setPixmap, QPixmap(f'images/logo/{new_num}.png'))
+                self.scheduler1.schedule(0, self.big_logo_2.show)
+                self.scheduler1.schedule(0, self.big_logo_2.startFadeInImage, 1000 + 4000 * (new_num == '15'))
 
             delays = (1000, 1350, 2500, 1350, 3500)
             index = bisect_right((1, 5, 6, 10, 11), self.current_question_num) - 1

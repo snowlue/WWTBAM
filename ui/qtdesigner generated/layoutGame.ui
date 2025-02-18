@@ -1449,7 +1449,7 @@
      <rect>
       <x>677</x>
       <y>49</y>
-      <width>30</width>
+      <width>31</width>
       <height>182</height>
      </rect>
     </property>
@@ -1500,6 +1500,28 @@
      </item>
     </layout>
    </widget>
+   <widget class="QLabel" name="big_logo">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>227</x>
+      <y>98</y>
+      <width>300</width>
+      <height>300</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../../images/logo/intro.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
    <zorder>background</zorder>
    <zorder>questionField</zorder>
    <zorder>layoutWidget</zorder>
@@ -1514,6 +1536,7 @@
    <zorder>verticalLayoutWidget_2</zorder>
    <zorder>verticalLayoutWidget_3</zorder>
    <zorder>verticalLayoutWidget_4</zorder>
+   <zorder>big_logo</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
