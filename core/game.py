@@ -9,10 +9,27 @@ from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QMainWindow
 
 from core.constants import APP_ICON, MONEYTREE_AMOUNTS, SAFETY_NETS, SECONDS_FOR_QUESTION, SECONDS_PRICE
-from core.dialogs import (ConfirmAgainWindow, ConfirmClearAll, ConfirmCloseWindow, ConfirmLeaveWindow, GameOverWindow,
-                          WinWindow)
-from core.tools import (AnimationScheduler, LoopingMediaPlayer, convert_amount_to_str, decorate_audio, empty_timer,
-                        get_questions, hide_timer, refill_timer, show_prize, show_timer, sql_request)
+from core.dialogs import (
+    ConfirmAgainWindow,
+    ConfirmClearAll,
+    ConfirmCloseWindow,
+    ConfirmLeaveWindow,
+    GameOverWindow,
+    WinWindow,
+)
+from core.tools import (
+    AnimationScheduler,
+    LoopingMediaPlayer,
+    convert_amount_to_str,
+    decorate_audio,
+    empty_timer,
+    get_questions,
+    hide_timer,
+    refill_timer,
+    show_prize,
+    show_timer,
+    sql_request,
+)
 from core.widgets import AboutWindow, DeleteResultWindow, ResultsTableWindow
 from ui import AnimationLabel, Ui_MainWindow
 
@@ -21,7 +38,6 @@ class GameWindow(QMainWindow, Ui_MainWindow):
     """Окно, отображающее основной игровой контент"""
 
     def __init__(self, name: str, mode: str):
-        
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(APP_ICON)
@@ -192,6 +208,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler2.schedule(0, self.double_dip.hide)
 
             self.qttimer = QTimer(self)
+            # noinspection PyUnresolvedReferences
             self.qttimer.timeout.connect(self.merge_timer)
             self.qttimer.start(1000)
 
@@ -358,9 +375,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if all((self.user_control, self.mode == 'clock', 521 <= x <= 584, 627 <= y <= 665)):
             self.show_answers()
 
-        if all(
-            (self.user_control, 866 <= x <= 916, 77 <= y <= 107, self.used_lifelines_counter < 4)
-        ):  # забрать деньги
+        if all((self.user_control, 866 <= x <= 916, 77 <= y <= 107, self.used_lifelines_counter < 4)):  # забрать деньги
             self.open_confirm_leave()
 
         if not self.user_control or not self.has_shown and self.mode == 'clock':
@@ -421,6 +436,15 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             answer_text_field.setText(self.answers[i])
         logging.info('Q%d set', self.current_question_num)
 
+    def clear_question_field(self):
+        """Задаёт пустые pixmap'ы и делает фейд-аут текстовых блоков"""
+        for state_label in (self.current_state_q, self.current_state_q_2, self.current_state_q_3):
+            self.scheduler1.schedule(0, state_label.setPixmap, QPixmap())
+
+        self.scheduler1.schedule(0, self.question.startFadeOut)
+        for label in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
+            self.scheduler1.schedule(0, label.startFadeOut)
+
     def clear_all_labels(self):
         """Подчищает все слои состояния и текстовые блоки"""
 
@@ -428,21 +452,41 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, state_label.startFadeOutImage)
 
         self.scheduler1.schedule(100, lambda: True)
-        for state_label in (self.current_state_q, self.current_state_q_2, self.current_state_q_3):
-            self.scheduler1.schedule(0, state_label.setPixmap, QPixmap())
-
-        self.scheduler1.schedule(0, self.question.startFadeOut)
-        for label in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
-            self.scheduler1.schedule(0, label.startFadeOut)
+        self.clear_question_field()
         self.scheduler1.schedule(100, lambda: True)
 
         for label in (self.question, self.answer_A, self.answer_B, self.answer_C, self.answer_D):
             self.scheduler1.schedule(0, label.setText, '')
 
-    def show_lost_lifeline(self, ll_button):
+    @staticmethod
+    def show_lost_lifeline(ll_button):
         """Показывает анимацию потери подсказки"""
         ll_button.show()
         ll_button.startFadeInImage()
+
+    def update_and_animate_background_and_logo(self, logo_type: str, bg_type: str, slow_mode: bool = False):
+        """Обновляет фон и логотип с анимацией"""
+        # обновляем логотип
+        self.scheduler1.schedule(0, self.big_logo_1.setPixmap, self.big_logo_2.pixmap().copy())
+        self.scheduler1.schedule(0, self.big_logo_2.setPixmap, QPixmap(f'images/logo/{logo_type}.png'))
+        self.scheduler1.schedule(0, self.big_logo_2.show)
+        self.scheduler1.schedule(0, self.big_logo_2.startFadeInImage, 1000 + 4000 * slow_mode)
+        # обновляем фон
+        self.scheduler1.schedule(0, self.background_1.setPixmap, self.background_2.pixmap().copy())
+        default_background = f'images/backgrounds/{self.background_num}/{bg_type}.jpg'
+        self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(default_background))
+        self.scheduler1.schedule(0, self.background_2.show)
+        self.scheduler1.schedule(0, self.background_2.startFadeInImage, 1000 + 4000 * slow_mode)
+
+    def hide_timer_and_show_prize(self):
+        """Опустошает и скрывает таймер, а затем показывает текущий выигрыш"""
+        self.clear_all_labels()
+        if self.mode == 'clock':
+            self.saved_seconds_prize += self.seconds_prize
+            empty_timer(self)
+            hide_timer(self)
+        prize = convert_amount_to_str(MONEYTREE_AMOUNTS[self.current_question_num] + self.saved_seconds_prize)
+        show_prize(self, prize)
 
     def choose_answer(self, letter: str):
         """Обрабатывает выбор ответа игроком и запрашивает проверку ответа"""
@@ -524,20 +568,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.player1.play)
             self.scheduler1.schedule(0, self.player2.stop)
             self.scheduler1.schedule(0, self.player4.stop)
-            
-            # ставим проигрышный логотип
-            self.scheduler1.schedule(0, self.big_logo_1.setPixmap, self.big_logo_2.pixmap().copy())
-            self.scheduler1.schedule(0, self.big_logo_2.setPixmap, QPixmap('images/logo/wrong.png'))
-            self.scheduler1.schedule(0, self.big_logo_2.show)
-            self.scheduler1.schedule(0, self.big_logo_2.startFadeInImage, 1000)
 
-            # ставим проигрышный фон
-            self.scheduler1.schedule(0, self.background_1.setPixmap, self.background_2.pixmap().copy())
-            default_background = f'images/backgrounds/{self.background_num}/wrong.jpg'
-            self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(default_background))
-            self.scheduler1.schedule(0, self.background_2.show)
-            self.scheduler1.schedule(0, self.background_2.startFadeInImage, 1000)
-
+            self.update_and_animate_background_and_logo('wrong', 'wrong')
             self.show_correct_answer(correct_answer_letter)
 
             result_game = convert_amount_to_str(SAFETY_NETS[self.current_question_num - 1] + self.saved_seconds_prize)
@@ -575,7 +607,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.big_logo_2.setPixmap, QPixmap('images/logo/millionaire.png'))
             self.scheduler1.schedule(0, self.big_logo_2.show)
             self.scheduler1.schedule(0, self.big_logo_2.startFadeInImage, 1000)
-            
+
             # возвращаем светлый фон
             old_background = f'images/backgrounds/{self.background_num}/15.jpg'
             self.scheduler1.schedule(0, self.background_1.setPixmap, QPixmap(old_background))
@@ -585,15 +617,10 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.background_2.startFadeInImage, 1000)
 
             self.scheduler1.schedule(1000, lambda: True)
-            self.clear_all_labels()
-            if self.mode == 'clock':
-                self.saved_seconds_prize += self.seconds_prize
-                empty_timer(self)
-                hide_timer(self)
-            prize = convert_amount_to_str(MONEYTREE_AMOUNTS[self.current_question_num] + self.saved_seconds_prize)
-            show_prize(self, prize)
+            self.hide_timer_and_show_prize()
             self.scheduler1.schedule(1000, self.show_win)
 
+            prize = convert_amount_to_str(MONEYTREE_AMOUNTS[self.current_question_num] + self.saved_seconds_prize)
             sql_request(f'INSERT INTO results (name, result, date) VALUES ("{self.name}", "{prize}", "{self.date}")')
 
             self.scheduler1.start()
@@ -602,26 +629,10 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if self.current_question_num in (5, 10):
             if self.mode == 'classic':
                 # возвращаем интро-логотип
-                self.scheduler1.schedule(0, self.big_logo_1.setPixmap, self.big_logo_2.pixmap().copy())
-                self.scheduler1.schedule(0, self.big_logo_2.setPixmap, QPixmap('images/logo/intro.png'))
-                self.scheduler1.schedule(0, self.big_logo_2.show)
-                self.scheduler1.schedule(0, self.big_logo_2.startFadeInImage, 1000)
-                
-                # возвращаем светлый фон
-                self.scheduler1.schedule(0, self.background_1.setPixmap, self.background_2.pixmap().copy())
-                default_background = f'images/backgrounds/{self.background_num}/1-5.jpg'
-                self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(default_background))
-                self.scheduler1.schedule(0, self.background_2.show)
-                self.scheduler1.schedule(0, self.background_2.startFadeInImage, 1000)
+                self.update_and_animate_background_and_logo('intro', '1-5')
 
             self.scheduler1.schedule(0, self.player1.stop)
-            self.clear_all_labels()
-            if self.mode == 'clock':
-                self.saved_seconds_prize += self.seconds_prize
-                empty_timer(self)
-                hide_timer(self)
-            prize = convert_amount_to_str(MONEYTREE_AMOUNTS[self.current_question_num] + self.saved_seconds_prize)
-            show_prize(self, prize)
+            self.hide_timer_and_show_prize()
             self.scheduler1.schedule(0, self.layout_q.setPixmap, QPixmap('images/sum/amount.png'))
             self.scheduler1.schedule(3700, lambda: True)
             self.scheduler1.schedule(750 + 1000 * (self.current_question_num == 10), self.amount_q.startFadeOut)
@@ -635,26 +646,14 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.scheduler1.schedule(30, self.layout_q.setPixmap, QPixmap(f'animations/sum/{i}.png'))
             self.scheduler1.schedule(0, self.layout_q.setPixmap, QPixmap('images/question field/layout.png'))
 
-
             logging.info('%d got', self.current_question_num)
 
         new_num = {5: '6-10', 10: '11-14', 14: '15'}.get(self.current_question_num)
         if new_num and self.mode == 'classic':
             self.scheduler1.schedule(2000 * (new_num == '15'), lambda: True)
-
-            # запускаем смену фона
-            new_background = f'images/backgrounds/{self.background_num}/{new_num}.jpg'
-            self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(new_background))
-            self.scheduler1.schedule(0, self.background_2.show)
-            self.scheduler1.schedule(0, self.background_2.startFadeInImage, 1000 + 4000 * (new_num == '15'))
-            
-            # запускаем смену логотипа
             old_logo = 'images/logo/11-14.png' if new_num == '15' else 'images/logo/intro.png'
-            self.scheduler1.schedule(0, self.big_logo_1.setPixmap, QPixmap(old_logo))
-            self.scheduler1.schedule(0, self.big_logo_2.setPixmap, QPixmap(f'images/logo/{new_num}.png'))
-            self.scheduler1.schedule(0, self.big_logo_2.show)
-            self.scheduler1.schedule(0, self.big_logo_2.startFadeInImage, 1000 + 4000 * (new_num == '15'))
-
+            new_background = f'images/backgrounds/{self.background_num}/{new_num}.jpg'
+            self.update_and_animate_background_and_logo(old_logo, new_background, new_num == '15')
             self.scheduler1.schedule(2000 * (new_num != '15'), lambda: True)
         elif self.mode == 'classic':
             self.scheduler1.schedule(2000, lambda: True)
@@ -671,19 +670,10 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.player3.set_media(decorate_audio('sounds/question_show_clock.mp3'))
 
             new_num = {5: '6-10', 10: '11-14', 14: '15'}.get(self.current_question_num)
-            if new_num:  # запускаем смену фона и логотипа
-                new_background = f'images/backgrounds/{self.background_num}/{new_num}.jpg'
-                self.scheduler1.schedule(0, self.background_2.setPixmap, QPixmap(new_background))
-                self.scheduler1.schedule(0, self.background_2.show)
-                self.scheduler1.schedule(
-                    0, self.background_2.startFadeInImage, 1000 + 4000 * (new_num == '15')
-                )
-                
+            if new_num:
                 old_logo = 'images/logo/11-14.png' if new_num == '15' else 'images/logo/intro.png'
-                self.scheduler1.schedule(0, self.big_logo_1.setPixmap, QPixmap(old_logo))
-                self.scheduler1.schedule(0, self.big_logo_2.setPixmap, QPixmap(f'images/logo/{new_num}.png'))
-                self.scheduler1.schedule(0, self.big_logo_2.show)
-                self.scheduler1.schedule(0, self.big_logo_2.startFadeInImage, 1000 + 4000 * (new_num == '15'))
+                new_background = f'images/backgrounds/{self.background_num}/{new_num}.jpg'
+                self.update_and_animate_background_and_logo(old_logo, new_background, new_num == '15')
 
             delays = (1000, 1350, 2500, 1350, 3500)
             index = bisect_right((1, 5, 6, 10, 11), self.current_question_num) - 1
@@ -742,7 +732,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.double_dip.show)
             self.scheduler1.schedule(0, self.double_dip.startFadeInImage)
             return
-    
+
         if self.current_question_num not in range(1, 5):
             # для всех вопросов с 6-го свой бэкграунд-трек
             self.scheduler1.schedule(
@@ -779,11 +769,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 refill_timer(self, self.current_question_num)
                 self.qttimer.stop()
             self.scheduler1.schedule(820 + 1200 * (self.mode == 'clock'), lambda: True)
-            for state_label in (self.current_state_q, self.current_state_q_2, self.current_state_q_3):
-                self.scheduler1.schedule(0, state_label.setPixmap, QPixmap())
-            self.scheduler1.schedule(0, self.question.startFadeOut)
-            for label in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
-                self.scheduler1.schedule(0, label.startFadeOut)
+            self.clear_question_field()
             if self.is_x2_now:  # на смене вопроса отменяем «право на ошибку»
                 self.scheduler1.schedule(0, self.double_dip.startFadeOutImage)
             self.scheduler1.schedule(200, self.update_question_field, True)
@@ -820,10 +806,10 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             answs = [self.answer_A, self.answer_B, self.answer_C, self.answer_D]
             answ_letters = ['A', 'B', 'C', 'D']
             if self.non_active_answers:  # неактивные ответы от «права на ошибку»
-                indxs = set([0, 1, 2, 3]) - set([answ_letters.index(self.non_active_answers[0])])
+                indxs = {0, 1, 2, 3} - {answ_letters.index(self.non_active_answers[0])}
             else:
-                indxs = set([0, 1, 2, 3])
-            indxs = list(indxs - set([self.answers.index(self.correct_answer)]))  # вырезаем правильный ответ
+                indxs = {0, 1, 2, 3}
+            indxs = list(indxs - {self.answers.index(self.correct_answer)})  # вырезаем правильный ответ
             shuffle(indxs)  # убрать два неверных ответа СЛУЧАЙНО
             self.scheduler1.schedule(250, answs[indxs[0]].setText, '')
             self.scheduler1.schedule(0, answs[indxs[1]].setText, '')
@@ -937,7 +923,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
     def toggle_sound(self):
         """Переключает звук (т.е. включает или отключает)"""
 
-        if self.sender().isChecked():  # type: ignore | если галочка активна
+        # noinspection PyUnresolvedReferences
+        if self.sender().isChecked():
             self.is_sound = True
         else:
             self.is_sound = False

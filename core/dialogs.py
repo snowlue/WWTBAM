@@ -10,11 +10,26 @@ if TYPE_CHECKING:
     from core.game import GameWindow
 
 from core.constants import APP_ICON, MONEYTREE_AMOUNTS
-from core.tools import (LoopingMediaPlayer, convert_amount_to_str, decorate_audio, empty_timer, hide_timer, show_prize,
-                        sql_request)
+from core.tools import (
+    LoopingMediaPlayer,
+    convert_amount_to_str,
+    decorate_audio,
+    empty_timer,
+    hide_timer,
+    show_prize,
+    sql_request,
+)
 from core.widgets import GameRules, ResultsTableWindow
-from ui import (Ui_ConfirmAgain, Ui_ConfirmClearAll, Ui_ConfirmExit, Ui_ConfirmLeave, Ui_GameOver, Ui_StartDialog,
-                Ui_Win, Ui_WinLeave)
+from ui import (
+    Ui_ConfirmAgain,
+    Ui_ConfirmClearAll,
+    Ui_ConfirmExit,
+    Ui_ConfirmLeave,
+    Ui_GameOver,
+    Ui_StartDialog,
+    Ui_Win,
+    Ui_WinLeave,
+)
 
 
 class StartWindow(QDialog, Ui_StartDialog):
@@ -260,7 +275,8 @@ class ConfirmCloseWindow(QDialog, Ui_ConfirmExit):
         self.buttonBox.accepted.connect(self.exit)
         self.buttonBox.rejected.connect(self.close)
 
-    def exit(self):
+    @staticmethod
+    def exit():
         """Завершает игру и закрывает приложение"""
 
         logging.info('Game close')

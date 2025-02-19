@@ -1,7 +1,7 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication, QMessageBox
 from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QMessageBox
 
 from core import constants
 
