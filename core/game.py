@@ -164,6 +164,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(500, self.player3.play)
             self.scheduler1.schedule(300, self.update_question_field)
             self.scheduler1.schedule(0, self.question.startFadeIn)
+            self.scheduler1.schedule(0, self.big_logo_2.show)
+            self.scheduler1.schedule(0, self.big_logo_2.startFadeInImage, 1000)
             self.scheduler1.schedule(300, lambda: True)
             show_timer(self)
             refill_timer(self, self.current_question_num)
