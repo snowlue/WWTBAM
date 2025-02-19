@@ -38,15 +38,15 @@ class GameRules(QWidget, Ui_Rules):
         if 441 <= x <= 611 and 46 <= y <= 313:
             state = 'safety_net'
         elif 600 <= y <= 656:
-            if 56 <= x <= 142:
+            if 12 <= x <= 100:
                 state = 'ping1'
-            elif 162 <= x <= 248:
+            elif 140 <= x <= 228:
                 state = 'ping2'
             elif 268 <= x <= 354:
                 state = 'ping3'
-            elif 374 <= x <= 460:
+            elif 395 <= x <= 483:
                 state = 'ping4'
-            elif 480 <= x <= 566:
+            elif 523 <= x <= 612:
                 state = 'ping5'
         else:
             state = self.state = ''
