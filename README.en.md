@@ -13,7 +13,7 @@ Hints, questions, virtual rubles, and all the game’s features — everything y
 Beat your records and compete with your friends using the high-score table. 🏆  
 Get smarter and test your knowledge! 📚
 
-<img src='https://github.com/user-attachments/assets/744e94a9-4a64-48f9-9b61-8e56b9ea229e' alt='App screenshot' height='541' width='800'>
+![App screenshot](https://github.com/user-attachments/assets/24ba3f9a-86ec-49cd-b2a2-8cbe9c8297e8)
 
 ## How to Run:
 
