@@ -89,7 +89,35 @@ class StartWindow(QDialog, Ui_StartDialog):
         self.close()
 
 
-class WinWindow(QDialog, Ui_Win):
+class EndGameWindow(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.parent_ = None
+        self.is_sound = None
+
+    def restart(self):
+        """Перезапускает игру и показывает таблицу результатов"""
+        self.parent_.restart_game()
+        self.close()
+        self.results = ResultsTableWindow()
+        self.results.move(170 + self.parent_.x(), 93 + self.parent_.y())
+        self.results.show()
+        logging.info('Game restart')
+
+    def exit(self):
+        """Завершает игру и показывает таблицу результатов"""
+        self.close()
+        self.player = QMediaPlayer()
+        self.player.setMedia(decorate_audio(f'sounds/quit_game{"_clock" if self.parent_.mode == "clock" else ""}.mp3'))
+        if self.is_sound:
+            self.player.play()
+        self.results = ResultsTableWindow(True)
+        self.results.move(170 + self.parent_.x(), 93 + self.parent_.y())
+        self.results.show()
+        logging.info('Game close\n')
+
+
+class WinWindow(EndGameWindow, Ui_Win):
     """Окно для отображения победы в игре"""
 
     def __init__(self, parent: 'GameWindow', is_sound: bool):
@@ -109,30 +137,8 @@ class WinWindow(QDialog, Ui_Win):
         self.buttonBox.accepted.connect(self.restart)
         self.buttonBox.rejected.connect(self.exit)
 
-    def restart(self):
-        """Перезапускает игру и показывает таблицу результатов"""
-        self.parent_.restart_game()
-        self.close()
-        self.results = ResultsTableWindow()
-        self.results.move(170 + self.parent_.x(), 93 + self.parent_.y())
-        self.results.show()
-        logging.info('Game restart')
 
-    def exit(self):
-        """Завершает игру и показывает таблицу результатов"""
-        self.parent_.close()
-        self.close()
-        self.player = QMediaPlayer()
-        self.player.setMedia(decorate_audio(f'sounds/quit_game{"_clock" if self.parent_.mode == "clock" else ""}.mp3'))
-        if self.is_sound:
-            self.player.play()
-        self.results = ResultsTableWindow(True)
-        self.results.move(170 + self.parent_.x(), 93 + self.parent_.y())
-        self.results.show()
-        logging.info('Game close\n')
-
-
-class GameOverWindow(QDialog, Ui_GameOver):
+class GameOverWindow(EndGameWindow, Ui_GameOver):
     """Окно для отображения поражения в игре"""
 
     def __init__(self, parent: 'GameWindow', state: tuple[str, str, bool]):
@@ -149,27 +155,6 @@ class GameOverWindow(QDialog, Ui_GameOver):
         else:
             text = self.label.text().split(' Правильный')[0] + self.label.text().split('{0}.')[1]
             self.label.setText(text.replace('{1}', state[1]))
-
-    def restart(self):
-        """Перезапускает игру и показывает таблицу результатов"""
-        self.parent_.restart_game()
-        self.close()
-        self.results = ResultsTableWindow()
-        self.results.move(170 + self.parent_.x(), 93 + self.parent_.y())
-        self.results.show()
-        logging.info('Game restart')
-
-    def exit(self):
-        """Завершает игру и показывает таблицу результатов"""
-        self.close()
-        self.player = QMediaPlayer()
-        self.player.setMedia(decorate_audio(f'sounds/quit_game{"_clock" if self.parent_.mode == "clock" else ""}.mp3'))
-        if self.is_sound:
-            self.player.play()
-        self.results = ResultsTableWindow(True)
-        self.results.move(170 + self.parent_.x(), 93 + self.parent_.y())
-        self.results.show()
-        logging.info('Game close')
 
 
 class WinLeaveWindow(Ui_WinLeave, GameOverWindow):

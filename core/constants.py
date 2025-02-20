@@ -32,4 +32,5 @@ LOOP_POINTS = (
     | {'sounds/double/first_wrong.mp3': 17017}
 )
 
-APP_ICON: QIcon = None  # type: ignore | Will be set in application.py
+# noinspection PyTypeChecker
+APP_ICON: QIcon = None  # Will be set in application.py

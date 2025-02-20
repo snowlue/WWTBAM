@@ -105,11 +105,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.scheduler1.schedule(200, self.background_2.setPixmap, QPixmap(current_background))
 
         if self.mode == 'classic':
-            self.player2.set_media(decorate_audio('sounds/intro.mp3' if not repeat else 'sounds/new_start.mp3'))
+            self.player2.set_media(decorate_audio('sounds/new_start.mp3' if repeat else 'sounds/intro.mp3'))
         else:
-            self.player2.set_media(
-                decorate_audio('sounds/intro_clock.mp3' if not repeat else 'sounds/new_start_clock.mp3')
-            )
+            self.player2.set_media(decorate_audio('sounds/new_start_clock.mp3' if repeat else 'sounds/intro_clock.mp3'))
             if repeat:
                 self.timer_view.setPixmap(QPixmap())
                 self.timer_text.setText('')
