@@ -14,6 +14,7 @@ class AnimationLabel(QLabel):
     def __init__(self, *args, **kwargs):
         QLabel.__init__(self, *args, **kwargs)
         self.animation = QVariantAnimation()
+        # noinspection PyUnresolvedReferences
         self.animation.valueChanged.connect(self.changeColor)
 
     @pyqtSlot(QVariant)
@@ -68,6 +69,7 @@ for f in (font9, bold_font):
     f.setPointSize(9)
 bold_font.setBold(True)
 bold_font.setWeight(75)
+
 
 class Ui_StartDialog(object):
     def setupUi(self, Dialog):
@@ -144,6 +146,20 @@ class Ui_StartDialog(object):
 
 
 class Ui_Rules(object):
+    def create_big_label(self, name: str, text: str, internal_font: QtGui.QFont):
+        self.__setattr__(name, QtWidgets.QLabel(self.scrollAreaWidgetContents))
+        label = self.__getattribute__(name)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(label.sizePolicy().hasHeightForWidth())
+        label.setSizePolicy(sizePolicy)
+        label.setFont(internal_font)
+        label.setText(text)
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        label.setObjectName(name)
+        self.verticalLayout.addWidget(label)
+
     def setupUi(self, Form):
         Form.setObjectName('Form')
         Form.setFixedSize(624, 886)
@@ -171,17 +187,7 @@ class Ui_Rules(object):
         local_font.setBold(True)
         local_font.setWeight(75)
 
-        self.start_label = QtWidgets.QLabel(self.scrollAreaWidgetContents)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.start_label.sizePolicy().hasHeightForWidth())
-        self.start_label.setSizePolicy(sizePolicy)
-        self.start_label.setFont(local_font)
-        self.start_label.setText('Добро пожаловать в «Кто хочет стать миллионером?»')
-        self.start_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
-        self.start_label.setObjectName('start_label')
-        self.verticalLayout.addWidget(self.start_label)
+        self.create_big_label('start_label', 'Добро пожаловать в «Кто хочет стать миллионером?»', local_font)
 
         self.aboutMoneyTree = QtWidgets.QHBoxLayout()
         self.aboutMoneyTree.setSpacing(10)
@@ -282,17 +288,7 @@ class Ui_Rules(object):
         self.picture_ans.setObjectName('picture_ans')
         self.aboutAnswers.addWidget(self.picture_ans)
 
-        self.final_label = QtWidgets.QLabel(self.scrollAreaWidgetContents)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.final_label.sizePolicy().hasHeightForWidth())
-        self.final_label.setSizePolicy(sizePolicy)
-        self.final_label.setFont(local_font)
-        self.final_label.setText('Удачной игры, успехов и побед!')
-        self.final_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
-        self.final_label.setObjectName('final_label')
-        self.verticalLayout.addWidget(self.final_label)
+        self.create_big_label('final_label', 'Удачной игры, успехов и побед!', local_font)
 
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout_3.addWidget(self.scrollArea)
@@ -303,8 +299,7 @@ class Ui_Rules(object):
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         fontId = QFontDatabase.addApplicationFont(':itc_conduit.ttf')
-        if fontId == 0:
-            fontName = QFontDatabase.applicationFontFamilies(fontId)[0]
+        fontName = QFontDatabase.applicationFontFamilies(fontId)[0]
 
         MainWindow.setObjectName('MainWindow')
         MainWindow.setFixedSize(1100, 703)
@@ -387,52 +382,27 @@ class Ui_MainWindow(object):
         local_font.setWeight(50)
 
         self.answer_A = AnimationLabel(self.questionField)
-        self.answer_A.setGeometry(QtCore.QRect(237, 99, 288, 40))
-        self.answer_A.setPalette(palette)
-        self.answer_A.setFont(local_font)
-        self.answer_A.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
-        self.answer_A.setText('')
-        self.answer_A.setAlignment(
-            Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter  # type: ignore
-        )
-        self.answer_A.setWordWrap(True)
-        self.answer_A.setObjectName('answer_A')
-
         self.answer_B = AnimationLabel(self.questionField)
-        self.answer_B.setGeometry(QtCore.QRect(607, 99, 288, 40))
-        self.answer_B.setPalette(palette)
-        self.answer_B.setFont(local_font)
-        self.answer_B.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
-        self.answer_B.setText('')
-        self.answer_B.setAlignment(
-            Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter  # type: ignore
-        )
-        self.answer_B.setWordWrap(True)
-        self.answer_B.setObjectName('answer_B')
-
         self.answer_C = AnimationLabel(self.questionField)
-        self.answer_C.setGeometry(QtCore.QRect(237, 151, 288, 40))
-        self.answer_C.setPalette(palette)
-        self.answer_C.setFont(local_font)
-        self.answer_C.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
-        self.answer_C.setText('')
-        self.answer_C.setAlignment(
-            Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter  # type: ignore
-        )
-        self.answer_C.setWordWrap(True)
-        self.answer_C.setObjectName('answer_C')
-
         self.answer_D = AnimationLabel(self.questionField)
-        self.answer_D.setGeometry(QtCore.QRect(607, 151, 288, 40))
-        self.answer_D.setPalette(palette)
-        self.answer_D.setFont(local_font)
-        self.answer_D.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
-        self.answer_D.setText('')
-        self.answer_D.setAlignment(
-            Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter  # type: ignore
-        )
-        self.answer_D.setWordWrap(True)
-        self.answer_D.setObjectName('answer_D')
+        for label_name in ('answer_A', 'answer_B', 'answer_C', 'answer_D'):
+            label = self.__getattribute__(label_name)
+            label.setPalette(palette)
+            label.setFont(local_font)
+            label.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
+            label.setText('')
+            label.setAlignment(
+                Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter  # type: ignore
+            )
+            label.setWordWrap(True)
+            label.setObjectName(label_name)
+
+        for label_name, rect in zip(
+            ('answer_A', 'answer_B', 'answer_C', 'answer_D'),
+            ((237, 99, 288, 40), (607, 99, 288, 40), (237, 151, 288, 40), (607, 151, 288, 40)),
+        ):
+            label = self.__getattribute__(label_name)
+            label.setGeometry(QtCore.QRect(*rect))
 
         self.question = AnimationLabel(self.questionField)
         self.question.setGeometry(QtCore.QRect(190, 7, 728, 80))
@@ -468,11 +438,8 @@ class Ui_MainWindow(object):
         self.current_state_q_3.setScaledContents(True)
         self.current_state_q_3.setObjectName('current_state_q_3')
 
-        palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(Qt.BrushStyle.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
 
         self.amount_q = AnimationLabel(self.questionField)
@@ -587,189 +554,115 @@ class Ui_MainWindow(object):
         self.timer_text.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.timer_text.setObjectName('timer_text')
 
-        self.ata_layout = QLabel(self.centralwidget)
-        self.ata_layout.setObjectName('ata_layout')
-        self.ata_layout.setGeometry(QtCore.QRect(503, 15, 226, 331))
-        self.ata_layout.setPixmap(QtGui.QPixmap('../../images/ata.png'))
-        self.ata_layout.setScaledContents(True)
-        self.ata_a_prcnt = QLabel(self.centralwidget)
-        self.ata_a_prcnt.setObjectName('ata_a_prcnt')
-        self.ata_a_prcnt.setGeometry(QtCore.QRect(517, 28, 49, 22))
         verdana_font = QtGui.QFont()
         verdana_font.setFamily('Verdana')
         verdana_font.setPointSize(11)
         verdana_font.setBold(True)
         verdana_font.setWeight(75)
         styles = 'color: rgb(255, 255, 255);'
-        self.ata_a_prcnt.setFont(verdana_font)
-        self.ata_a_prcnt.setStyleSheet(styles)
-        self.ata_a_prcnt.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.ata_b_prcnt = QLabel(self.centralwidget)
-        self.ata_b_prcnt.setObjectName('ata_b_prcnt')
-        self.ata_b_prcnt.setGeometry(QtCore.QRect(566, 28, 49, 22))
-        self.ata_b_prcnt.setFont(verdana_font)
-        self.ata_b_prcnt.setStyleSheet(styles)
-        self.ata_b_prcnt.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.ata_c_prcnt = QLabel(self.centralwidget)
-        self.ata_c_prcnt.setObjectName('ata_c_prcnt')
-        self.ata_c_prcnt.setGeometry(QtCore.QRect(619, 28, 49, 22))
-        self.ata_c_prcnt.setFont(verdana_font)
-        self.ata_c_prcnt.setStyleSheet(styles)
-        self.ata_c_prcnt.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.ata_d_prcnt = QLabel(self.centralwidget)
-        self.ata_d_prcnt.setObjectName('ata_d_prcnt')
-        self.ata_d_prcnt.setGeometry(QtCore.QRect(668, 28, 49, 22))
-        self.ata_d_prcnt.setFont(verdana_font)
-        self.ata_d_prcnt.setStyleSheet(styles)
-        self.ata_d_prcnt.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
-        self.verticalLayoutWidget.setObjectName('verticalLayoutWidget')
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(526, 49, 31, 182))
-        self.ata_a = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
-        self.ata_a.setSpacing(0)
-        self.ata_a.setObjectName('ata_a')
-        self.ata_a.setContentsMargins(0, 0, 0, 0)
-        self.verticalSpacer = QtWidgets.QSpacerItem(
-            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
-        )
 
-        self.ata_a.addItem(self.verticalSpacer)
+        self.ata_layout = QLabel(self.centralwidget)
+        self.ata_layout.setObjectName('ata_layout')
+        self.ata_layout.setGeometry(QtCore.QRect(503, 15, 226, 331))
+        self.ata_layout.setPixmap(QtGui.QPixmap('../../images/ata.png'))
+        self.ata_layout.setScaledContents(True)
+
+        self.ata_a_prcnt = AnimationLabel(self.centralwidget)
+        self.ata_b_prcnt = AnimationLabel(self.centralwidget)
+        self.ata_c_prcnt = AnimationLabel(self.centralwidget)
+        self.ata_d_prcnt = AnimationLabel(self.centralwidget)
+        for label_name, rect in zip(
+            ('ata_a_prcnt', 'ata_b_prcnt', 'ata_c_prcnt', 'ata_d_prcnt'), ((517, 28), (566, 28), (619, 28), (668, 28))
+        ):
+            label = self.__getattribute__(label_name)
+            label.setGeometry(QtCore.QRect(*rect, 49, 22))
+            label.setFont(verdana_font)
+            label.setStyleSheet(styles)
+            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         score_column = QtGui.QPixmap('../../images/ata_score.png')
-        self.ata_a_score = QLabel(self.verticalLayoutWidget)
-        self.ata_a_score.setObjectName('ata_a_score')
-        self.ata_a_score.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.ata_a_score.sizePolicy().hasHeightForWidth())
-        self.ata_a_score.setSizePolicy(sizePolicy)
-        self.ata_a_score.setMaximumSize(QtCore.QSize(29, 180))
-        self.ata_a_score.setPixmap(score_column)
-        self.ata_a_score.setScaledContents(True)
 
-        self.ata_a.addWidget(self.ata_a_score)
+        for i, (answer_letter, coord_x) in enumerate(zip(('a', 'b', 'c', 'd'), (526, 575, 628, 677))):
+            self.__setattr__(f'verticalLayoutWidget_{i}', QtWidgets.QWidget(self.centralwidget))
+            layout_widget = self.__getattribute__(f'verticalLayoutWidget_{i}')
+            layout_widget.setObjectName(f'verticalLayoutWidget_{i}')
+            layout_widget.setGeometry(QtCore.QRect(coord_x, 49, 31, 182))
 
-        self.verticalLayoutWidget_2 = QtWidgets.QWidget(self.centralwidget)
-        self.verticalLayoutWidget_2.setObjectName('verticalLayoutWidget_2')
-        self.verticalLayoutWidget_2.setGeometry(QtCore.QRect(575, 49, 31, 182))
-        self.ata_b = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_2)
-        self.ata_b.setSpacing(0)
-        self.ata_b.setObjectName('ata_b')
-        self.ata_b.setContentsMargins(0, 0, 0, 0)
-        self.verticalSpacer_2 = QtWidgets.QSpacerItem(
-            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
-        )
+            self.__setattr__(f'ata_{answer_letter}', QtWidgets.QVBoxLayout(layout_widget))
+            percent_label = self.__getattribute__(f'ata_{answer_letter}')
+            percent_label.setSpacing(0)
+            percent_label.setObjectName(f'ata_{answer_letter}')
+            percent_label.setContentsMargins(0, 0, 0, 0)
+            self.__setattr__(
+                f'verticalSpacer_{i}',
+                QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding),
+            )
+            spacer = self.__getattribute__(f'verticalSpacer_{i}')
+            percent_label.addItem(spacer)
+            self.__setattr__(f'ata_{answer_letter}_score', QLabel(layout_widget))
+            column_label = self.__getattribute__(f'ata_{answer_letter}_score')
+            column_label.setObjectName(f'ata_{answer_letter}_score')
+            column_label.setEnabled(True)
+            sizePolicy.setHeightForWidth(column_label.sizePolicy().hasHeightForWidth())
+            column_label.setSizePolicy(sizePolicy)
+            column_label.setMaximumSize(QtCore.QSize(29, 180))
+            column_label.setPixmap(score_column)
+            column_label.setScaledContents(True)
+            percent_label.addWidget(column_label)
 
-        self.ata_b.addItem(self.verticalSpacer_2)
-
-        self.ata_b_score = QLabel(self.verticalLayoutWidget_2)
-        self.ata_b_score.setObjectName('ata_b_score')
-        self.ata_b_score.setEnabled(True)
-        sizePolicy.setHeightForWidth(self.ata_b_score.sizePolicy().hasHeightForWidth())
-        self.ata_b_score.setSizePolicy(sizePolicy)
-        self.ata_b_score.setMaximumSize(QtCore.QSize(29, 180))
-        self.ata_b_score.setPixmap(score_column)
-        self.ata_b_score.setScaledContents(True)
-
-        self.ata_b.addWidget(self.ata_b_score)
-
-        self.verticalLayoutWidget_3 = QtWidgets.QWidget(self.centralwidget)
-        self.verticalLayoutWidget_3.setObjectName('verticalLayoutWidget_3')
-        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(628, 49, 31, 182))
-        self.ata_c = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_3)
-        self.ata_c.setSpacing(0)
-        self.ata_c.setObjectName('ata_c')
-        self.ata_c.setContentsMargins(0, 0, 0, 0)
-        self.verticalSpacer_3 = QtWidgets.QSpacerItem(
-            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
-        )
-
-        self.ata_c.addItem(self.verticalSpacer_3)
-
-        self.ata_c_score = QLabel(self.verticalLayoutWidget_3)
-        self.ata_c_score.setObjectName('ata_c_score')
-        self.ata_c_score.setEnabled(True)
-        sizePolicy.setHeightForWidth(self.ata_c_score.sizePolicy().hasHeightForWidth())
-        self.ata_c_score.setSizePolicy(sizePolicy)
-        self.ata_c_score.setMaximumSize(QtCore.QSize(29, 180))
-        self.ata_c_score.setPixmap(score_column)
-        self.ata_c_score.setScaledContents(True)
-
-        self.ata_c.addWidget(self.ata_c_score)
-
-        self.verticalLayoutWidget_4 = QtWidgets.QWidget(self.centralwidget)
-        self.verticalLayoutWidget_4.setObjectName('verticalLayoutWidget_4')
-        self.verticalLayoutWidget_4.setGeometry(QtCore.QRect(677, 49, 30, 182))
-        self.ata_d = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_4)
-        self.ata_d.setSpacing(0)
-        self.ata_d.setObjectName('ata_d')
-        self.ata_d.setContentsMargins(0, 0, 0, 0)
-        self.verticalSpacer_4 = QtWidgets.QSpacerItem(
-            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
-        )
-
-        self.ata_d.addItem(self.verticalSpacer_4)
-
-        self.ata_d_score = QLabel(self.verticalLayoutWidget_4)
-        self.ata_d_score.setObjectName('ata_d_score')
-        self.ata_d_score.setEnabled(True)
-        sizePolicy.setHeightForWidth(self.ata_d_score.sizePolicy().hasHeightForWidth())
-        self.ata_d_score.setSizePolicy(sizePolicy)
-        self.ata_d_score.setMaximumSize(QtCore.QSize(29, 180))
-        self.ata_d_score.setPixmap(score_column)
-        self.ata_d_score.setScaledContents(True)
-
-        self.ata_d.addWidget(self.ata_d_score)
-        
         big_logo_position = QtCore.QRect(227, 98, 300, 300)
         self.big_logo_1 = AnimationLabel(self.centralwidget)
-        self.big_logo_1.setObjectName(u"big_logo_1")
+        self.big_logo_1.setObjectName('big_logo_1')
         self.big_logo_1.setGeometry(big_logo_position)
-        self.big_logo_1.setPixmap(QtGui.QPixmap(u"images/logo/intro.png"))
+        self.big_logo_1.setPixmap(QtGui.QPixmap('images/logo/intro.png'))
         self.big_logo_1.setScaledContents(True)
         self.big_logo_1.hide()
 
         self.big_logo_2 = AnimationLabel(self.centralwidget)
-        self.big_logo_2.setObjectName(u"big_logo_2")
+        self.big_logo_2.setObjectName('big_logo_2')
         self.big_logo_2.setGeometry(big_logo_position)
-        # self.big_logo_2.setPixmap(QtGui.QPixmap(u"images/logo/1-5.png"))
         self.big_logo_2.setScaledContents(True)
         self.big_logo_2.hide()
-        
 
-        self.layout_q.raise_()
-        self.amount_q.raise_()
-        self.current_state_q.raise_()
-        self.current_state_q_2.raise_()
-        self.current_state_q_3.raise_()
-        self.question.raise_()
-        self.answer_A.raise_()
-        self.answer_B.raise_()
-        self.answer_C.raise_()
-        self.answer_D.raise_()
-        self.double_dip.raise_()
-        self.lost_change.raise_()
-        self.lost_5050.raise_()
-        self.lost_x2.raise_()
-        self.lost_ata.raise_()
-        self.background_1.raise_()
-        self.background_2.raise_()
-        self.questionField.raise_()
-        self.layoutWidget.raise_()
-        self.timer_view.raise_()
-        self.timer_text.raise_()
-        self.big_logo_1.raise_()
-        self.big_logo_2.raise_()
-        self.ata_layout.raise_()
-        self.ata_a_prcnt.raise_()
-        self.ata_b_prcnt.raise_()
-        self.ata_c_prcnt.raise_()
-        self.ata_d_prcnt.raise_()
-        self.verticalLayoutWidget.raise_()
-        self.verticalLayoutWidget_2.raise_()
-        self.verticalLayoutWidget_3.raise_()
-        self.verticalLayoutWidget_4.raise_()
+        # noinspection PyUnresolvedReferences
+        for label in (
+            self.layout_q,
+            self.amount_q,
+            self.current_state_q,
+            self.current_state_q_2,
+            self.current_state_q_3,
+            self.question,
+            self.answer_A,
+            self.answer_B,
+            self.answer_C,
+            self.answer_D,
+            self.double_dip,
+            self.lost_change,
+            self.lost_5050,
+            self.lost_x2,
+            self.lost_ata,
+            self.background_1,
+            self.background_2,
+            self.questionField,
+            self.layoutWidget,
+            self.timer_view,
+            self.timer_text,
+            self.big_logo_1,
+            self.big_logo_2,
+            self.ata_layout,
+            self.ata_a_prcnt,
+            self.ata_b_prcnt,
+            self.ata_c_prcnt,
+            self.ata_d_prcnt,
+            self.verticalLayoutWidget_0,
+            self.verticalLayoutWidget_1,
+            self.verticalLayoutWidget_2,
+            self.verticalLayoutWidget_3,
+        ):
+            label.raise_()
 
         self.setTextInUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -790,7 +683,7 @@ class Ui_MainWindow(object):
         self.sound_btn.setText('Звук')
 
 
-class Ui_Win(object):
+class EndGameDialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName('Dialog')
         Dialog.setFixedSize(400, 150)
@@ -815,6 +708,11 @@ class Ui_Win(object):
         self.setTextInUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
+    def setTextInUi(self, Dialog):
+        pass
+
+
+class Ui_Win(EndGameDialog):
     def setTextInUi(self, Dialog):
         Dialog.setWindowTitle('Вы — миллионер!')
         self.label.setText(
@@ -823,37 +721,13 @@ class Ui_Win(object):
         )
 
 
-class Ui_GameOver(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName('Dialog')
-        Dialog.setFixedSize(400, 150)
-        Dialog.setFont(font9)
-        self.horizontalLayout = QtWidgets.QHBoxLayout(Dialog)
-        self.horizontalLayout.setObjectName('horizontalLayout')
-        self.verticalLayout = QtWidgets.QVBoxLayout()
-        self.verticalLayout.setObjectName('verticalLayout')
-        self.label = QtWidgets.QLabel(Dialog)
-        self.label.setFont(bold_font)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
-        self.label.setObjectName('label')
-        self.verticalLayout.addWidget(self.label)
-        self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
-        self.buttonBox.setCenterButtons(True)
-        self.buttonBox.setObjectName('buttonBox')
-        self.verticalLayout.addWidget(self.buttonBox)
-        self.horizontalLayout.addLayout(self.verticalLayout)
-
-        self.setTextInUi(Dialog)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
-
+class Ui_GameOver(EndGameDialog):
     def setTextInUi(self, Dialog):
         Dialog.setWindowTitle('Вы проиграли!')
         self.label.setText('Вы проиграли! Правильный ответ: {0}.\nВаш выигрыш составил ₽{1}.\nНачать новую игру?')
 
 
-class Ui_ConfirmExit(object):
+class ConfirmDialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName('Dialog')
         Dialog.setFixedSize(400, 140)
@@ -868,69 +742,30 @@ class Ui_ConfirmExit(object):
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setGeometry(QtCore.QRect(24, 20, 351, 50))
         self.label.setFont(bold_font)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.label.setWordWrap(True)
         self.label.setObjectName('label')
 
         self.setTextInUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
+    def setTextInUi(self, Dialog):
+        pass
+
+
+class Ui_ConfirmExit(ConfirmDialog):
     def setTextInUi(self, Dialog):
         Dialog.setWindowTitle('Завершить игру?')
         self.label.setText('Действительно завершить текущую игру без сохранения?')
 
 
-class Ui_ConfirmLeave(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName('Dialog')
-        Dialog.setFixedSize(400, 140)
-        Dialog.setFont(font9)
-        self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setGeometry(QtCore.QRect(30, 90, 341, 32))
-        self.buttonBox.setFont(font9)
-        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
-        self.buttonBox.setCenterButtons(True)
-        self.buttonBox.setObjectName('buttonBox')
-        self.label = QtWidgets.QLabel(Dialog)
-        self.label.setGeometry(QtCore.QRect(24, 20, 351, 50))
-        self.label.setFont(bold_font)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
-        self.label.setWordWrap(True)
-        self.label.setObjectName('label')
-
-        self.setTextInUi(Dialog)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
-
+class Ui_ConfirmLeave(ConfirmDialog):
     def setTextInUi(self, Dialog):
         Dialog.setWindowTitle('Покинуть игру?')
         self.label.setText('Вы действительно хотите покинуть игру\nс суммой в ₽{}?')
 
 
-class Ui_WinLeave(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName('Dialog')
-        Dialog.setFixedSize(400, 150)
-        Dialog.setFont(font9)
-        self.horizontalLayout = QtWidgets.QHBoxLayout(Dialog)
-        self.horizontalLayout.setObjectName('horizontalLayout')
-        self.verticalLayout = QtWidgets.QVBoxLayout()
-        self.verticalLayout.setObjectName('verticalLayout')
-        self.label = QtWidgets.QLabel(Dialog)
-        self.label.setFont(bold_font)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
-        self.label.setObjectName('label')
-        self.verticalLayout.addWidget(self.label)
-        self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
-        self.buttonBox.setCenterButtons(True)
-        self.buttonBox.setObjectName('buttonBox')
-        self.verticalLayout.addWidget(self.buttonBox)
-        self.horizontalLayout.addLayout(self.verticalLayout)
-        self.setTextInUi(Dialog)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
-
+class Ui_WinLeave(EndGameDialog):
     def setTextInUi(self, Dialog):
         Dialog.setWindowTitle('Вы выиграли, но не всё!')
         self.label.setText(
@@ -938,28 +773,7 @@ class Ui_WinLeave(object):
         )
 
 
-class Ui_ConfirmAgain(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName('Dialog')
-        Dialog.setFixedSize(400, 140)
-        Dialog.setFont(font9)
-        self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setGeometry(QtCore.QRect(30, 90, 341, 32))
-        self.buttonBox.setFont(font9)
-        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
-        self.buttonBox.setCenterButtons(True)
-        self.buttonBox.setObjectName('buttonBox')
-        self.label = QtWidgets.QLabel(Dialog)
-        self.label.setGeometry(QtCore.QRect(24, 20, 351, 50))
-        self.label.setFont(bold_font)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
-        self.label.setWordWrap(True)
-        self.label.setObjectName('label')
-
-        self.setTextInUi(Dialog)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
-
+class Ui_ConfirmAgain(ConfirmDialog):
     def setTextInUi(self, Dialog):
         Dialog.setWindowTitle('Начать новую игру?')
         self.label.setText('Действительно начать новую игру без сохранения текущей?')
@@ -1032,28 +846,7 @@ class Ui_DeleteResult(object):
         self.deleteButton.setText('Удалить (без подтверждений, сразу при нажатии)')
 
 
-class Ui_ConfirmClearAll(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName('Dialog')
-        Dialog.setFixedSize(400, 140)
-        Dialog.setFont(font)
-        self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setGeometry(QtCore.QRect(30, 90, 341, 32))
-        self.buttonBox.setFont(font9)
-        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.No | QtWidgets.QDialogButtonBox.Yes)
-        self.buttonBox.setCenterButtons(True)
-        self.buttonBox.setObjectName('buttonBox')
-        self.label = QtWidgets.QLabel(Dialog)
-        self.label.setGeometry(QtCore.QRect(24, 20, 351, 50))
-        self.label.setFont(bold_font)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
-        self.label.setWordWrap(True)
-        self.label.setObjectName('label')
-
-        self.setTextInUi(Dialog)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
-
+class Ui_ConfirmClearAll(ConfirmDialog):
     def setTextInUi(self, Dialog):
         Dialog.setWindowTitle('Очистить таблицу результатов?')
         self.label.setText('Действительно очистить всю таблицу результатов без возможности вернуть?')
