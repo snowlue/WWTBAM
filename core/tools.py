@@ -27,6 +27,7 @@ class AnimationScheduler(QObject):
         super().__init__(parent)
         self._timer = QTimer(self)
         self._timer.setInterval(10)
+        # noinspection PyUnresolvedReferences
         self._timer.timeout.connect(self._update)  # в случае истечения интервала в 10 мс вызывает _update
         self._start_time = None  # будет хранить QTime запуска анимации
         self._events = []  # список запланированных событий в виде (относительное время, функция, args, kwargs)
@@ -138,7 +139,7 @@ def show_prize(window: 'GameWindow', amount: str):
 
 def convert_amount_to_str(amount: int) -> str:
     """Преобразует сумму в строку с разделителями разрядов"""
-    return '{:_}'.format(amount).replace('_', ' ')
+    return '{:,}'.format(amount).replace(',', ' ')
 
 
 def ask_audience(question_number: int):
@@ -191,15 +192,15 @@ def get_questions():
         [],
     )
 
-    for q_unshuffled in questions_data:
+    for q_unmixed in questions_data:
         questions_set = []
 
-        q_shuffled = q_unshuffled.copy()
+        q_shuffled = q_unmixed.copy()
         shuffle(q_shuffled)
         for q in q_shuffled[:2]:
-            text, corr_answ, answs = q[1], q[2], list(q[2:])
-            shuffle(answs)
-            questions_set.append([text, corr_answ, answs])
+            text, correct_answer, answers = q[1], q[2], list(q[2:])
+            shuffle(answers)
+            questions_set.append([text, correct_answer, answers])
 
         questions.append(questions_set)
 
@@ -214,9 +215,9 @@ def make_table(table: QTableWidget, header: list[str], data: list[list[str]]) ->
     table.setHorizontalHeaderLabels(header)
     table.setRowCount(0)
 
-    for i, rowlist in enumerate(data):
+    for i, row_list in enumerate(data):
         table.setRowCount(table.rowCount() + 1)
-        for j, elem in enumerate(rowlist):
+        for j, elem in enumerate(row_list):
             table.setItem(i, j, QTableWidgetItem(elem))
     table.resizeColumnsToContents()
 
@@ -232,7 +233,7 @@ def decorate_audio(file: str) -> QMediaContent:
     return QMediaContent(url)
 
 
-def excepthook(exc_type: Type[BaseException], exc_value: BaseException, exc_tb: TracebackType):
+def except_hook(exc_type: Type[BaseException], exc_value: BaseException, exc_tb: TracebackType):
     """Обработчик исключений
 
     При вызове исключения логирует ошибку в логи и показывает окно, предлагающее отправить ошибку разработчику."""

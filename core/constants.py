@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QIcon
 
-MONEYTREE_AMOUNTS = [
+MONEY_TREE_AMOUNTS = [
     0,
     500,
     1_000,

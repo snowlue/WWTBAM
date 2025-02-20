@@ -131,7 +131,7 @@ class AboutWindow(QWidget, Ui_About):
         self.is_sound = is_sound
         self.ruButton.clicked.connect(self.show_ru_text)
         self.enButton.clicked.connect(self.show_en_text)
-        self.okButton.clicked.connect(self.close_wndw)
+        self.okButton.clicked.connect(self.close_window)
 
     def show_ru_text(self):
         """Показывает русский текст информации о программе"""
@@ -151,7 +151,7 @@ class AboutWindow(QWidget, Ui_About):
             player.setVolume(100 * self.is_sound)
         self.parent_.player3.stop()
 
-    def close_wndw(self):
+    def close_window(self):
         """Закрывает окно при нажатии на кнопку «ОК»"""
         self.adjust_volume()
         self.close()

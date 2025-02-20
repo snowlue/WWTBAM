@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 if TYPE_CHECKING:
     from core.game import GameWindow
 
-from core.constants import APP_ICON, MONEYTREE_AMOUNTS
+from core.constants import APP_ICON, MONEY_TREE_AMOUNTS
 from core.tools import (
     LoopingMediaPlayer,
     convert_amount_to_str,
@@ -66,11 +66,11 @@ class StartWindow(QDialog, Ui_StartDialog):
         """Показывает правила игры"""
         self.player1 = LoopingMediaPlayer(self)  # для фоновой музыки
         self.player2 = QMediaPlayer(self)  # для звука остановки
-        self.rules_wndw = GameRules((self.player1, self.player2))
+        self.rules_window = GameRules((self.player1, self.player2))
         self.player1.set_media(decorate_audio('sounds/rules/bed.mp3'))
         self.player1.play()
-        self.rules_wndw.move(self.x() - 122, self.y() - 315)
-        self.rules_wndw.show()
+        self.rules_window.move(self.x() - 122, self.y() - 315)
+        self.rules_window.show()
 
     def start_game(self, name: str) -> None:
         """Начинает игру с заданным именем игрока name и режимом игры"""
@@ -129,9 +129,9 @@ class WinWindow(EndGameWindow, Ui_Win):
         self.is_sound = is_sound
 
         if self.parent_.mode == 'clock':
-            prize = convert_amount_to_str(MONEYTREE_AMOUNTS[-1] + self.parent_.saved_seconds_prize)
+            prize = convert_amount_to_str(MONEY_TREE_AMOUNTS[-1] + self.parent_.saved_seconds_prize)
             self.label.setText(
-                self.label.text().replace(f'заветные ₽{convert_amount_to_str(MONEYTREE_AMOUNTS[-1])}', f'₽{prize}')
+                self.label.text().replace(f'заветные ₽{convert_amount_to_str(MONEY_TREE_AMOUNTS[-1])}', f'₽{prize}')
             )
 
         self.buttonBox.accepted.connect(self.restart)
@@ -180,7 +180,7 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         )
         self.label.setText(self.label.text().replace('{}', self.prize))
         self.buttonBox.accepted.connect(self.leave)
-        self.buttonBox.rejected.connect(self.close_wndw)
+        self.buttonBox.rejected.connect(self.close_window)
 
     def leave(self):
         """Покидает игру, забирает деньги и предлагает сыграть ещё раз"""
@@ -203,7 +203,7 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
 
         if self.parent_.has_shown:
             if self.parent_.mode == 'clock':
-                self.parent_.qttimer.stop()
+                self.parent_.qt_timer.stop()
             self.parent_.current_state_q_2.setPixmap(
                 QPixmap(f'images/question field/correct_{self.correct_answer}.png')
             )
@@ -224,7 +224,7 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
 
         self.close()
 
-    def close_wndw(self):
+    def close_window(self):
         """Закрывает окно подтверждения при отмене действия"""
 
         self.parent_.user_control = True

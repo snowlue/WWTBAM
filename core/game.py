@@ -4,11 +4,11 @@ from bisect import bisect_right
 from datetime import datetime
 from random import randint, shuffle
 
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QMainWindow
 
-from core.constants import APP_ICON, MONEYTREE_AMOUNTS, SAFETY_NETS, SECONDS_FOR_QUESTION, SECONDS_PRICE
+from core.constants import APP_ICON, MONEY_TREE_AMOUNTS, SAFETY_NETS, SECONDS_FOR_QUESTION, SECONDS_PRICE
 from core.dialogs import (
     ConfirmAgainWindow,
     ConfirmClearAll,
@@ -205,10 +205,10 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler2.schedule(200, self.double_dip.setPixmap, QPixmap('images/double-dip.png'))
             self.scheduler2.schedule(0, self.double_dip.hide)
 
-            self.qttimer = QTimer(self)
+            self.qt_timer = QTimer(self)
             # noinspection PyUnresolvedReferences
-            self.qttimer.timeout.connect(self.merge_timer)
-            self.qttimer.start(1000)
+            self.qt_timer.timeout.connect(self.merge_timer)
+            self.qt_timer.start(1000)
 
             self.seconds_left = SECONDS_FOR_QUESTION[n]
 
@@ -233,7 +233,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.scheduler1.start()
 
         if self.seconds_left == 0:
-            self.qttimer.stop()
+            self.qt_timer.stop()
 
             num_to_let = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
             correct_answer_letter = num_to_let[self.answers.index(self.correct_answer)]
@@ -426,7 +426,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.answers = list(map(str, self.questions[self.current_question_num - 1][int(changer)][2]))
         self.correct_answer = str(self.questions[self.current_question_num - 1][int(changer)][1])
         # print(self.correct_answer)  # HACK God mode
-        self.got_amount = MONEYTREE_AMOUNTS[self.current_question_num - 1]
+        self.got_amount = MONEY_TREE_AMOUNTS[self.current_question_num - 1]
 
         self.question.setText(text)
         for i, answer_text_field in enumerate((self.answer_A, self.answer_B, self.answer_C, self.answer_D)):
@@ -483,7 +483,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.saved_seconds_prize += self.seconds_prize
             empty_timer(self)
             hide_timer(self)
-        prize = convert_amount_to_str(MONEYTREE_AMOUNTS[self.current_question_num] + self.saved_seconds_prize)
+        prize = convert_amount_to_str(MONEY_TREE_AMOUNTS[self.current_question_num] + self.saved_seconds_prize)
         show_prize(self, prize)
 
     def choose_answer(self, letter: str):
@@ -495,7 +495,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.current_state_q.startFadeInImage()
         if self.mode == 'clock':
             self.player2.pause()
-            self.qttimer.stop()
+            self.qt_timer.stop()
         if self.current_question_num not in range(1, 6) or self.is_x2_now:
             self.scheduler1.schedule(0, self.player1.stop)
             if len(self.non_active_answers) != 3:
@@ -555,7 +555,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     self.scheduler1.schedule(0, self.player1.set_media, decorate_audio(f'sounds/{n}/bed_clock.mp3'))
                     self.scheduler1.schedule(0, self.player1.setPosition, self.player_seconds_position)
                     self.scheduler1.schedule(0, self.player1.play)
-                self.scheduler1.schedule(0, self.qttimer.start)
+                self.scheduler1.schedule(0, self.qt_timer.start)
 
             logging.info('Answ incorrect (dd used)')
             self.scheduler1.start()
@@ -618,7 +618,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.hide_timer_and_show_prize()
             self.scheduler1.schedule(1000, self.show_win)
 
-            prize = convert_amount_to_str(MONEYTREE_AMOUNTS[self.current_question_num] + self.saved_seconds_prize)
+            prize = convert_amount_to_str(MONEY_TREE_AMOUNTS[self.current_question_num] + self.saved_seconds_prize)
             sql_request(f'INSERT INTO results (name, result, date) VALUES ("{self.name}", "{prize}", "{self.date}")')
 
             self.scheduler1.start()
@@ -765,7 +765,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     self.scheduler1.schedule(0, self.player1.stop)
                 self.scheduler1.schedule(0, self.player2.stop)
                 refill_timer(self, self.current_question_num)
-                self.qttimer.stop()
+                self.qt_timer.stop()
             self.scheduler1.schedule(820 + 1200 * (self.mode == 'clock'), lambda: True)
             self.clear_question_field()
             if self.is_x2_now:  # на смене вопроса отменяем «право на ошибку»
@@ -795,23 +795,23 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.player1.set_media(decorate_audio(f'sounds/double/start{"_clock" if self.mode == "clock" else ""}.mp3'))
             if self.mode == 'clock':
                 self.player2.pause()
-                self.qttimer.stop()
+                self.qt_timer.stop()
             self.player1.play()
 
         elif type_ll == '50:50':  # 50:50
             self.player3.set_media(decorate_audio('sounds/50_50.mp3'))
             self.scheduler1.schedule(0, self.player3.play)
-            answs = [self.answer_A, self.answer_B, self.answer_C, self.answer_D]
-            answ_letters = ['A', 'B', 'C', 'D']
+            answers = [self.answer_A, self.answer_B, self.answer_C, self.answer_D]
+            answers_letters = ['A', 'B', 'C', 'D']
             if self.non_active_answers:  # неактивные ответы от «права на ошибку»
-                indxs = {0, 1, 2, 3} - {answ_letters.index(self.non_active_answers[0])}
+                indexes = {0, 1, 2, 3} - {answers_letters.index(self.non_active_answers[0])}
             else:
-                indxs = {0, 1, 2, 3}
-            indxs = list(indxs - {self.answers.index(self.correct_answer)})  # вырезаем правильный ответ
-            shuffle(indxs)  # убрать два неверных ответа СЛУЧАЙНО
-            self.scheduler1.schedule(250, answs[indxs[0]].setText, '')
-            self.scheduler1.schedule(0, answs[indxs[1]].setText, '')
-            self.non_active_answers += [answ_letters[indxs[0]], answ_letters[indxs[1]]]
+                indexes = {0, 1, 2, 3}
+            indexes = list(indexes - {self.answers.index(self.correct_answer)})  # вырезаем правильный ответ
+            shuffle(indexes)  # убрать два неверных ответа СЛУЧАЙНО
+            self.scheduler1.schedule(250, answers[indexes[0]].setText, '')
+            self.scheduler1.schedule(0, answers[indexes[1]].setText, '')
+            self.non_active_answers += [answers_letters[indexes[0]], answers_letters[indexes[1]]]
 
         elif type_ll == 'ata':
             ...  # TODO: прописать логику Ask the Audience
@@ -865,24 +865,24 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.user_control = False
         num_to_let = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
         letter = num_to_let[self.answers.index(self.correct_answer)]
-        self.confirm_wndw = ConfirmLeaveWindow(self, letter, self.is_sound)
+        self.confirm_window = ConfirmLeaveWindow(self, letter, self.is_sound)
         # и передаём правильный ответ, чтобы показать его после взятия денег
-        self.confirm_wndw.move(168 + self.x(), 216 + self.y())
-        self.confirm_wndw.show()
+        self.confirm_window.move(168 + self.x(), 216 + self.y())
+        self.confirm_window.show()
 
     def open_confirm_again(self):
         """Показывает форму для подтверждения перезапуска игры"""
 
-        self.confirm_wndw = ConfirmAgainWindow(self)
-        self.confirm_wndw.move(168 + self.x(), 216 + self.y())
-        self.confirm_wndw.show()
+        self.confirm_window = ConfirmAgainWindow(self)
+        self.confirm_window.move(168 + self.x(), 216 + self.y())
+        self.confirm_window.show()
 
     def open_confirm_close(self):
         """Показывает форму для подтверждения закрытия игры"""
 
-        self.confirm_wndw = ConfirmCloseWindow()
-        self.confirm_wndw.move(168 + self.x(), 216 + self.y())
-        self.confirm_wndw.show()
+        self.confirm_window = ConfirmCloseWindow()
+        self.confirm_window.move(168 + self.x(), 216 + self.y())
+        self.confirm_window.show()
 
     def open_results_table(self):
         """Показывает таблицу результатов"""
@@ -902,20 +902,20 @@ class GameWindow(QMainWindow, Ui_MainWindow):
     def open_confirm_clear_all(self):
         """Показывает форму для очистки таблицы результатов"""
 
-        self.confirm_wndw = ConfirmClearAll()
-        self.confirm_wndw.move(168 + self.x(), 216 + self.y())
-        self.confirm_wndw.show()
+        self.confirm_window = ConfirmClearAll()
+        self.confirm_window.move(168 + self.x(), 216 + self.y())
+        self.confirm_window.show()
 
     def open_about(self):
         """Показывает информацию об игре и разработчике"""
 
-        self.about_wndw = AboutWindow(self, self.is_sound)
+        self.about_window = AboutWindow(self, self.is_sound)
         for player in (self.player1, self.player2, self.player4):
             player.setVolume(20 * self.is_sound)
         self.player3.set_media(decorate_audio('sounds/about.mp3'))
         self.player3.play()
-        self.about_wndw.move(178 + self.x(), 175 + self.y())
-        self.about_wndw.show()
+        self.about_window.move(178 + self.x(), 175 + self.y())
+        self.about_window.show()
         logging.info('About open')
 
     def toggle_sound(self):

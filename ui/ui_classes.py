@@ -1,12 +1,12 @@
 from datetime import datetime  # год в копирайте в «О приложении»
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, Qt, QVariant, QVariantAnimation, pyqtSlot
+from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QVariant, QVariantAnimation, Qt, pyqtSlot
 from PyQt5.QtGui import QColor, QFontDatabase, QPalette
 from PyQt5.QtWidgets import QGraphicsOpacityEffect, QLabel
 
 import ui.font_resources as font_resources  # noqa: F401 | ресурсы шрифтов
-from core.constants import MONEYTREE_AMOUNTS, SAFETY_NETS
+from core.constants import MONEY_TREE_AMOUNTS, SAFETY_NETS
 from core.tools import convert_amount_to_str
 
 
@@ -201,8 +201,8 @@ class Ui_Rules(object):
         sizePolicy.setHeightForWidth(self.text_mt.sizePolicy().hasHeightForWidth())
         self.text_mt.setSizePolicy(sizePolicy)
         self.text_mt.setMaximumSize(QtCore.QSize(420, 266))
-        length_tree = len(MONEYTREE_AMOUNTS) - 1
-        max_prize = convert_amount_to_str(MONEYTREE_AMOUNTS[-1])
+        length_tree = len(MONEY_TREE_AMOUNTS) - 1
+        max_prize = convert_amount_to_str(MONEY_TREE_AMOUNTS[-1])
         safety_nets = list(set(SAFETY_NETS))[1:]
         milestones = [SAFETY_NETS.index(net) for net in safety_nets]
         safety_nets = [convert_amount_to_str(net) for net in safety_nets]
@@ -305,10 +305,10 @@ class Ui_MainWindow(object):
         MainWindow.setFixedSize(1100, 703)
         MainWindow.setFont(font9)
 
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setObjectName('centralwidget')
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.centralwidget.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self.central_widget = QtWidgets.QWidget(MainWindow)
+        self.central_widget.setObjectName('central_widget')
+        MainWindow.setCentralWidget(self.central_widget)
+        self.central_widget.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         MainWindow.setMouseTracking(True)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1100, 25))
@@ -363,7 +363,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.table_menu.menuAction())
         self.menubar.addAction(self.help_menu.menuAction())
 
-        self.questionField = QtWidgets.QWidget(self.centralwidget)
+        self.questionField = QtWidgets.QWidget(self.central_widget)
         self.questionField.setGeometry(QtCore.QRect(0, 477, 1100, 201))
         self.questionField.setObjectName('questionField')
 
@@ -392,7 +392,8 @@ class Ui_MainWindow(object):
             label.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
             label.setText('')
             label.setAlignment(
-                Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter  # type: ignore
+                Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+                # type: ignore
             )
             label.setWordWrap(True)
             label.setObjectName(label_name)
@@ -458,7 +459,7 @@ class Ui_MainWindow(object):
         self.double_dip.setScaledContents(True)
         self.double_dip.setObjectName('double_dip')
 
-        self.layoutWidget = QtWidgets.QWidget(self.centralwidget)
+        self.layoutWidget = QtWidgets.QWidget(self.central_widget)
         self.layoutWidget.setGeometry(QtCore.QRect(0, 0, 1101, 491))
         self.layoutWidget.setObjectName('layoutWidget')
 
@@ -523,27 +524,27 @@ class Ui_MainWindow(object):
         self.current_state_ll.setScaledContents(True)
         self.current_state_ll.setObjectName('current_state_ll')
 
-        self.background_1 = QtWidgets.QLabel(self.centralwidget)
+        self.background_1 = QtWidgets.QLabel(self.central_widget)
         self.background_1.setGeometry(QtCore.QRect(0, 0, 1100, 680))
         self.background_1.setText('')
         self.background_1.setScaledContents(True)
         self.background_1.setObjectName('background_1')
 
-        self.background_2 = AnimationLabel(self.centralwidget)
+        self.background_2 = AnimationLabel(self.central_widget)
         self.background_2.setGeometry(QtCore.QRect(0, 0, 1100, 680))
         self.background_2.setText('')
         self.background_2.setScaledContents(True)
         self.background_2.setObjectName('background_2')
         self.background_2.hide()
 
-        self.timer_view = QtWidgets.QLabel(self.centralwidget)
+        self.timer_view = QtWidgets.QLabel(self.central_widget)
         self.timer_view.setGeometry(QtCore.QRect(215, 419, 678, 64))
         self.timer_view.setText('')
         self.timer_view.setScaledContents(True)
         self.timer_view.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
         self.timer_view.setObjectName('timer')
 
-        self.timer_text = AnimationLabel(self.centralwidget)
+        self.timer_text = AnimationLabel(self.central_widget)
         self.timer_text.setGeometry(QtCore.QRect(509, 443, 89, 40))
         self.timer_text.setPalette(palette)
         local_font.setPointSize(27)
@@ -561,18 +562,19 @@ class Ui_MainWindow(object):
         verdana_font.setWeight(75)
         styles = 'color: rgb(255, 255, 255);'
 
-        self.ata_layout = QLabel(self.centralwidget)
+        self.ata_layout = QLabel(self.central_widget)
         self.ata_layout.setObjectName('ata_layout')
         self.ata_layout.setGeometry(QtCore.QRect(503, 15, 226, 331))
         self.ata_layout.setPixmap(QtGui.QPixmap('../../images/ata.png'))
         self.ata_layout.setScaledContents(True)
 
-        self.ata_a_prcnt = AnimationLabel(self.centralwidget)
-        self.ata_b_prcnt = AnimationLabel(self.centralwidget)
-        self.ata_c_prcnt = AnimationLabel(self.centralwidget)
-        self.ata_d_prcnt = AnimationLabel(self.centralwidget)
+        self.ata_a_percents = AnimationLabel(self.central_widget)
+        self.ata_b_percents = AnimationLabel(self.central_widget)
+        self.ata_c_percents = AnimationLabel(self.central_widget)
+        self.ata_d_percents = AnimationLabel(self.central_widget)
         for label_name, rect in zip(
-            ('ata_a_prcnt', 'ata_b_prcnt', 'ata_c_prcnt', 'ata_d_prcnt'), ((517, 28), (566, 28), (619, 28), (668, 28))
+            ('ata_a_percents', 'ata_b_percents', 'ata_c_percents', 'ata_d_percents'),
+            ((517, 28), (566, 28), (619, 28), (668, 28)),
         ):
             label = self.__getattribute__(label_name)
             label.setGeometry(QtCore.QRect(*rect, 49, 22))
@@ -586,7 +588,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
 
         for i, (answer_letter, coord_x) in enumerate(zip(('a', 'b', 'c', 'd'), (526, 575, 628, 677))):
-            self.__setattr__(f'verticalLayoutWidget_{i}', QtWidgets.QWidget(self.centralwidget))
+            self.__setattr__(f'verticalLayoutWidget_{i}', QtWidgets.QWidget(self.central_widget))
             layout_widget = self.__getattribute__(f'verticalLayoutWidget_{i}')
             layout_widget.setObjectName(f'verticalLayoutWidget_{i}')
             layout_widget.setGeometry(QtCore.QRect(coord_x, 49, 31, 182))
@@ -614,14 +616,14 @@ class Ui_MainWindow(object):
             percent_label.addWidget(column_label)
 
         big_logo_position = QtCore.QRect(227, 98, 300, 300)
-        self.big_logo_1 = AnimationLabel(self.centralwidget)
+        self.big_logo_1 = AnimationLabel(self.central_widget)
         self.big_logo_1.setObjectName('big_logo_1')
         self.big_logo_1.setGeometry(big_logo_position)
         self.big_logo_1.setPixmap(QtGui.QPixmap('images/logo/intro.png'))
         self.big_logo_1.setScaledContents(True)
         self.big_logo_1.hide()
 
-        self.big_logo_2 = AnimationLabel(self.centralwidget)
+        self.big_logo_2 = AnimationLabel(self.central_widget)
         self.big_logo_2.setObjectName('big_logo_2')
         self.big_logo_2.setGeometry(big_logo_position)
         self.big_logo_2.setScaledContents(True)
@@ -653,10 +655,10 @@ class Ui_MainWindow(object):
             self.big_logo_1,
             self.big_logo_2,
             self.ata_layout,
-            self.ata_a_prcnt,
-            self.ata_b_prcnt,
-            self.ata_c_prcnt,
-            self.ata_d_prcnt,
+            self.ata_a_percents,
+            self.ata_b_percents,
+            self.ata_c_percents,
+            self.ata_d_percents,
             self.verticalLayoutWidget_0,
             self.verticalLayoutWidget_1,
             self.verticalLayoutWidget_2,
