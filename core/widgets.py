@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QCloseEvent, QMouseEvent
 from PyQt5.QtMultimedia import QMediaPlayer
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QDesktopWidget, QWidget
 
 from core.constants import APP_ICON
 from core.tools import decorate_audio, make_table, sql_request
@@ -24,6 +24,12 @@ class GameRules(QWidget, Ui_Rules):
         self.player3 = QMediaPlayer()  # для звуков подсказок
         self.player3.setVolume(70)
         self.setupUi(self)
+
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
         self.setWindowIcon(APP_ICON)
         self.setMouseTracking(True)
         self.grabMouse()
@@ -34,20 +40,24 @@ class GameRules(QWidget, Ui_Rules):
         return super().mouseMoveEvent(event)
 
     def response_to_event(self, x: int, y: int):
-        state = self.state
         if 441 <= x <= 611 and 46 <= y <= 313:
             state = 'safety_net'
-        elif 600 <= y <= 656:
-            if 12 <= x <= 100:
-                state = 'ping1'
-            elif 140 <= x <= 228:
-                state = 'ping2'
-            elif 268 <= x <= 354:
-                state = 'ping3'
-            elif 395 <= x <= 483:
-                state = 'ping4'
-            elif 523 <= x <= 612:
-                state = 'ping5'
+        elif 600 <= y <= 656 and 12 <= x <= 100:
+            state = 'ping1'
+        elif 600 <= y <= 656 and 140 <= x <= 228:
+            state = 'ping2'
+        elif 600 <= y <= 656 and 268 <= x <= 354:
+            state = 'ping3'
+        elif 600 <= y <= 656 and 395 <= x <= 483:
+            state = 'ping4'
+        elif 664 <= y <= 720 and 140 <= x <= 228:
+            state = 'ping5'
+        elif 664 <= y <= 720 and 268 <= x <= 354:
+            state = 'ping6'
+        elif 664 <= y <= 720 and 395 <= x <= 483:
+            state = 'ping7'
+        elif 664 <= y <= 720 and 523 <= x <= 612:
+            state = 'ping8'
         else:
             state = self.state = ''
 

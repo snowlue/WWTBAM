@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QMediaPlayer
-from PyQt5.QtWidgets import QDialog, QMessageBox
+from PyQt5.QtWidgets import QDesktopWidget, QDialog, QMessageBox
 
 if TYPE_CHECKING:
     from core.game import GameWindow
@@ -38,6 +38,12 @@ class StartWindow(QDialog, Ui_StartDialog):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
         self.setWindowIcon(APP_ICON)
         self.ok_button.clicked.connect(self.get_name)
         self.rulebook_button.clicked.connect(self.show_rules)
@@ -69,7 +75,6 @@ class StartWindow(QDialog, Ui_StartDialog):
         self.rules_window = GameRules((self.player1, self.player2))
         self.player1.set_media(decorate_audio('sounds/rules/bed.mp3'))
         self.player1.play()
-        self.rules_window.move(self.x() - 122, self.y() - 315)
         self.rules_window.show()
 
     def start_game(self, name: str) -> None:
@@ -81,10 +86,27 @@ class StartWindow(QDialog, Ui_StartDialog):
         self.game = GameWindow(name, mode)
         self.game.show()
 
-        for label in (self.game.lost_change, self.game.lost_5050, self.game.lost_x2, self.game.lost_ata):
+        for label in (
+            self.game.lost_5050,
+            self.game.lost_ata,
+            self.game.lost_x2,
+            self.game.lost_change,
+            self.game.lost_revival,
+            self.game.lost_immunity,
+            self.game.lost_ftc,
+            self.game.gray_5050,
+            self.game.gray_ata,
+            self.game.gray_x2,
+            self.game.gray_change,
+            self.game.gray_revival,
+            self.game.gray_immunity,
+            self.game.gray_ftc,
+            self.game.gray_home,
+        ):
             label.hide()
-        self.game.gray_home.hide()
-        self.game.double_dip.hide()
+        if mode == 'classic':
+            self.game.gray_ftc.show()
+        self.game.central_q.hide()
 
         self.close()
 
@@ -100,7 +122,7 @@ class EndGameWindow(QDialog):
         self.parent_.restart_game()
         self.close()
         self.results = ResultsTableWindow()
-        self.results.move(166 + self.parent_.x(), 93 + self.parent_.y())
+        self.results.move(156 + self.parent_.x(), 93 + self.parent_.y())
         self.results.show()
         logging.info('Game restart')
 
@@ -112,7 +134,7 @@ class EndGameWindow(QDialog):
         if self.is_sound:
             self.player.play()
         self.results = ResultsTableWindow(True)
-        self.results.move(213 + self.parent_.x(), 93 + self.parent_.y())
+        self.results.move(203 + self.parent_.x(), 93 + self.parent_.y())
         self.results.show()
         logging.info('Game close\n')
 
@@ -190,7 +212,7 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         )
 
         self.windialog = WinLeaveWindow(self.parent_, (self.correct_answer, self.prize, self.is_sound))
-        self.windialog.move(211 + self.parent_.x(), 210 + self.parent_.y())
+        self.windialog.move(201 + self.parent_.x(), 210 + self.parent_.y())
 
         for player in (self.parent_.player1, self.parent_.player2, self.parent_.player3, self.parent_.player4):
             player.stop()
@@ -211,7 +233,7 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
             self.parent_.current_state_q_2.show()
 
         self.parent_.scheduler1.schedule(3000, lambda: True)
-        self.parent_.scheduler1.schedule(0, self.parent_.double_dip.startFadeOutImage)
+        self.parent_.scheduler1.schedule(0, self.parent_.central_q.startFadeOutImage)
         self.parent_.clear_all_labels()
         self.parent_.update_and_animate_logo_and_background(None, 'intro', None, '1-5')
         if self.parent_.mode == 'clock':

@@ -86,7 +86,7 @@ class Ui_StartDialog(object):
         self.verticalLayout.setObjectName('verticalLayout')
         self.formLayout = QtWidgets.QFormLayout()
         self.formLayout.setFormAlignment(
-            Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter  # type: ignore
+            Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
         )
         self.formLayout.setHorizontalSpacing(10)
         self.formLayout.setVerticalSpacing(0)
@@ -110,11 +110,11 @@ class Ui_StartDialog(object):
 
         self.buttonGroup = QtWidgets.QButtonGroup(Dialog)
         self.buttonGroup.setObjectName('ButtonGroup')
-        self.radioButton = QtWidgets.QRadioButton(self)  # type: ignore
+        self.radioButton = QtWidgets.QRadioButton(self)
         self.radioButton.setChecked(True)
         self.radioButton.setObjectName('radioButton')
         self.buttonGroup.addButton(self.radioButton)
-        self.radioButton_2 = QtWidgets.QRadioButton(self)  # type: ignore
+        self.radioButton_2 = QtWidgets.QRadioButton(self)
         self.radioButton_2.setObjectName('radioButton_2')
         self.buttonGroup.addButton(self.radioButton_2)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
@@ -163,7 +163,7 @@ class Ui_Rules(object):
 
     def setupUi(self, Form):
         Form.setObjectName('Form')
-        Form.setFixedSize(624, 886)
+        Form.setFixedSize(624, 949)
         Form.setFont(font9)
         Form.setWindowTitle('Правила игры')
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(Form)
@@ -173,10 +173,10 @@ class Ui_Rules(object):
         self.scrollArea.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.scrollArea.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
         self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
+        self.scrollArea.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.scrollArea.setObjectName('scrollArea')
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 624, 933))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 624, 949))
         self.scrollAreaWidgetContents.setObjectName('scrollAreaWidgetContents')
         self.verticalLayout = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout.setContentsMargins(10, 10, 10, 10)
@@ -255,10 +255,10 @@ class Ui_Rules(object):
 
         self.picture_ll = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.picture_ll.setSizePolicy(sizePolicy)
-        self.picture_ll.setMaximumSize(QtCore.QSize(602, 56))
+        self.picture_ll.setMaximumSize(QtCore.QSize(602, 119))
         self.picture_ll.setPixmap(QtGui.QPixmap('images/rules/lifelines.png'))
         self.picture_ll.setScaledContents(True)
-        self.picture_ll.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
+        self.picture_ll.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.picture_ll.setObjectName('picture_ll')
         self.aboutLifelines.addWidget(self.picture_ll)
 
@@ -285,7 +285,7 @@ class Ui_Rules(object):
         self.picture_ans.setMaximumSize(QtCore.QSize(602, 103))
         self.picture_ans.setPixmap(QtGui.QPixmap('images/rules/question_field.png'))
         self.picture_ans.setScaledContents(True)
-        self.picture_ans.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
+        self.picture_ans.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.picture_ans.setObjectName('picture_ans')
         self.aboutAnswers.addWidget(self.picture_ans)
 
@@ -387,57 +387,61 @@ class Ui_MainWindow(object):
         self.answer_C = AnimationLabel(self.questionField)
         self.answer_D = AnimationLabel(self.questionField)
         for answer_letter in ('A', 'B', 'C', 'D'):
-            percent_label = self.__getattribute__(f'answer_{answer_letter}')
-            percent_label.setPalette(palette)
-            percent_label.setFont(local_font)
-            percent_label.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
-            percent_label.setText('')
-            percent_label.setAlignment(
+            label = self.__getattribute__(f'answer_{answer_letter}')
+            label.setPalette(palette)
+            label.setFont(local_font)
+            label.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
+            label.setText('')
+            label.setAlignment(
                 Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
-                # type: ignore
             )
-            percent_label.setWordWrap(True)
-            percent_label.setObjectName(f'answer_{answer_letter}')
+            label.setWordWrap(True)
+            label.setObjectName(f'answer_{answer_letter}')
 
-        for answer_letter, rect in zip(
-            ('A', 'B', 'C', 'D'), ((237, 99, 288, 40), (607, 99, 288, 40), (237, 151, 288, 40), (607, 151, 288, 40))
-        ):
-            percent_label = self.__getattribute__(f'answer_{answer_letter}')
-            percent_label.setGeometry(QtCore.QRect(*rect))
+        for answer_letter, rect in zip(('A', 'B', 'C', 'D'), ((237, 99), (607, 99), (237, 151), (607, 151))):
+            label = self.__getattribute__(f'answer_{answer_letter}')
+            label.setGeometry(QtCore.QRect(*rect, 288, 40))
 
         self.question = AnimationLabel(self.questionField)
         self.question.setGeometry(QtCore.QRect(190, 7, 728, 80))
         self.question.setPalette(palette)
         self.question.setFont(local_font)
         self.question.setText('')
-        self.question.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
+        self.question.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.question.setWordWrap(True)
         self.question.setObjectName('question')
 
+        question_layout_position = QtCore.QRect(-20, -28, 1142, 226)
         self.layout_q = QtWidgets.QLabel(self.questionField)
-        self.layout_q.setGeometry(QtCore.QRect(-20, -28, 1142, 226))
+        self.layout_q.setGeometry(question_layout_position)
         self.layout_q.setText('')
         self.layout_q.setPixmap(QtGui.QPixmap('animation/question field/1.png'))
         self.layout_q.setScaledContents(True)
         self.layout_q.setObjectName('layout_q')
 
-        self.current_state_q = AnimationLabel(self.questionField)
-        self.current_state_q.setGeometry(QtCore.QRect(-20, -28, 1142, 226))
-        self.current_state_q.setText('')
-        self.current_state_q.setScaledContents(True)
-        self.current_state_q.setObjectName('current_state_q')
+        self.current_state_q_1 = AnimationLabel(self.questionField)
+        self.current_state_q_1.setGeometry(question_layout_position)
+        self.current_state_q_1.setText('')
+        self.current_state_q_1.setScaledContents(True)
+        self.current_state_q_1.setObjectName('current_state_q_1')
 
         self.current_state_q_2 = AnimationLabel(self.questionField)
-        self.current_state_q_2.setGeometry(QtCore.QRect(-20, -28, 1142, 226))
+        self.current_state_q_2.setGeometry(question_layout_position)
         self.current_state_q_2.setText('')
         self.current_state_q_2.setScaledContents(True)
         self.current_state_q_2.setObjectName('current_state_q_2')
 
         self.current_state_q_3 = AnimationLabel(self.questionField)
-        self.current_state_q_3.setGeometry(QtCore.QRect(-20, -28, 1142, 226))
+        self.current_state_q_3.setGeometry(question_layout_position)
         self.current_state_q_3.setText('')
         self.current_state_q_3.setScaledContents(True)
         self.current_state_q_3.setObjectName('current_state_q_3')
+
+        self.current_state_q_4 = AnimationLabel(self.questionField)
+        self.current_state_q_4.setGeometry(question_layout_position)
+        self.current_state_q_4.setText('')
+        self.current_state_q_4.setScaledContents(True)
+        self.current_state_q_4.setObjectName('current_state_q_4')
 
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(Qt.BrushStyle.SolidPattern)
@@ -449,15 +453,15 @@ class Ui_MainWindow(object):
         local_font.setPointSize(33)
         self.amount_q.setFont(local_font)
         self.amount_q.setText('')
-        self.amount_q.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
+        self.amount_q.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.amount_q.setObjectName('amount_q')
 
-        self.double_dip = AnimationLabel(self.questionField)
-        self.double_dip.setGeometry(QtCore.QRect(519, 126, 66, 40))
-        self.double_dip.setText('')
-        self.double_dip.setPixmap(QtGui.QPixmap('images/double-dip.png'))
-        self.double_dip.setScaledContents(True)
-        self.double_dip.setObjectName('double_dip')
+        self.central_q = AnimationLabel(self.questionField)
+        self.central_q.setGeometry(QtCore.QRect(519, 126, 66, 40))
+        self.central_q.setText('')
+        self.central_q.setPixmap(QtGui.QPixmap('images/question field/double-dip.png'))
+        self.central_q.setScaledContents(True)
+        self.central_q.setObjectName('central_q')
 
         self.layoutWidget = QtWidgets.QWidget(self.central_widget)
         self.layoutWidget.setGeometry(QtCore.QRect(0, 0, 1101, 491))
@@ -489,36 +493,37 @@ class Ui_MainWindow(object):
         self.current_state_t.setScaledContents(True)
         self.current_state_t.setObjectName('current_state_t')
 
-        self.lost_change = AnimationLabel(self.moneyTree)
-        self.lost_change.setGeometry(tree_position)
-        self.lost_change.setText('')
-        self.lost_change.setPixmap(QtGui.QPixmap('images/money tree/change/lost.png'))
-        self.lost_change.setScaledContents(True)
-        self.lost_change.setObjectName('lost_change')
         self.lost_5050 = AnimationLabel(self.moneyTree)
-        self.lost_5050.setGeometry(tree_position)
-        self.lost_5050.setText('')
-        self.lost_5050.setPixmap(QtGui.QPixmap('images/money tree/5050/lost.png'))
-        self.lost_5050.setScaledContents(True)
-        self.lost_5050.setObjectName('lost_5050')
-        self.lost_x2 = AnimationLabel(self.moneyTree)
-        self.lost_x2.setGeometry(tree_position)
-        self.lost_x2.setText('')
-        self.lost_x2.setPixmap(QtGui.QPixmap('images/money tree/x2/lost.png'))
-        self.lost_x2.setScaledContents(True)
-        self.lost_x2.setObjectName('lost_x2')
         self.lost_ata = AnimationLabel(self.moneyTree)
-        self.lost_ata.setGeometry(tree_position)
-        self.lost_ata.setText('')
-        self.lost_ata.setPixmap(QtGui.QPixmap('images/money tree/ata/lost.png'))
-        self.lost_ata.setScaledContents(True)
-        self.lost_ata.setObjectName('lost_ata')
+        self.lost_x2 = AnimationLabel(self.moneyTree)
+        self.lost_change = AnimationLabel(self.moneyTree)
+        self.lost_revival = AnimationLabel(self.moneyTree)
+        self.lost_immunity = AnimationLabel(self.moneyTree)
+        self.lost_ftc = AnimationLabel(self.moneyTree)
+        for ll_name in ('5050', 'ata', 'x2', 'change', 'revival', 'immunity', 'ftc'):
+            ll_lost_label = self.__getattribute__(f'lost_{ll_name}')
+            ll_lost_label.setGeometry(tree_position)
+            ll_lost_label.setText('')
+            ll_lost_label.setPixmap(QtGui.QPixmap(f'images/money tree/{ll_name}/lost.png'))
+            ll_lost_label.setScaledContents(True)
+            ll_lost_label.setObjectName(f'lost_{ll_name}')
+
+        self.gray_5050 = AnimationLabel(self.moneyTree)
+        self.gray_ata = AnimationLabel(self.moneyTree)
+        self.gray_x2 = AnimationLabel(self.moneyTree)
+        self.gray_change = AnimationLabel(self.moneyTree)
+        self.gray_revival = AnimationLabel(self.moneyTree)
+        self.gray_immunity = AnimationLabel(self.moneyTree)
+        self.gray_ftc = AnimationLabel(self.moneyTree)
         self.gray_home = AnimationLabel(self.moneyTree)
-        self.gray_home.setGeometry(tree_position)
-        self.gray_home.setText('')
-        self.gray_home.setPixmap(QtGui.QPixmap('images/money tree/home/gray.png'))
-        self.gray_home.setScaledContents(True)
-        self.gray_home.setObjectName('gray_home')
+        for ll_name in ('5050', 'ata', 'x2', 'change', 'revival', 'immunity', 'ftc', 'home'):
+            ll_gray_label = self.__getattribute__(f'gray_{ll_name}')
+            ll_gray_label.setGeometry(tree_position)
+            ll_gray_label.setText('')
+            ll_gray_label.setPixmap(QtGui.QPixmap(f'images/money tree/{ll_name}/gray.png'))
+            ll_gray_label.setScaledContents(True)
+            ll_gray_label.setObjectName(f'gray_{ll_name}')
+
         self.current_state_ll = AnimationLabel(self.moneyTree)
         self.current_state_ll.setGeometry(tree_position)
         self.current_state_ll.setText('')
@@ -526,13 +531,13 @@ class Ui_MainWindow(object):
         self.current_state_ll.setObjectName('current_state_ll')
 
         self.background_1 = QtWidgets.QLabel(self.central_widget)
-        self.background_1.setGeometry(QtCore.QRect(0, 0, 1100, 680))
+        self.background_1.setGeometry(QtCore.QRect(0, 0, 1100, 703))
         self.background_1.setText('')
         self.background_1.setScaledContents(True)
         self.background_1.setObjectName('background_1')
 
         self.background_2 = AnimationLabel(self.central_widget)
-        self.background_2.setGeometry(QtCore.QRect(0, 0, 1100, 680))
+        self.background_2.setGeometry(QtCore.QRect(0, 0, 1100, 703))
         self.background_2.setText('')
         self.background_2.setScaledContents(True)
         self.background_2.setObjectName('background_2')
@@ -541,7 +546,7 @@ class Ui_MainWindow(object):
         self.timer_view.setGeometry(QtCore.QRect(215, 419, 678, 64))
         self.timer_view.setText('')
         self.timer_view.setScaledContents(True)
-        self.timer_view.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
+        self.timer_view.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.timer_view.setObjectName('timer')
 
         self.timer_text = AnimationLabel(self.central_widget)
@@ -552,7 +557,7 @@ class Ui_MainWindow(object):
         local_font.setWeight(75)
         self.timer_text.setFont(local_font)
         self.timer_text.setText('')
-        self.timer_text.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
+        self.timer_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.timer_text.setObjectName('timer_text')
 
         verdana_font = QtGui.QFont()
@@ -563,7 +568,7 @@ class Ui_MainWindow(object):
 
         self.ata_layout = AnimationLabel(self.central_widget)
         self.ata_layout.setObjectName('ata_layout')
-        self.ata_layout.setGeometry(QtCore.QRect(588, 15, 226, 331))
+        self.ata_layout.setGeometry(QtCore.QRect(568, 15, 226, 331))
         self.ata_layout.setPixmap(QtGui.QPixmap('images/ata.png'))
         self.ata_layout.setScaledContents(True)
         self.ata_layout.hide()
@@ -572,9 +577,9 @@ class Ui_MainWindow(object):
         self.ata_b_percents = AnimationLabel(self.central_widget)
         self.ata_c_percents = AnimationLabel(self.central_widget)
         self.ata_d_percents = AnimationLabel(self.central_widget)
-        for answer_letter, rect in zip(('a', 'b', 'c', 'd'), ((602, 28), (651, 28), (704, 28), (753, 28))):
+        for answer_letter, coord_x in zip(('a', 'b', 'c', 'd'), (582, 631, 684, 733)):
             percent_label = self.__getattribute__(f'ata_{answer_letter}_percents')
-            percent_label.setGeometry(QtCore.QRect(*rect, 49, 22))
+            percent_label.setGeometry(QtCore.QRect(coord_x, 28, 49, 22))
             percent_label.setFont(verdana_font)
             percent_label.setPalette(palette)
             percent_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -590,7 +595,7 @@ class Ui_MainWindow(object):
             self.ata_b_score = QLabel()
             self.ata_c_score = QLabel()
             self.ata_d_score = QLabel()
-        for i, (answer_letter, coord_x) in enumerate(zip(('a', 'b', 'c', 'd'), (611, 660, 713, 762))):
+        for i, (answer_letter, coord_x) in enumerate(zip(('a', 'b', 'c', 'd'), (591, 640, 693, 742))):
             self.__setattr__(f'verticalLayoutWidget_{i}', QtWidgets.QWidget(self.central_widget))
             layout_widget = self.__getattribute__(f'verticalLayoutWidget_{i}')
             layout_widget.setObjectName(f'verticalLayoutWidget_{i}')
@@ -619,7 +624,7 @@ class Ui_MainWindow(object):
             column_label.hide()
             extending_label.addWidget(column_label)
 
-        big_logo_position = QtCore.QRect(261, 98, 300, 300)
+        big_logo_position = QtCore.QRect(251, 98, 300, 300)
         self.big_logo_1 = AnimationLabel(self.central_widget)
         self.big_logo_1.setObjectName('big_logo_1')
         self.big_logo_1.setGeometry(big_logo_position)
@@ -637,19 +642,23 @@ class Ui_MainWindow(object):
         for label in (
             self.layout_q,
             self.amount_q,
-            self.current_state_q,
+            self.current_state_q_1,
             self.current_state_q_2,
             self.current_state_q_3,
+            self.current_state_q_4,
             self.question,
             self.answer_A,
             self.answer_B,
             self.answer_C,
             self.answer_D,
-            self.double_dip,
-            self.lost_change,
+            self.central_q,
             self.lost_5050,
-            self.lost_x2,
             self.lost_ata,
+            self.lost_x2,
+            self.lost_change,
+            self.lost_revival,
+            self.lost_immunity,
+            self.lost_ftc,
             self.background_1,
             self.background_2,
             self.questionField,
@@ -700,7 +709,7 @@ class EndGameDialog(object):
         self.verticalLayout.setObjectName('verticalLayout')
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setFont(bold_font)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.label.setObjectName('label')
         self.verticalLayout.addWidget(self.label)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
@@ -869,7 +878,7 @@ class Ui_About(object):
         self.ruText = QtWidgets.QLabel(Form)
         self.ruText.setFont(font9)
         self.ruText.setScaledContents(False)
-        self.ruText.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)  # type: ignore
+        self.ruText.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         self.ruText.setWordWrap(True)
         self.ruText.setObjectName('ruText')
         self.ruText.setOpenExternalLinks(True)
@@ -878,7 +887,7 @@ class Ui_About(object):
         self.enText.setEnabled(True)
         self.enText.setFont(font9)
         self.enText.setScaledContents(False)
-        self.enText.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)  # type: ignore
+        self.enText.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         self.enText.setWordWrap(True)
         self.enText.setObjectName('enText')
         self.enText.setOpenExternalLinks(True)

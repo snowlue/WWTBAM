@@ -38,7 +38,7 @@ for _, row in data.iterrows():
 
     answers = {'A': row['option_a'], 'B': row['option_b'], 'C': row['option_c'], 'D': row['option_d']}
 
-    correct_answer = answers[row['answer']]  # type: ignore
+    correct_answer = answers[row['answer']]
     other_answers = [answers[option] for option in answers if option != row['answer']]
 
     with suppress(Exception):
