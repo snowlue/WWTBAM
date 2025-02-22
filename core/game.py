@@ -45,7 +45,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.user_control = False  # реагирует ли игра на действия игрока
         self.name = name
         self.mode = mode
-        self.bg_num = randint(1, 9)
+        self.bg_num = randint(1, 10)
 
         self.hovered_answer = ''
         self.hovered_lifeline = ''
