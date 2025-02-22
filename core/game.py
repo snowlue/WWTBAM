@@ -281,15 +281,15 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if event.key() in (Qt.Key.Key_S, 39, 1067, 1069):  # S, Ы, ', Э
             self.response_to_event(568, 653)  # эмулируем выбор ответа D
         if event.key() == Qt.Key.Key_1:
-            self.response_to_event(766, 43)  # эмулируем выбор «замены вопроса»
+            self.response_to_event(860, 43)  # эмулируем выбор «замены вопроса»
         if event.key() == Qt.Key.Key_2:
-            self.response_to_event(835, 43)  # эмулируем выбор 50:50
+            self.response_to_event(929, 43)  # эмулируем выбор 50:50
         if event.key() == Qt.Key.Key_3:
-            self.response_to_event(902, 43)  # эмулируем выбор «права на ошибку»
+            self.response_to_event(996, 43)  # эмулируем выбор «права на ошибку»
         if event.key() == Qt.Key.Key_4:
-            self.response_to_event(800, 77)  # эмулируем выбор «помощи зала»
+            self.response_to_event(894, 77)  # эмулируем выбор «помощи зала»
         if event.key() == Qt.Key.Key_5:
-            self.response_to_event(866, 77)  # эмулируем выбор «забрать деньги»
+            self.response_to_event(960, 77)  # эмулируем выбор «забрать деньги»
         if event.key() in (Qt.Key.Key_M, 1068):  # M, Ь
             self.is_sound = not self.is_sound  # переключаем звук
             self.sound_btn.setChecked(self.is_sound)
@@ -307,7 +307,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if not self.user_control:
             return
 
-        if all((866 <= x <= 916, 77 <= y <= 107, self.used_lifelines_counter < 4)):
+        if all((960 <= x <= 1010, 77 <= y <= 107, self.used_lifelines_counter < 4)):
             self.show_selecting_lifeline('home')
             return
         elif not self.has_shown:
@@ -330,13 +330,13 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if self.used_lifelines_counter == 4:
             return
 
-        if 766 <= x <= 816 and 43 <= y <= 73:
+        if 860 <= x <= 910 and 43 <= y <= 73:
             self.show_selecting_lifeline('change')
-        elif 835 <= x <= 885 and 43 <= y <= 73:
+        elif 929 <= x <= 979 and 43 <= y <= 73:
             self.show_selecting_lifeline('5050')
-        elif 902 <= x <= 952 and 43 <= y <= 63:
+        elif 996 <= x <= 1046 and 43 <= y <= 63:
             self.show_selecting_lifeline('x2')
-        elif 800 <= x <= 850 and 77 <= y <= 107:
+        elif 894 <= x <= 944 and 77 <= y <= 107:
             self.show_selecting_lifeline('ata')
         else:
             self.show_selecting_lifeline('')
@@ -377,7 +377,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if all((self.user_control, self.mode == 'clock', 521 <= x <= 584, 627 <= y <= 665)):
             self.show_answers()
 
-        if all((self.user_control, 866 <= x <= 916, 77 <= y <= 107, self.used_lifelines_counter < 4)):  # забрать деньги
+        if all((self.user_control, 960 <= x <= 1010, 77 <= y <= 107, self.used_lifelines_counter < 4)):  # забрать деньги
             self.open_confirm_leave()
 
         if not self.user_control or not self.has_shown and self.mode == 'clock':
@@ -406,19 +406,19 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if self.used_lifelines_counter == 4:
             return
 
-        if 766 <= x <= 816 and 43 <= y <= 73:
+        if 860 <= x <= 910 and 43 <= y <= 73:
             self.show_lost_lifeline(self.lost_change)
             self.use_lifeline('change')
-        elif 835 <= x <= 885 and 43 <= y <= 73:
+        elif 929 <= x <= 979 and 43 <= y <= 73:
             self.show_lost_lifeline(self.lost_5050)
             self.use_lifeline('50:50')
-        elif 902 <= x <= 952 and 43 <= y <= 73:
+        elif 996 <= x <= 1046 and 43 <= y <= 73:
             self.show_lost_lifeline(self.lost_x2)
             if self.lifelines['x2']:
                 self.double_dip.show()
                 self.double_dip.startFadeInImage()
             self.use_lifeline('x2')
-        elif 800 <= x <= 850 and 77 <= y <= 107:
+        elif 894 <= x <= 944 and 77 <= y <= 107:
             self.show_lost_lifeline(self.lost_ata)
             self.use_lifeline('ata')
 
@@ -887,7 +887,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.is_ata_now = True
 
         if self.used_lifelines_counter == 4:
-            self.deactivated_home.show()
+            self.gray_home.show()
 
         self.lifelines[type_ll] = False
         self.scheduler1.start()
@@ -904,7 +904,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.seconds_prize = 0
         for ll_button in (self.lost_change, self.lost_x2, self.lost_5050, self.lost_ata):
             ll_button.hide()
-        self.deactivated_home.hide()
+        self.gray_home.hide()
         self.clear_all_labels()
         self.scheduler1.start()
         for player in (self.player1, self.player2, self.player3, self.player4):
@@ -916,7 +916,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         self.user_control = False
         self.win = WinWindow(self, self.is_sound)
-        self.win.move(169 + self.x(), 210 + self.y())
+        self.win.move(215 + self.x(), 210 + self.y())
         self.win.show()
         logging.info('Game over - player won')
 
@@ -925,7 +925,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         self.user_control = False
         self.game_over = GameOverWindow(self, state)
-        self.game_over.move(169 + self.x(), 210 + self.y())
+        self.game_over.move(215 + self.x(), 210 + self.y())
         self.game_over.show()
         logging.info('Game over - player lost')
 
@@ -937,28 +937,28 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         letter = num_to_let[self.answers.index(self.correct_answer)]
         self.confirm_window = ConfirmLeaveWindow(self, letter, self.is_sound)
         # и передаём правильный ответ, чтобы показать его после взятия денег
-        self.confirm_window.move(168 + self.x(), 216 + self.y())
+        self.confirm_window.move(214 + self.x(), 216 + self.y())
         self.confirm_window.show()
 
     def open_confirm_again(self):
         """Показывает форму для подтверждения перезапуска игры"""
 
         self.confirm_window = ConfirmAgainWindow(self)
-        self.confirm_window.move(168 + self.x(), 216 + self.y())
+        self.confirm_window.move(214 + self.x(), 216 + self.y())
         self.confirm_window.show()
 
     def open_confirm_close(self):
         """Показывает форму для подтверждения закрытия игры"""
 
         self.confirm_window = ConfirmCloseWindow()
-        self.confirm_window.move(168 + self.x(), 216 + self.y())
+        self.confirm_window.move(214 + self.x(), 216 + self.y())
         self.confirm_window.show()
 
     def open_results_table(self):
         """Показывает таблицу результатов"""
 
         self.results_table = ResultsTableWindow()
-        self.results_table.move(170 + self.x(), 93 + self.y())
+        self.results_table.move(216 + self.x(), 93 + self.y())
         self.results_table.show()
         logging.info('Results table open')
 
@@ -966,14 +966,14 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         """Показывает форму для удаления одного результата из таблицы результатов"""
 
         self.delete_form = DeleteResultWindow()
-        self.delete_form.move(147 + self.x(), 93 + self.y())
+        self.delete_form.move(193 + self.x(), 93 + self.y())
         self.delete_form.show()
 
     def open_confirm_clear_all(self):
         """Показывает форму для очистки таблицы результатов"""
 
         self.confirm_window = ConfirmClearAll()
-        self.confirm_window.move(168 + self.x(), 216 + self.y())
+        self.confirm_window.move(214 + self.x(), 216 + self.y())
         self.confirm_window.show()
 
     def open_about(self):
@@ -984,7 +984,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             player.setVolume(20 * self.is_sound)
         self.player3.set_media(decorate_audio('sounds/about.mp3'))
         self.player3.play()
-        self.about_window.move(178 + self.x(), 175 + self.y())
+        self.about_window.move(224 + self.x(), 175 + self.y())
         self.about_window.show()
         logging.info('About open')
 

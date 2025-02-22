@@ -83,7 +83,7 @@ class StartWindow(QDialog, Ui_StartDialog):
 
         for label in (self.game.lost_change, self.game.lost_5050, self.game.lost_x2, self.game.lost_ata):
             label.hide()
-        self.game.deactivated_home.hide()
+        self.game.gray_home.hide()
         self.game.double_dip.hide()
 
         self.close()
