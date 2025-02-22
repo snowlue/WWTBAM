@@ -249,6 +249,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.player2.stop)
             self.scheduler1.schedule(0, self.player3.play)
             logging.info("Time's up")
+            self.update_and_animate_logo_and_background(None, 'wrong', None, 'wrong')
 
             # мигалка правильного ответа
             self.show_correct_answer(correct_answer_letter)
@@ -447,6 +448,13 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         for label in (self.answer_A, self.answer_B, self.answer_C, self.answer_D):
             self.scheduler1.schedule(0, label.startFadeOut)
 
+    def clear_ata_field(self):
+        for ata_label in (self.ata_a_percents, self.ata_b_percents, self.ata_c_percents, self.ata_d_percents):
+            self.scheduler1.schedule(0, ata_label.startFadeOut)
+        for ata_label in (self.ata_a_score, self.ata_b_score, self.ata_c_score, self.ata_d_score):
+            self.scheduler1.schedule(0, ata_label.hide)
+        self.scheduler1.schedule(0, self.ata_layout.startFadeOutImage)
+
     def clear_all_labels(self):
         """Подчищает все слои состояния и текстовые блоки"""
 
@@ -454,11 +462,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, state_label.startFadeOutImage)
 
         if self.is_ata_now:
-            for ata_label in (self.ata_a_percents, self.ata_b_percents, self.ata_c_percents, self.ata_d_percents):
-                self.scheduler1.schedule(0, ata_label.startFadeOut)
-            for ata_label in (self.ata_a_score, self.ata_b_score, self.ata_c_score, self.ata_d_score):
-                self.scheduler1.schedule(0, ata_label.hide)
-            self.scheduler1.schedule(0, self.ata_layout.startFadeOutImage)
+            self.clear_ata_field()
+            self.is_ata_now = False
 
         self.scheduler1.schedule(100, lambda: True)
         self.clear_question_field()
@@ -466,12 +471,6 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         for label in (self.question, self.answer_A, self.answer_B, self.answer_C, self.answer_D):
             self.scheduler1.schedule(0, label.setText, '')
-
-        if self.is_ata_now:
-            for ata_label in (self.ata_a_percents, self.ata_b_percents, self.ata_c_percents, self.ata_d_percents):
-                self.scheduler1.schedule(0, ata_label.setText, '')
-            self.scheduler1.schedule(0, self.ata_layout.hide)
-            self.is_ata_now = False
 
     @staticmethod
     def show_lost_lifeline(ll_button):
@@ -784,6 +783,9 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.clear_question_field()
             if self.is_x2_now:  # на смене вопроса отменяем «право на ошибку»
                 self.scheduler1.schedule(0, self.double_dip.startFadeOutImage)
+            if self.is_ata_now:
+                self.clear_ata_field()
+                self.is_ata_now = False
             self.scheduler1.schedule(200, self.update_question_field, True)
             if self.is_x2_now or len(self.non_active_answers) in (1, 3):
                 n = '1-4' if self.current_question_num in range(1, 5) else self.current_question_num
@@ -857,17 +859,14 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 letter = score_label.objectName().split('_')[1].upper()
                 if letter == correct_answer_letter:
                     correct_score_label = score_label
-                    correct_percents_label = percents_label
+                    self.scheduler1.schedule(0, percents_label.setText, f'{correct_percent}%')
                 elif letter not in self.non_active_answers:
                     other_score_labels.append(score_label)
                     other_percents_labels.append(percents_label)
 
-            # noinspection PyUnboundLocalVariable
-            self.scheduler1.schedule(0, correct_percents_label.setText, f'{correct_percent}%')
             for j, percent in enumerate(other_percents):
                 self.scheduler1.schedule(0, other_percents_labels[j].setText, f'{percent}%')
             for percents_label in (self.ata_a_percents, self.ata_b_percents, self.ata_c_percents, self.ata_d_percents):
-                self.scheduler1.schedule(0, percents_label.show)
                 self.scheduler1.schedule(0, percents_label.startFadeIn)
 
             for i in range(0, 100):

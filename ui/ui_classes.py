@@ -559,7 +559,6 @@ class Ui_MainWindow(object):
         verdana_font.setPointSize(11)
         verdana_font.setBold(True)
         verdana_font.setWeight(75)
-        styles = 'color: rgb(255, 255, 255);'
 
         self.ata_layout = AnimationLabel(self.central_widget)
         self.ata_layout.setObjectName('ata_layout')
@@ -576,9 +575,9 @@ class Ui_MainWindow(object):
             percent_label = self.__getattribute__(f'ata_{answer_letter}_percents')
             percent_label.setGeometry(QtCore.QRect(*rect, 49, 22))
             percent_label.setFont(verdana_font)
-            percent_label.setStyleSheet(styles)
+            percent_label.setPalette(palette)
             percent_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            percent_label.hide()
+            percent_label.setObjectName(f'ata_{answer_letter}_percents')
 
         score_column = QtGui.QPixmap('images/ata_score.png')
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
