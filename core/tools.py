@@ -142,7 +142,7 @@ def convert_amount_to_str(amount: int) -> str:
     return '{:,}'.format(amount).replace(',', ' ')
 
 
-def ask_audience(question_number: int):
+def ask_audience(question_number: int, available_count: int) -> tuple[int, list[int]]:
     """Симулирует помощь зала"""
 
     if question_number in range(1, 6):
@@ -157,10 +157,12 @@ def ask_audience(question_number: int):
     correct_percentage = random.randint(correct_min, correct_max)
     remaining = 100 - correct_percentage
 
-    other_votes = [random.random() for _ in range(3)]
+    other_votes = [random.random() for _ in range(available_count - 1)]
     total = sum(other_votes)
     other_percentages = [round(x / total * remaining) for x in other_votes]
 
+    if not other_percentages:
+        return 100, []
     diff = remaining - sum(other_percentages)
     other_percentages[0] += diff
     random.shuffle(other_percentages)

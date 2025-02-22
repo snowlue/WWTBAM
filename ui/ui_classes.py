@@ -385,25 +385,25 @@ class Ui_MainWindow(object):
         self.answer_B = AnimationLabel(self.questionField)
         self.answer_C = AnimationLabel(self.questionField)
         self.answer_D = AnimationLabel(self.questionField)
-        for label_name in ('answer_A', 'answer_B', 'answer_C', 'answer_D'):
-            label = self.__getattribute__(label_name)
-            label.setPalette(palette)
-            label.setFont(local_font)
-            label.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
-            label.setText('')
-            label.setAlignment(
+        for answer_letter in ('answer_A', 'answer_B', 'answer_C', 'answer_D'):
+            percent_label = self.__getattribute__(answer_letter)
+            percent_label.setPalette(palette)
+            percent_label.setFont(local_font)
+            percent_label.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
+            percent_label.setText('')
+            percent_label.setAlignment(
                 Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
                 # type: ignore
             )
-            label.setWordWrap(True)
-            label.setObjectName(label_name)
+            percent_label.setWordWrap(True)
+            percent_label.setObjectName(answer_letter)
 
-        for label_name, rect in zip(
+        for answer_letter, rect in zip(
             ('answer_A', 'answer_B', 'answer_C', 'answer_D'),
             ((237, 99, 288, 40), (607, 99, 288, 40), (237, 151, 288, 40), (607, 151, 288, 40)),
         ):
-            label = self.__getattribute__(label_name)
-            label.setGeometry(QtCore.QRect(*rect))
+            percent_label = self.__getattribute__(answer_letter)
+            percent_label.setGeometry(QtCore.QRect(*rect))
 
         self.question = AnimationLabel(self.questionField)
         self.question.setGeometry(QtCore.QRect(190, 7, 728, 80))
@@ -535,7 +535,6 @@ class Ui_MainWindow(object):
         self.background_2.setText('')
         self.background_2.setScaledContents(True)
         self.background_2.setObjectName('background_2')
-        self.background_2.hide()
 
         self.timer_view = QtWidgets.QLabel(self.central_widget)
         self.timer_view.setGeometry(QtCore.QRect(215, 419, 678, 64))
@@ -562,31 +561,37 @@ class Ui_MainWindow(object):
         verdana_font.setWeight(75)
         styles = 'color: rgb(255, 255, 255);'
 
-        self.ata_layout = QLabel(self.central_widget)
+        self.ata_layout = AnimationLabel(self.central_widget)
         self.ata_layout.setObjectName('ata_layout')
         self.ata_layout.setGeometry(QtCore.QRect(503, 15, 226, 331))
-        self.ata_layout.setPixmap(QtGui.QPixmap('../../images/ata.png'))
+        self.ata_layout.setPixmap(QtGui.QPixmap('images/ata.png'))
         self.ata_layout.setScaledContents(True)
+        self.ata_layout.hide()
 
         self.ata_a_percents = AnimationLabel(self.central_widget)
         self.ata_b_percents = AnimationLabel(self.central_widget)
         self.ata_c_percents = AnimationLabel(self.central_widget)
         self.ata_d_percents = AnimationLabel(self.central_widget)
-        for label_name, rect in zip(
-            ('ata_a_percents', 'ata_b_percents', 'ata_c_percents', 'ata_d_percents'),
+        for answer_letter, rect in zip(
+            ('a', 'b', 'c', 'd'),
             ((517, 28), (566, 28), (619, 28), (668, 28)),
         ):
-            label = self.__getattribute__(label_name)
-            label.setGeometry(QtCore.QRect(*rect, 49, 22))
-            label.setFont(verdana_font)
-            label.setStyleSheet(styles)
-            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            percent_label = self.__getattribute__(f'ata_{answer_letter}_percents')
+            percent_label.setGeometry(QtCore.QRect(*rect, 49, 22))
+            percent_label.setFont(verdana_font)
+            percent_label.setStyleSheet(styles)
+            percent_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            percent_label.hide()
 
-        score_column = QtGui.QPixmap('../../images/ata_score.png')
+        score_column = QtGui.QPixmap('images/ata_score.png')
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
 
+        self.ata_a_score = QLabel()
+        self.ata_b_score = QLabel()
+        self.ata_c_score = QLabel()
+        self.ata_d_score = QLabel()
         for i, (answer_letter, coord_x) in enumerate(zip(('a', 'b', 'c', 'd'), (526, 575, 628, 677))):
             self.__setattr__(f'verticalLayoutWidget_{i}', QtWidgets.QWidget(self.central_widget))
             layout_widget = self.__getattribute__(f'verticalLayoutWidget_{i}')
@@ -594,16 +599,16 @@ class Ui_MainWindow(object):
             layout_widget.setGeometry(QtCore.QRect(coord_x, 49, 31, 182))
 
             self.__setattr__(f'ata_{answer_letter}', QtWidgets.QVBoxLayout(layout_widget))
-            percent_label = self.__getattribute__(f'ata_{answer_letter}')
-            percent_label.setSpacing(0)
-            percent_label.setObjectName(f'ata_{answer_letter}')
-            percent_label.setContentsMargins(0, 0, 0, 0)
+            extending_label = self.__getattribute__(f'ata_{answer_letter}')
+            extending_label.setSpacing(0)
+            extending_label.setObjectName(f'ata_{answer_letter}')
+            extending_label.setContentsMargins(0, 0, 0, 0)
             self.__setattr__(
                 f'verticalSpacer_{i}',
                 QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding),
             )
             spacer = self.__getattribute__(f'verticalSpacer_{i}')
-            percent_label.addItem(spacer)
+            extending_label.addItem(spacer)
             self.__setattr__(f'ata_{answer_letter}_score', QLabel(layout_widget))
             column_label = self.__getattribute__(f'ata_{answer_letter}_score')
             column_label.setObjectName(f'ata_{answer_letter}_score')
@@ -613,7 +618,8 @@ class Ui_MainWindow(object):
             column_label.setMaximumSize(QtCore.QSize(29, 180))
             column_label.setPixmap(score_column)
             column_label.setScaledContents(True)
-            percent_label.addWidget(column_label)
+            column_label.hide()
+            extending_label.addWidget(column_label)
 
         big_logo_position = QtCore.QRect(227, 98, 300, 300)
         self.big_logo_1 = AnimationLabel(self.central_widget)
