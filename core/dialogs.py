@@ -100,7 +100,7 @@ class EndGameWindow(QDialog):
         self.parent_.restart_game()
         self.close()
         self.results = ResultsTableWindow()
-        self.results.move(170 + self.parent_.x(), 93 + self.parent_.y())
+        self.results.move(166 + self.parent_.x(), 93 + self.parent_.y())
         self.results.show()
         logging.info('Game restart')
 
@@ -112,7 +112,7 @@ class EndGameWindow(QDialog):
         if self.is_sound:
             self.player.play()
         self.results = ResultsTableWindow(True)
-        self.results.move(217 + self.parent_.x(), 93 + self.parent_.y())
+        self.results.move(213 + self.parent_.x(), 93 + self.parent_.y())
         self.results.show()
         logging.info('Game close\n')
 
@@ -190,7 +190,7 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         )
 
         self.windialog = WinLeaveWindow(self.parent_, (self.correct_answer, self.prize, self.is_sound))
-        self.windialog.move(215 + self.parent_.x(), 210 + self.parent_.y())
+        self.windialog.move(211 + self.parent_.x(), 210 + self.parent_.y())
 
         for player in (self.parent_.player1, self.parent_.player2, self.parent_.player3, self.parent_.player4):
             player.stop()

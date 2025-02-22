@@ -1,4 +1,5 @@
 from datetime import datetime  # год в копирайте в «О приложении»
+from typing import TYPE_CHECKING
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QVariant, QVariantAnimation, Qt, pyqtSlot
@@ -385,8 +386,8 @@ class Ui_MainWindow(object):
         self.answer_B = AnimationLabel(self.questionField)
         self.answer_C = AnimationLabel(self.questionField)
         self.answer_D = AnimationLabel(self.questionField)
-        for answer_letter in ('answer_A', 'answer_B', 'answer_C', 'answer_D'):
-            percent_label = self.__getattribute__(answer_letter)
+        for answer_letter in ('A', 'B', 'C', 'D'):
+            percent_label = self.__getattribute__(f'answer_{answer_letter}')
             percent_label.setPalette(palette)
             percent_label.setFont(local_font)
             percent_label.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
@@ -396,13 +397,12 @@ class Ui_MainWindow(object):
                 # type: ignore
             )
             percent_label.setWordWrap(True)
-            percent_label.setObjectName(answer_letter)
+            percent_label.setObjectName(f'answer_{answer_letter}')
 
         for answer_letter, rect in zip(
-            ('answer_A', 'answer_B', 'answer_C', 'answer_D'),
-            ((237, 99, 288, 40), (607, 99, 288, 40), (237, 151, 288, 40), (607, 151, 288, 40)),
+            ('A', 'B', 'C', 'D'), ((237, 99, 288, 40), (607, 99, 288, 40), (237, 151, 288, 40), (607, 151, 288, 40))
         ):
-            percent_label = self.__getattribute__(answer_letter)
+            percent_label = self.__getattribute__(f'answer_{answer_letter}')
             percent_label.setGeometry(QtCore.QRect(*rect))
 
         self.question = AnimationLabel(self.questionField)
@@ -475,51 +475,52 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setStretch(1, 50)
         self.horizontalLayout.setObjectName('horizontalLayout')
 
+        tree_position = QtCore.QRect(0, 0, 376, 480)
         self.layout_t = QtWidgets.QLabel(self.moneyTree)
-        self.layout_t.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.layout_t.setGeometry(tree_position)
         self.layout_t.setText('')
         self.layout_t.setPixmap(QtGui.QPixmap('images/money tree/layout.png'))
         self.layout_t.setScaledContents(True)
         self.layout_t.setObjectName('layout_t')
 
         self.current_state_t = QtWidgets.QLabel(self.moneyTree)
-        self.current_state_t.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.current_state_t.setGeometry(tree_position)
         self.current_state_t.setText('')
         self.current_state_t.setScaledContents(True)
         self.current_state_t.setObjectName('current_state_t')
 
         self.lost_change = AnimationLabel(self.moneyTree)
-        self.lost_change.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.lost_change.setGeometry(tree_position)
         self.lost_change.setText('')
         self.lost_change.setPixmap(QtGui.QPixmap('images/money tree/change/lost.png'))
         self.lost_change.setScaledContents(True)
         self.lost_change.setObjectName('lost_change')
         self.lost_5050 = AnimationLabel(self.moneyTree)
-        self.lost_5050.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.lost_5050.setGeometry(tree_position)
         self.lost_5050.setText('')
         self.lost_5050.setPixmap(QtGui.QPixmap('images/money tree/5050/lost.png'))
         self.lost_5050.setScaledContents(True)
         self.lost_5050.setObjectName('lost_5050')
         self.lost_x2 = AnimationLabel(self.moneyTree)
-        self.lost_x2.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.lost_x2.setGeometry(tree_position)
         self.lost_x2.setText('')
         self.lost_x2.setPixmap(QtGui.QPixmap('images/money tree/x2/lost.png'))
         self.lost_x2.setScaledContents(True)
         self.lost_x2.setObjectName('lost_x2')
         self.lost_ata = AnimationLabel(self.moneyTree)
-        self.lost_ata.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.lost_ata.setGeometry(tree_position)
         self.lost_ata.setText('')
         self.lost_ata.setPixmap(QtGui.QPixmap('images/money tree/ata/lost.png'))
         self.lost_ata.setScaledContents(True)
         self.lost_ata.setObjectName('lost_ata')
         self.gray_home = AnimationLabel(self.moneyTree)
-        self.gray_home.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.gray_home.setGeometry(tree_position)
         self.gray_home.setText('')
         self.gray_home.setPixmap(QtGui.QPixmap('images/money tree/home/gray.png'))
         self.gray_home.setScaledContents(True)
         self.gray_home.setObjectName('gray_home')
         self.current_state_ll = AnimationLabel(self.moneyTree)
-        self.current_state_ll.setGeometry(QtCore.QRect(0, 0, 411, 480))
+        self.current_state_ll.setGeometry(tree_position)
         self.current_state_ll.setText('')
         self.current_state_ll.setScaledContents(True)
         self.current_state_ll.setObjectName('current_state_ll')
@@ -562,7 +563,7 @@ class Ui_MainWindow(object):
 
         self.ata_layout = AnimationLabel(self.central_widget)
         self.ata_layout.setObjectName('ata_layout')
-        self.ata_layout.setGeometry(QtCore.QRect(596, 15, 226, 331))
+        self.ata_layout.setGeometry(QtCore.QRect(588, 15, 226, 331))
         self.ata_layout.setPixmap(QtGui.QPixmap('images/ata.png'))
         self.ata_layout.setScaledContents(True)
         self.ata_layout.hide()
@@ -571,7 +572,7 @@ class Ui_MainWindow(object):
         self.ata_b_percents = AnimationLabel(self.central_widget)
         self.ata_c_percents = AnimationLabel(self.central_widget)
         self.ata_d_percents = AnimationLabel(self.central_widget)
-        for answer_letter, rect in zip(('a', 'b', 'c', 'd'), ((610, 28), (659, 28), (712, 28), (761, 28))):
+        for answer_letter, rect in zip(('a', 'b', 'c', 'd'), ((602, 28), (651, 28), (704, 28), (753, 28))):
             percent_label = self.__getattribute__(f'ata_{answer_letter}_percents')
             percent_label.setGeometry(QtCore.QRect(*rect, 49, 22))
             percent_label.setFont(verdana_font)
@@ -584,11 +585,12 @@ class Ui_MainWindow(object):
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
 
-        self.ata_a_score = QLabel()
-        self.ata_b_score = QLabel()
-        self.ata_c_score = QLabel()
-        self.ata_d_score = QLabel()
-        for i, (answer_letter, coord_x) in enumerate(zip(('a', 'b', 'c', 'd'), (619, 668, 721, 770))):
+        if TYPE_CHECKING:
+            self.ata_a_score = QLabel()
+            self.ata_b_score = QLabel()
+            self.ata_c_score = QLabel()
+            self.ata_d_score = QLabel()
+        for i, (answer_letter, coord_x) in enumerate(zip(('a', 'b', 'c', 'd'), (611, 660, 713, 762))):
             self.__setattr__(f'verticalLayoutWidget_{i}', QtWidgets.QWidget(self.central_widget))
             layout_widget = self.__getattribute__(f'verticalLayoutWidget_{i}')
             layout_widget.setObjectName(f'verticalLayoutWidget_{i}')
@@ -617,7 +619,7 @@ class Ui_MainWindow(object):
             column_label.hide()
             extending_label.addWidget(column_label)
 
-        big_logo_position = QtCore.QRect(265, 98, 300, 300)
+        big_logo_position = QtCore.QRect(261, 98, 300, 300)
         self.big_logo_1 = AnimationLabel(self.central_widget)
         self.big_logo_1.setObjectName('big_logo_1')
         self.big_logo_1.setGeometry(big_logo_position)
