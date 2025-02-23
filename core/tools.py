@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 class AnimationScheduler(QObject):
     """Планировщик анимаций, необходим для своевременного проигрывания анимаций."""
 
-    def __init__(self, parent: 'GameWindow'):
+    def __init__(self, parent: 'GameWindow', restore_user_control: bool = True):
         super().__init__(parent)
         self._timer = QTimer(self)
         self._timer.setInterval(10)
@@ -32,6 +32,7 @@ class AnimationScheduler(QObject):
         self._start_time = None  # будет хранить QTime запуска анимации
         self._events = []  # список запланированных событий в виде (относительное время, функция, args, kwargs)
         self._current_delay = 0  # текущее относительное время; сбрасывается, когда кончается список событий
+        self._restore_user_control = restore_user_control
         self._parent = parent
 
     def schedule(self, delay: int, func, *args, **kwargs):
@@ -64,7 +65,7 @@ class AnimationScheduler(QObject):
         # Если все события выполнены, останавливаем таймер
         if not self._events:
             self._timer.stop()
-            self._parent.user_control = True
+            self._parent.user_control = self._restore_user_control
             self._current_delay = 0
 
 
@@ -199,7 +200,7 @@ def get_questions():
 
         q_shuffled = q_unmixed.copy()
         shuffle(q_shuffled)
-        for q in q_shuffled[:2]:
+        for q in q_shuffled[:3]:
             text, correct_answer, answers = q[1], q[2], list(q[2:])
             shuffle(answers)
             questions_set.append([text, correct_answer, answers])

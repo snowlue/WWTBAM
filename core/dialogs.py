@@ -2,6 +2,7 @@ import logging
 import sys
 from typing import TYPE_CHECKING
 
+from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QMediaPlayer
 from PyQt5.QtWidgets import QDesktopWidget, QDialog, QMessageBox
@@ -11,6 +12,7 @@ if TYPE_CHECKING:
 
 from core.constants import APP_ICON, MONEY_TREE_AMOUNTS
 from core.tools import (
+    AnimationScheduler,
     LoopingMediaPlayer,
     convert_amount_to_str,
     decorate_audio,
@@ -85,29 +87,6 @@ class StartWindow(QDialog, Ui_StartDialog):
         mode = 'classic' if mode == 'Обычный режим' else 'clock'
         self.game = GameWindow(name, mode)
         self.game.show()
-
-        for label in (
-            self.game.lost_5050,
-            self.game.lost_ata,
-            self.game.lost_x2,
-            self.game.lost_change,
-            self.game.lost_revival,
-            self.game.lost_immunity,
-            self.game.lost_ftc,
-            self.game.gray_5050,
-            self.game.gray_ata,
-            self.game.gray_x2,
-            self.game.gray_change,
-            self.game.gray_revival,
-            self.game.gray_immunity,
-            self.game.gray_ftc,
-            self.game.gray_home,
-        ):
-            label.hide()
-        if mode == 'classic':
-            self.game.gray_ftc.show()
-        self.game.central_q.hide()
-
         self.close()
 
 
@@ -119,10 +98,10 @@ class EndGameWindow(QDialog):
 
     def restart(self):
         """Перезапускает игру и показывает таблицу результатов"""
-        self.parent_.restart_game()
+        self.parent_.restart_game(True)
         self.close()
         self.results = ResultsTableWindow()
-        self.results.move(156 + self.parent_.x(), 93 + self.parent_.y())
+        self.results.move(203 + self.parent_.x(), 93 + self.parent_.y())
         self.results.show()
         logging.info('Game restart')
 
@@ -194,6 +173,7 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         self.setWindowIcon(APP_ICON)
 
         self.parent_ = parent
+        self.parent_.scheduler1 = AnimationScheduler(self.parent_, False)
         self.correct_answer = letter if self.parent_.has_shown else ''
         self.is_sound = is_sound
 
@@ -204,47 +184,49 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         self.buttonBox.accepted.connect(self.leave)
         self.buttonBox.rejected.connect(self.close_window)
 
-    def leave(self):
+    def leave(self, triggered: bool = False):
         """Покидает игру, забирает деньги и предлагает сыграть ещё раз"""
 
+        parent_ = self.parent_
         sql_request(
-            f'INSERT INTO results (name, result, date) VALUES ("{self.parent_.name}", "{self.prize}", "{self.parent_.date}")'
+            f'INSERT INTO results (name, result, date) VALUES ("{parent_.name}", "{self.prize}", "{parent_.date}")'
         )
 
-        self.windialog = WinLeaveWindow(self.parent_, (self.correct_answer, self.prize, self.is_sound))
-        self.windialog.move(201 + self.parent_.x(), 210 + self.parent_.y())
+        self.windialog = WinLeaveWindow(parent_, (self.correct_answer, self.prize, self.is_sound))
+        self.windialog.move(201 + parent_.x(), 210 + parent_.y())
 
-        for player in (self.parent_.player1, self.parent_.player2, self.parent_.player3, self.parent_.player4):
+        player_list = [parent_.player3] + [parent_.player1, parent_.player2, parent_.player4] * (not triggered)
+        for player in player_list:
             player.stop()
-        self.parent_.player1.set_media(
-            decorate_audio(
-                f'sounds/{"great_" if self.parent_.current_question_num >= 11 else ""}walk_away{"_clock" if self.parent_.mode == "clock" else ""}.mp3'
-            )
-        )
-        self.parent_.player1.play()
+        lose_media = f'sounds/{"great_" if parent_.current_question_num >= 11 and parent_.mode == "clock" else ""}walk_away{"_clock" if parent_.mode == "clock" else ""}.mp3'
+        parent_.player2.set_media(decorate_audio(lose_media))
 
-        if self.parent_.has_shown:
-            if self.parent_.mode == 'clock':
-                self.parent_.qt_timer.stop()
-            self.parent_.current_state_q_2.setPixmap(
-                QPixmap(f'images/question field/correct_{self.correct_answer}.png')
-            )
-            self.parent_.current_state_q_2.startFadeInImage()
-            self.parent_.current_state_q_2.show()
+        if parent_.has_shown:
+            if parent_.mode == 'clock':
+                parent_.qt_timer.stop()
+            parent_.state_q_2.setPixmap(QPixmap(f'images/question field/correct_{self.correct_answer}.png'))
+            parent_.state_q_2.startFadeInImage()
+            parent_.state_q_2.show()
 
-        self.parent_.scheduler1.schedule(3000, lambda: True)
-        self.parent_.scheduler1.schedule(0, self.parent_.central_q.startFadeOutImage)
-        self.parent_.clear_all_labels()
-        self.parent_.update_and_animate_logo_and_background(None, 'intro', None, '1-5')
-        if self.parent_.mode == 'clock':
-            empty_timer(self.parent_)
-            hide_timer(self.parent_)
-        show_prize(self.parent_, self.prize)
-        self.parent_.scheduler1.schedule(1000, self.windialog.show)
-        self.parent_.scheduler1.start()
+        QTimer.singleShot(2000 + 3000 * (parent_.current_question_num == 15), parent_.player2.play)
+
+        parent_.scheduler1.schedule(3000, lambda: True)
+        parent_.scheduler1.schedule(0, parent_.central_q.startFadeOutImage)
+        parent_.clear_all_labels()
+        parent_.update_and_animate_logo_and_background(None, 'intro', None, '1-5')
+        if parent_.mode == 'clock':
+            empty_timer(parent_)
+            hide_timer(parent_)
+        show_prize(parent_, self.prize)
+        parent_.scheduler1.schedule(1000, self.windialog.show)
+        parent_.scheduler1.start()
+
+        def reinit_scheduler():
+            parent_.scheduler1 = AnimationScheduler(parent_, True)
+
+        QTimer.singleShot(1000, reinit_scheduler)
 
         logging.info('Game over — leave game')
-
         self.close()
 
     def close_window(self):
@@ -268,7 +250,7 @@ class ConfirmAgainWindow(QDialog, Ui_ConfirmAgain):
     def restart(self):
         """Перезапускает игру"""
 
-        self.parent_.restart_game()
+        self.parent_.restart_game(True, True)
         logging.info('Game restart')
         self.close()
 

@@ -1,4 +1,5 @@
 from datetime import datetime  # год в копирайте в «О приложении»
+from random import randint
 from typing import TYPE_CHECKING
 
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -110,11 +111,11 @@ class Ui_StartDialog(object):
 
         self.buttonGroup = QtWidgets.QButtonGroup(Dialog)
         self.buttonGroup.setObjectName('ButtonGroup')
-        self.radioButton = QtWidgets.QRadioButton(self)
+        self.radioButton = QtWidgets.QRadioButton(Dialog)
         self.radioButton.setChecked(True)
         self.radioButton.setObjectName('radioButton')
         self.buttonGroup.addButton(self.radioButton)
-        self.radioButton_2 = QtWidgets.QRadioButton(self)
+        self.radioButton_2 = QtWidgets.QRadioButton(Dialog)
         self.radioButton_2.setObjectName('radioButton_2')
         self.buttonGroup.addButton(self.radioButton_2)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
@@ -419,33 +420,20 @@ class Ui_MainWindow(object):
         self.layout_q = QtWidgets.QLabel(self.questionField)
         self.layout_q.setGeometry(question_layout_position)
         self.layout_q.setText('')
-        self.layout_q.setPixmap(QtGui.QPixmap('animation/question field/1.png'))
+        self.layout_q.setPixmap(QtGui.QPixmap('animations/question field/0.png'))
         self.layout_q.setScaledContents(True)
         self.layout_q.setObjectName('layout_q')
 
-        self.current_state_q_1 = AnimationLabel(self.questionField)
-        self.current_state_q_1.setGeometry(question_layout_position)
-        self.current_state_q_1.setText('')
-        self.current_state_q_1.setScaledContents(True)
-        self.current_state_q_1.setObjectName('current_state_q_1')
-
-        self.current_state_q_2 = AnimationLabel(self.questionField)
-        self.current_state_q_2.setGeometry(question_layout_position)
-        self.current_state_q_2.setText('')
-        self.current_state_q_2.setScaledContents(True)
-        self.current_state_q_2.setObjectName('current_state_q_2')
-
-        self.current_state_q_3 = AnimationLabel(self.questionField)
-        self.current_state_q_3.setGeometry(question_layout_position)
-        self.current_state_q_3.setText('')
-        self.current_state_q_3.setScaledContents(True)
-        self.current_state_q_3.setObjectName('current_state_q_3')
-
-        self.current_state_q_4 = AnimationLabel(self.questionField)
-        self.current_state_q_4.setGeometry(question_layout_position)
-        self.current_state_q_4.setText('')
-        self.current_state_q_4.setScaledContents(True)
-        self.current_state_q_4.setObjectName('current_state_q_4')
+        self.state_q_1 = AnimationLabel(self.questionField)
+        self.state_q_2 = AnimationLabel(self.questionField)
+        self.state_q_3 = AnimationLabel(self.questionField)
+        self.state_q_4 = AnimationLabel(self.questionField)
+        for i in range(1, 5):
+            label = self.__getattribute__(f'state_q_{i}')
+            label.setGeometry(question_layout_position)
+            label.setText('')
+            label.setScaledContents(True)
+            label.setObjectName(f'state_q_{i}')
 
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(Qt.BrushStyle.SolidPattern)
@@ -461,7 +449,7 @@ class Ui_MainWindow(object):
         self.amount_q.setObjectName('amount_q')
 
         self.central_q = AnimationLabel(self.questionField)
-        self.central_q.setGeometry(QtCore.QRect(519, 126, 66, 40))
+        self.central_q.setGeometry(QtCore.QRect(521, 126, 62, 40))
         self.central_q.setText('')
         self.central_q.setPixmap(QtGui.QPixmap('images/question field/double-dip.png'))
         self.central_q.setScaledContents(True)
@@ -491,60 +479,68 @@ class Ui_MainWindow(object):
         self.layout_t.setScaledContents(True)
         self.layout_t.setObjectName('layout_t')
 
-        self.current_state_t = QtWidgets.QLabel(self.moneyTree)
-        self.current_state_t.setGeometry(tree_position)
-        self.current_state_t.setText('')
-        self.current_state_t.setScaledContents(True)
-        self.current_state_t.setObjectName('current_state_t')
+        self.state_t = QtWidgets.QLabel(self.moneyTree)
+        self.state_t.setGeometry(tree_position)
+        self.state_t.setText('')
+        self.state_t.setScaledContents(True)
+        self.state_t.setObjectName('state_t')
 
-        self.lost_5050 = AnimationLabel(self.moneyTree)
-        self.lost_ata = AnimationLabel(self.moneyTree)
-        self.lost_x2 = AnimationLabel(self.moneyTree)
-        self.lost_change = AnimationLabel(self.moneyTree)
-        self.lost_revival = AnimationLabel(self.moneyTree)
-        self.lost_immunity = AnimationLabel(self.moneyTree)
-        self.lost_ftc = AnimationLabel(self.moneyTree)
-        for ll_name in ('5050', 'ata', 'x2', 'change', 'revival', 'immunity', 'ftc'):
-            ll_lost_label = self.__getattribute__(f'lost_{ll_name}')
-            ll_lost_label.setGeometry(tree_position)
-            ll_lost_label.setText('')
-            ll_lost_label.setPixmap(QtGui.QPixmap(f'images/money tree/{ll_name}/lost.png'))
-            ll_lost_label.setScaledContents(True)
-            ll_lost_label.setObjectName(f'lost_{ll_name}')
+        if TYPE_CHECKING:
+            self.lost_5050 = AnimationLabel()
+            self.lost_ata = AnimationLabel()
+            self.lost_x2 = AnimationLabel()
+            self.lost_change = AnimationLabel()
+            self.lost_revival = AnimationLabel()
+            self.lost_immunity = AnimationLabel()
+            self.lost_ftc = AnimationLabel()
 
-        self.gray_5050 = AnimationLabel(self.moneyTree)
-        self.gray_ata = AnimationLabel(self.moneyTree)
-        self.gray_x2 = AnimationLabel(self.moneyTree)
-        self.gray_change = AnimationLabel(self.moneyTree)
-        self.gray_revival = AnimationLabel(self.moneyTree)
-        self.gray_immunity = AnimationLabel(self.moneyTree)
-        self.gray_ftc = AnimationLabel(self.moneyTree)
-        self.gray_home = AnimationLabel(self.moneyTree)
-        for ll_name in ('5050', 'ata', 'x2', 'change', 'revival', 'immunity', 'ftc', 'home'):
-            ll_gray_label = self.__getattribute__(f'gray_{ll_name}')
-            ll_gray_label.setGeometry(tree_position)
-            ll_gray_label.setText('')
-            ll_gray_label.setPixmap(QtGui.QPixmap(f'images/money tree/{ll_name}/gray.png'))
-            ll_gray_label.setScaledContents(True)
-            ll_gray_label.setObjectName(f'gray_{ll_name}')
+            self.gray_5050 = AnimationLabel()
+            self.gray_ata = AnimationLabel()
+            self.gray_x2 = AnimationLabel()
+            self.gray_change = AnimationLabel()
+            self.gray_revival = AnimationLabel()
+            self.gray_immunity = AnimationLabel()
+            self.gray_ftc = AnimationLabel()
+            self.gray_home = AnimationLabel()
 
-        self.current_state_ll = AnimationLabel(self.moneyTree)
-        self.current_state_ll.setGeometry(tree_position)
-        self.current_state_ll.setText('')
-        self.current_state_ll.setScaledContents(True)
-        self.current_state_ll.setObjectName('current_state_ll')
+        def _create_ll_labels(prefix: str, names: tuple[str, ...]) -> None:
+            for name in names:
+                setattr(self, f'{prefix}_{name}', AnimationLabel(self.moneyTree))
+                ll_label = self.__getattribute__(f'{prefix}_{name}')
+                ll_label.setGeometry(tree_position)
+                ll_label.setText('')
+                ll_label.setPixmap(QtGui.QPixmap(f'images/money tree/{name}/{prefix}.png'))
+                ll_label.setScaledContents(True)
+                ll_label.setObjectName(f'{prefix}_{name}')
+
+        # Create lost and gray lifeline labels
+        lost_names = ('5050', 'ata', 'x2', 'change', 'revival', 'immunity', 'ftc')
+        gray_names = (*lost_names, 'home')
+        _create_ll_labels('lost', lost_names)
+        _create_ll_labels('gray', gray_names)
+
+        self.state_ll = AnimationLabel(self.moneyTree)
+        self.state_ll.setGeometry(tree_position)
+        self.state_ll.setText('')
+        self.state_ll.setScaledContents(True)
+        self.state_ll.setObjectName('state_ll')
+
+        self.bg_num = randint(1, 10)
+        bg_pixmap = QtGui.QPixmap(f'images/backgrounds/{self.bg_num}/1-5.jpg')
 
         self.background_1 = QtWidgets.QLabel(self.central_widget)
         self.background_1.setGeometry(QtCore.QRect(0, 0, 1100, 703))
         self.background_1.setText('')
         self.background_1.setScaledContents(True)
         self.background_1.setObjectName('background_1')
+        self.background_1.setPixmap(bg_pixmap)
 
         self.background_2 = AnimationLabel(self.central_widget)
         self.background_2.setGeometry(QtCore.QRect(0, 0, 1100, 703))
         self.background_2.setText('')
         self.background_2.setScaledContents(True)
         self.background_2.setObjectName('background_2')
+        self.background_2.setPixmap(bg_pixmap)
 
         self.timer_view = QtWidgets.QLabel(self.central_widget)
         self.timer_view.setGeometry(QtCore.QRect(215, 419, 678, 64))
@@ -646,16 +642,24 @@ class Ui_MainWindow(object):
         for label in (
             self.layout_q,
             self.amount_q,
-            self.current_state_q_1,
-            self.current_state_q_2,
-            self.current_state_q_3,
-            self.current_state_q_4,
+            self.state_q_1,
+            self.state_q_2,
+            self.state_q_3,
+            self.state_q_4,
             self.question,
             self.answer_A,
             self.answer_B,
             self.answer_C,
             self.answer_D,
             self.central_q,
+            self.gray_5050,
+            self.gray_ata,
+            self.gray_x2,
+            self.gray_change,
+            self.gray_revival,
+            self.gray_immunity,
+            self.gray_ftc,
+            self.gray_home,
             self.lost_5050,
             self.lost_ata,
             self.lost_x2,
