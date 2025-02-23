@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from PyQt5.QtGui import QIcon
 
 MONEY_TREE_AMOUNTS = [
@@ -34,3 +36,41 @@ LOOP_POINTS = (
 
 # noinspection PyTypeChecker
 APP_ICON: QIcon = None  # Will be set in application.py
+
+
+@dataclass
+class COORDS:
+    show_btn = lambda x, y: 521 <= x <= 584 and 627 <= y <= 665  # noqa: E731
+    home = lambda x, y: 1017 <= x <= 1064 and 77 <= y <= 107  # noqa: E731
+    ans_A = lambda x, y: 200 <= x <= 538 and 601 <= y <= 642  # noqa: E731
+    ans_B = lambda x, y: 568 <= x <= 915 and 601 <= y <= 642  # noqa: E731
+    ans_C = lambda x, y: 200 <= x <= 538 and 653 <= y <= 693  # noqa: E731
+    ans_D = lambda x, y: 568 <= x <= 915 and 653 <= y <= 693  # noqa: E731
+    l_5050 = lambda x, y: 831 <= x <= 878 and 43 <= y <= 73  # noqa: E731
+    l_ata = lambda x, y: 892 <= x <= 939 and 43 <= y <= 73  # noqa: E731
+    l_x2 = lambda x, y: 955 <= x <= 1002 and 43 <= y <= 73  # noqa: E731
+    l_change = lambda x, y: 1017 <= x <= 1064 and 43 <= y <= 73  # noqa: E731
+    l_revival = lambda x, y: 831 <= x <= 878 and 77 <= y <= 107  # noqa: E731
+    l_immunity = lambda x, y: 892 <= x <= 939 and 77 <= y <= 107  # noqa: E731
+    l_ftc = lambda x, y: 955 <= x <= 1002 and 77 <= y <= 107  # noqa: E731
+
+
+def lifelines_regions_generator(x, y, mode):
+    return {
+        '5050': COORDS.l_5050(x, y),
+        'ata': COORDS.l_ata(x, y),
+        'x2': COORDS.l_x2(x, y),
+        'change': COORDS.l_change(x, y),
+        'revival': COORDS.l_revival(x, y),
+        'immunity': COORDS.l_immunity(x, y),
+        'ftc': COORDS.l_ftc(x, y) and mode == 'clock',
+    }
+
+
+def answers_regions_generator(x, y):
+    return {
+        'A': COORDS.ans_A(x, y),
+        'B': COORDS.ans_B(x, y),
+        'C': COORDS.ans_C(x, y),
+        'D': COORDS.ans_D(x, y),
+    }

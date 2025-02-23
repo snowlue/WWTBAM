@@ -731,7 +731,7 @@ class EndGameDialog(object):
         self.setTextInUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def setTextInUi(self, Dialog):
+    def setTextInUi(self, Dialog):  # реализовывается в дочерних классах
         pass
 
 
@@ -772,7 +772,7 @@ class ConfirmDialog(object):
         self.setTextInUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def setTextInUi(self, Dialog):
+    def setTextInUi(self, Dialog):  # реализовывается в дочерних классах
         pass
 
 

@@ -8,7 +8,16 @@ from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent, QMovie, QPixmap
 from PyQt5.QtWidgets import QMainWindow
 
-from core.constants import APP_ICON, MONEY_TREE_AMOUNTS, SAFETY_NETS, SECONDS_FOR_QUESTION, SECONDS_PRICE
+from core.constants import (
+    APP_ICON,
+    COORDS,
+    MONEY_TREE_AMOUNTS,
+    SAFETY_NETS,
+    SECONDS_FOR_QUESTION,
+    SECONDS_PRICE,
+    answers_regions_generator,
+    lifelines_regions_generator,
+)
 from core.dialogs import (
     ConfirmAgainWindow,
     ConfirmClearAll,
@@ -285,32 +294,34 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         if event.key() < 1500:  # логирование только для клавиш клавиатуры
             logging.info('KP %d', event.key())
-        if event.key() in (Qt.Key.Key_Q, 91, 1049, 1061):  # Q, Й, [, Х
-            self.response_to_event(200, 601)  # эмулируем выбор ответа A
-        if event.key() in (Qt.Key.Key_W, 93, 1062, 1066):  # W, Ц, ], Ъ
-            self.response_to_event(568, 601)  # эмулируем выбор ответа В
-        if event.key() in (Qt.Key.Key_A, 59, 1060, 1046):  # A, Ф, ;, Ж
-            self.response_to_event(200, 653)  # эмулируем выбор ответа С
-        if event.key() in (Qt.Key.Key_S, 39, 1067, 1069):  # S, Ы, ', Э
-            self.response_to_event(568, 653)  # эмулируем выбор ответа D
-        if event.key() == Qt.Key.Key_1:
-            self.response_to_event(831, 43)  # эмулируем выбор 50:50
-        if event.key() == Qt.Key.Key_2:
-            self.response_to_event(892, 43)  # эмулируем выбор «права на ошибку»
-        if event.key() == Qt.Key.Key_3:
-            self.response_to_event(955, 43)  # эмулируем выбор «помощи зала»
-        if event.key() == Qt.Key.Key_4:
-            self.response_to_event(1017, 43)  # эмулируем выбор «замены вопроса»
-        if event.key() == Qt.Key.Key_5:
-            self.response_to_event(831, 77)  # эмулируем выбор «возрождения»
-        if event.key() == Qt.Key.Key_6:
-            self.response_to_event(892, 77)  # эмулируем выбор «иммунитета»
+
+        KEY_MAPPINGS = {
+            (Qt.Key.Key_Q, 91, 1049, 1061): (200, 601),  # Q, Й, [, Х -> A
+            (Qt.Key.Key_W, 93, 1062, 1066): (568, 601),  # W, Ц, ], Ъ -> B
+            (Qt.Key.Key_A, 59, 1060, 1046): (200, 653),  # A, Ф, ;, Ж -> C
+            (Qt.Key.Key_S, 39, 1067, 1069): (568, 653),  # S, Ы, ', Э -> D
+            (Qt.Key.Key_1,): (831, 43),  # 50:50
+            (Qt.Key.Key_2,): (892, 43),  # право на ошибку
+            (Qt.Key.Key_3,): (955, 43),  # помощь зала
+            (Qt.Key.Key_4,): (1017, 43),  # замена вопроса
+            (Qt.Key.Key_5,): (831, 77),  # возрождение
+            (Qt.Key.Key_6,): (892, 77),  # иммунитет
+            (Qt.Key.Key_8,): (1017, 77),  # забрать деньги
+        }
+
+        SOUND_KEYS = (Qt.Key.Key_M, 1068)  # M, Ь
+
+        for keys, coords in KEY_MAPPINGS.items():
+            if event.key() in keys:
+                self.response_to_event(*coords)
+                return
+
         if self.mode == 'clock' and event.key() == Qt.Key.Key_7:
-            self.response_to_event(955, 77)  # эмулируем выбор «заморозки таймера»
-        if event.key() == Qt.Key.Key_8:
-            self.response_to_event(1017, 77)  # эмулируем выбор «забрать деньги»
-        if event.key() in (Qt.Key.Key_M, 1068):  # M, Ь
-            self.is_sound = not self.is_sound  # переключаем звук
+            self.response_to_event(955, 77)  # заморозка таймера
+            return
+
+        if event.key() in SOUND_KEYS:
+            self.is_sound = not self.is_sound
             self.sound_btn.setChecked(self.is_sound)
             for p in (self.player1, self.player2, self.player3, self.player4):
                 p.setVolume(100 * self.is_sound)
@@ -326,43 +337,30 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         if not self.user_control:
             return
 
-        if all((1017 <= x <= 1064, 77 <= y <= 107, self.used_lifelines_count < 4)):
+        if (1017 <= x <= 1064 and 77 <= y <= 107) and self.used_lifelines_count < 4:
             self.show_selecting_lifeline('home')
             return
         elif not self.has_shown:
             self.show_selecting_lifeline('')
-
-        if not self.has_shown:
             return
 
-        if 200 <= x <= 538 and 601 <= y <= 642 and not self.is_revival_now:
-            self.show_selecting_answer('A')
-        elif 568 <= x <= 915 and 601 <= y <= 642 and not self.is_revival_now:
-            self.show_selecting_answer('B')
-        elif 200 <= x <= 538 and 653 <= y <= 693 and not self.is_revival_now:
-            self.show_selecting_answer('C')
-        elif 568 <= x <= 915 and 653 <= y <= 693 and not self.is_revival_now:
-            self.show_selecting_answer('D')
+        # Маппинг ответов
+        answers_regions = answers_regions_generator(x, y)
+        for answer, region in answers_regions.items():
+            if region and not self.is_revival_now:
+                self.show_selecting_answer(answer)
+                break
         else:
             self.show_selecting_answer('')
 
         if self.used_lifelines_count >= 4 and not self.is_revival_now:
             return
 
-        if 831 <= x <= 878 and 43 <= y <= 73 and '50:50' in self.available_to_choose:
-            self.show_selecting_lifeline('5050')
-        elif 892 <= x <= 939 and 43 <= y <= 73 and 'ata' in self.available_to_choose:
-            self.show_selecting_lifeline('ata')
-        elif 955 <= x <= 1002 and 43 <= y <= 63 and 'x2' in self.available_to_choose:
-            self.show_selecting_lifeline('x2')
-        elif 1017 <= x <= 1064 and 43 <= y <= 63 and 'change' in self.available_to_choose:
-            self.show_selecting_lifeline('change')
-        elif 831 <= x <= 878 and 77 <= y <= 107 and 'revival' in self.available_to_choose:
-            self.show_selecting_lifeline('revival')
-        elif 892 <= x <= 939 and 77 <= y <= 107 and 'immunity' in self.available_to_choose:
-            self.show_selecting_lifeline('immunity')
-        elif self.mode == 'clock' and 955 <= x <= 1002 and 77 <= y <= 107 and 'ftc' in self.available_to_choose:
-            self.show_selecting_lifeline('ftc')
+        lifeline_regions = lifelines_regions_generator(x, y, self.mode)
+        for lifeline, region in lifeline_regions.items():
+            if region and lifeline in self.available_to_choose:
+                self.show_selecting_lifeline(lifeline)
+                break
         else:
             self.show_selecting_lifeline('')
 
@@ -399,10 +397,10 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         logging.info('MP (%d, %d)', x, y)
 
-        if all((self.user_control, self.mode == 'clock', 521 <= x <= 584, 627 <= y <= 665)):
+        if all((COORDS.show_btn(x, y), self.user_control, self.mode == 'clock')):
             self.show_answers()
 
-        if all((self.user_control, 1017 <= x <= 1064, 77 <= y <= 107, self.used_lifelines_count < 4)):
+        if all((COORDS.home(x, y), self.user_control, self.used_lifelines_count < 4)):
             self.open_confirm_leave()
 
         if not self.user_control or not self.has_shown and self.mode == 'clock':
@@ -418,33 +416,22 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         elif self.is_x2_now:
             self.player4.set_media(decorate_audio('sounds/double/first_final.mp3'))
 
-        if 200 <= x <= 538 and 601 <= y <= 642 and not self.is_revival_now:
-            self.choose_answer('A')
-        elif 568 <= x <= 915 and 601 <= y <= 642 and not self.is_revival_now:
-            self.choose_answer('B')
-        elif 200 <= x <= 538 and 653 <= y <= 693 and not self.is_revival_now:
-            self.choose_answer('C')
-        elif 568 <= x <= 915 and 653 <= y <= 693 and not self.is_revival_now:
-            self.choose_answer('D')
-        self.scheduler1.start()
+        if not self.is_revival_now:
+            answers_regions = answers_regions_generator(x, y)
+            for answer, is_selected in answers_regions.items():
+                if is_selected:
+                    self.choose_answer(answer)
+                    self.scheduler1.start()
+                    break
 
         if self.used_lifelines_count >= 4 and not self.is_revival_now:
             return
 
-        if 831 <= x <= 878 and 43 <= y <= 73 and '50:50' in self.available_to_choose:
-            self.use_lifeline('50:50')
-        elif 892 <= x <= 939 and 43 <= y <= 73 and 'ata' in self.available_to_choose:
-            self.use_lifeline('ata')
-        elif 955 <= x <= 1002 and 43 <= y <= 73 and 'x2' in self.available_to_choose:
-            self.use_lifeline('x2')
-        elif 1017 <= x <= 1064 and 43 <= y <= 73 and 'change' in self.available_to_choose:
-            self.use_lifeline('change')
-        elif 831 <= x <= 878 and 77 <= y <= 107 and 'revival' in self.available_to_choose:
-            self.use_lifeline('revival')
-        elif 892 <= x <= 939 and 77 <= y <= 107 and 'immunity' in self.available_to_choose:
-            self.use_lifeline('immunity')
-        elif self.mode == 'clock' and 955 <= x <= 1002 and 77 <= y <= 107 and 'ftc' in self.available_to_choose:
-            self.use_lifeline('ftc')
+        lifeline_regions = lifelines_regions_generator(x, y, self.mode)
+        for lifeline, is_selected in lifeline_regions.items():
+            if is_selected and lifeline in self.available_to_choose:
+                self.use_lifeline(lifeline)
+                break
 
     def update_question_field(self, changer: int = 0):
         """Обновляет текстовые поля вопроса и ответов"""
@@ -555,7 +542,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.scheduler1.schedule(0, self.player1.stop)
             if len(self.non_active_answers) != 3:
                 self.scheduler1.schedule(0, self.player4.play)
-        logging.info(f'Answ[{letter}]')
+        logging.info(f'Ans[{letter}]')
         letter_to_button = {'A': self.answer_A, 'B': self.answer_B, 'C': self.answer_C, 'D': self.answer_D}
 
         # для каждого из номеров вопроса выставляем паузу (задаёт интригу)
@@ -621,7 +608,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                     self.scheduler1.schedule(0, self.gray_ftc.startFadeOutImage)
                     self.available_to_choose.append('ftc')
 
-            logging.info('Answ incorrect (dd used)')
+            logging.info('Ans incorrect (dd used)')
             self.scheduler1.start()
             return
 
@@ -634,7 +621,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             if self.is_immunity_now:
                 self.scheduler1.schedule(0, self.open_confirm_leave, True)
                 self.scheduler1.start()
-                logging.info('Answ incorrect - leave game, immunity used')
+                logging.info('Ans incorrect - leave game, immunity used')
                 return
 
             self.update_and_animate_logo_and_background(None, 'wrong', None, 'wrong')
@@ -654,7 +641,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 f'INSERT INTO results (name, result, date) VALUES ("{self.name}", "{result_amount}", "{self.date}")'
             )
 
-            logging.info('Answ incorrect')
+            logging.info('Ans incorrect')
             self.scheduler1.start()
             return
 
@@ -671,7 +658,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.scheduler1.schedule(0, self.player2.set_media, decorate_audio(f'sounds/{n}/correct.mp3'))
         self.scheduler1.schedule(0, self.player2.play)
         self.scheduler1.schedule(0, self.player4.stop)
-        logging.info('Answ correct')
+        logging.info('Ans correct')
 
         self.is_x2_now = False
         self.is_ata_now = False
@@ -892,7 +879,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
                 self.gray_ftc.startFadeInImage()
             state_lifelines = True
 
-        elif type_ll == '50:50':  # 50:50
+        elif type_ll == '5050':  # 50:50
             self.show_lost_lifeline(self.lost_5050)
             self.player3.set_media(decorate_audio('sounds/50_50.mp3'))
             self.scheduler1.schedule(0, self.player3.play)
@@ -993,7 +980,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             self.available_to_choose = list(self.lifelines.keys())
 
             if len(self.non_active_answers) >= 2:
-                self.available_to_choose.remove('50:50')
+                self.available_to_choose.remove('5050')
                 self.gray_5050.show()
                 self.gray_5050.startFadeInImage()
             for ll in self.lifelines:
@@ -1103,14 +1090,14 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.non_active_answers = []
         self.lifelines = {
             'change': True,
-            '50:50': True,
+            '5050': True,
             'x2': True,
             'ata': True,
             'revival': True,
             'ftc': self.mode == 'clock',
             'immunity': True,
         }
-        self.available_to_choose = ['change', '50:50', 'x2', 'ata', 'ftc', 'immunity']
+        self.available_to_choose = ['change', '5050', 'x2', 'ata', 'ftc', 'immunity']
         self.used_lifelines_count = 0
 
         for player in (self.player1, self.player2, self.player3, self.player4):
