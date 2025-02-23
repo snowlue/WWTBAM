@@ -42,21 +42,21 @@ class GameRules(QWidget, Ui_Rules):
     def response_to_event(self, x: int, y: int):
         if 441 <= x <= 611 and 46 <= y <= 313:
             state = 'safety_net'
-        elif 600 <= y <= 656 and 12 <= x <= 100:
+        elif 703 <= y <= 759 and 12 <= x <= 100:
             state = 'ping1'
-        elif 600 <= y <= 656 and 140 <= x <= 228:
+        elif 703 <= y <= 759 and 140 <= x <= 228:
             state = 'ping2'
-        elif 600 <= y <= 656 and 268 <= x <= 354:
+        elif 703 <= y <= 759 and 268 <= x <= 354:
             state = 'ping3'
-        elif 600 <= y <= 656 and 395 <= x <= 483:
+        elif 703 <= y <= 759 and 395 <= x <= 483:
             state = 'ping4'
-        elif 664 <= y <= 720 and 140 <= x <= 228:
+        elif 767 <= y <= 823 and 140 <= x <= 228:
             state = 'ping5'
-        elif 664 <= y <= 720 and 268 <= x <= 354:
+        elif 767 <= y <= 823 and 268 <= x <= 354:
             state = 'ping6'
-        elif 664 <= y <= 720 and 395 <= x <= 483:
+        elif 767 <= y <= 823 and 395 <= x <= 483:
             state = 'ping7'
-        elif 664 <= y <= 720 and 523 <= x <= 612:
+        elif 767 <= y <= 823 and 523 <= x <= 612:
             state = 'ping8'
         else:
             state = self.state = ''

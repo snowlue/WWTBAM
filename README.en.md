@@ -39,12 +39,15 @@ Get smarter and test your knowledge! 📚
 - Answer questions by clicking on A, B, C, or D with your mouse or pressing Q, W, A, S on your keyboard:
     - ₽5,000 at question 5 and ₽100,000 at question 10 are guaranteed amounts — if you pass these milestones, you will receive the sum even if you lose.
     - Your main goal is to reach ₽3,000,000.
-- Use up to three lifelines by clicking on them with your mouse or pressing 1, 2, 3 or 4 on your keyboard:
-    - "Switch the Question" swaps the current question with another of the same difficulty.
-    - 50:50 removes two incorrect answers to make it easier.
-    - "Double Dip" allows you to answer again if your first answer is wrong.
-    - "Ask the Audience" shows the audience answer statistics to help you choose the correct answer.
-- You can take the money and leave the game by clicking on the home icon or pressing 5 on your keyboard.
+- Use up to three lifelines by clicking on them with your mouse or pressing from 1 to 7 on your keyboard:
+    - 50:50 removes two incorrect answers to make it easier
+    - "Ask the Audience" shows the audience answer statistics to help you choose the correct answer
+    - "Double Dip" allows you to answer again if your first answer is wrong
+    - "Switch the Question" swaps the current question with another of the same difficulty
+    - "Revival" lets you use one of the lifelines you have already used
+    - "Immunity" protects you from a wrong answer — if you make a mistake, you will leave the game with the sum you have already earned
+    - "Freeze the Timer" stops the timer until you answer the question
+- You can take the money and leave the game by clicking on the home icon or pressing 8 on your keyboard.
 - View the high-score table and add your results by playing the game.
 
 
