@@ -661,7 +661,6 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         logging.info('Ans correct')
 
         self.is_x2_now = False
-        self.is_ata_now = False
         self.is_immunity_now = False
 
         self.seconds_prize += SECONDS_PRICE[n] * self.seconds_left
@@ -917,7 +916,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
             gif = QMovie('images/ata.gif')
             self.scheduler1.schedule(4200, self.ata_layout.setMovie, gif)
             self.scheduler1.schedule(0, gif.start)
-            self.scheduler1.schedule(7500, self.ata_layout.setPixmap, QPixmap('images/ata.png'))
+            self.scheduler1.schedule(8000, self.ata_layout.setPixmap, QPixmap('images/ata.png'))
 
             correct_answer_letter = ['A', 'B', 'C', 'D'][self.answers.index(self.correct_answer)]
             other_score_labels = []
