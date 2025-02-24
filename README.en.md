@@ -1,19 +1,25 @@
 # Who Wants to Be a Millionaire?
 [![ru](https://img.shields.io/badge/lang-RU-blue?style=flat-square)](https://github.com/snowlue/wwtbam/blob/main/README.md)
 
-[![Made with Python 3.9](https://img.shields.io/badge/Made_with-Python_3.9-336E9E?style=flat-square)][https://www.python.org/downloads/release/python-3913/] 
-[![Using QT Designer](https://img.shields.io/badge/Using-QT_Designer-25AF37?style=flat-square)][https://doc.qt.io/qt-5/qtdesigner-manual.html] 
-[![Using SQLiteStudio](https://img.shields.io/badge/Using-SQLiteStudio-337CCF?style=flat-square)][https://sqlitestudio.pl]  
-[![PyQt5](https://img.shields.io/badge/PyQt5-40CD52?style=flat-square)][https://pypi.org/project/PyQt5] 
-[![SQLite3](https://img.shields.io/badge/SQLite3-107FCB?style=flat-square)][https://www.sqlite.org] 
-[![PyInstaller](https://img.shields.io/badge/PyInstaller-FFEB5E?style=flat-square)][https://www.pyinstaller.org]
+[![Made with Python 3.9](https://img.shields.io/badge/Made_with-Python_3.9-336E9E?style=flat-square)](https://www.python.org/downloads/release/python-3913/)
+[![Using QT Designer](https://img.shields.io/badge/Using-QT_Designer-25AF37?style=flat-square)](https://doc.qt.io/qt-5/qtdesigner-manual.html)
+[![Using SQLiteStudio](https://img.shields.io/badge/Using-SQLiteStudio-337CCF?style=flat-square)](https://sqlitestudio.pl)  
+[![PyQt5](https://img.shields.io/badge/PyQt5-40CD52?style=flat-square)](https://pypi.org/project/PyQt5)
+[![SQLite3](https://img.shields.io/badge/SQLite3-107FCB?style=flat-square)](https://www.sqlite.org)
+[![PyInstaller](https://img.shields.io/badge/PyInstaller-FFEB5E?style=flat-square)](https://www.pyinstaller.org)
 
 The popular TV show "Who Wants to Be a Millionaire?" is now available on your PC! 💙  
 Hints, questions, virtual rubles, and all the game’s features — everything you love in one application. 💰  
 Beat your records and compete with your friends using the high-score table. 🏆  
 Get smarter and test your knowledge! 📚
 
-![App screenshot](https://github.com/user-attachments/assets/37c6f79f-a425-4ff9-97d2-4cb86257604b)
+![App screenshot](https://github.com/user-attachments/assets/37c6f79f-a425-4ff9-97d2-4cb86257604b)  
+[![STRFormat](https://img.shields.io/badge/STRFormat_→-0E0E0E?style=flat-square)](#)
+[![Graphics Pack And Control Programs](https://img.shields.io/badge/Graphics_Pack_And_Control_Programs-0809BA?style=flat-square)](https://nethouse.id/wwtbamstrformatpacks)
+[![STRFormat DLC & Mods](https://img.shields.io/badge/DLC_&_Mods-0038A3?style=flat-square)](https://strformatgraphics.wixsite.com/wwtbamdlc/en)
+[![STRFormat DLC & Mods → WWTBAM Usual Packs](https://img.shields.io/badge/Usual_Packs-0038A3?style=flat-square)](https://strformatgraphics.wixsite.com/wwtbamdlc/en/wwtbamusualpacks)  
+[![YouTube - retro4566](https://img.shields.io/badge/@retro4566-AD00F5?style=flat-square)](https://www.youtube.com/@retro4566)
+[![Millionaire Fans](https://img.shields.io/badge/Millionaire_Fans-1818BB?style=flat-square)](https://regisfan.proboards.com)
 
 ## How to Run:
 
