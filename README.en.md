@@ -1,19 +1,19 @@
 # Who Wants to Be a Millionaire?
 [![ru](https://img.shields.io/badge/lang-RU-blue?style=flat-square)](https://github.com/snowlue/wwtbam/blob/main/README.md)
 
-[![Made with Python 3.9](https://img.shields.io/badge/Made_with-Python_3.9-336E9E?style=flat-square)][1]
-[![Using QT Designer](https://img.shields.io/badge/Using-QT_Designer-25AF37?style=flat-square)][2]
-[![Using SQLiteStudio](https://img.shields.io/badge/Using-SQLiteStudio-337CCF?style=flat-square)][3]  
-[![PyQt5](https://img.shields.io/badge/PyQt5-40CD52?style=flat-square)][4]
-[![SQLite3](https://img.shields.io/badge/SQLite3-107FCB?style=flat-square)][5]
-[![PyInstaller](https://img.shields.io/badge/PyInstaller-FFEB5E?style=flat-square)][6]
+[![Made with Python 3.9](https://img.shields.io/badge/Made_with-Python_3.9-336E9E?style=flat-square)][https://www.python.org/downloads/release/python-3913/] 
+[![Using QT Designer](https://img.shields.io/badge/Using-QT_Designer-25AF37?style=flat-square)][https://doc.qt.io/qt-5/qtdesigner-manual.html] 
+[![Using SQLiteStudio](https://img.shields.io/badge/Using-SQLiteStudio-337CCF?style=flat-square)][https://sqlitestudio.pl]  
+[![PyQt5](https://img.shields.io/badge/PyQt5-40CD52?style=flat-square)][https://pypi.org/project/PyQt5] 
+[![SQLite3](https://img.shields.io/badge/SQLite3-107FCB?style=flat-square)][https://www.sqlite.org] 
+[![PyInstaller](https://img.shields.io/badge/PyInstaller-FFEB5E?style=flat-square)][https://www.pyinstaller.org]
 
 The popular TV show "Who Wants to Be a Millionaire?" is now available on your PC! 💙  
 Hints, questions, virtual rubles, and all the game’s features — everything you love in one application. 💰  
 Beat your records and compete with your friends using the high-score table. 🏆  
 Get smarter and test your knowledge! 📚
 
-![App screenshot](https://github.com/user-attachments/assets/24ba3f9a-86ec-49cd-b2a2-8cbe9c8297e8)
+![App screenshot](https://github.com/user-attachments/assets/37c6f79f-a425-4ff9-97d2-4cb86257604b)
 
 ## How to Run:
 
@@ -49,11 +49,3 @@ Get smarter and test your knowledge! 📚
     - "Freeze the Timer" stops the timer until you answer the question
 - You can take the money and leave the game by clicking on the home icon or pressing 8 on your keyboard.
 - View the high-score table and add your results by playing the game.
-
-
-[1]: https://www.python.org/downloads/release/python-3913/
-[2]: https://doc.qt.io/qt-5/qtdesigner-manual.html
-[3]: https://sqlitestudio.pl
-[4]: https://pypi.org/project/PyQt5
-[5]: https://www.sqlite.org
-[6]: https://www.pyinstaller.org
