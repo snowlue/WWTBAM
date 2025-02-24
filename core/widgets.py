@@ -7,7 +7,7 @@ from PyQt5.QtGui import QCloseEvent, QMouseEvent
 from PyQt5.QtMultimedia import QMediaPlayer
 from PyQt5.QtWidgets import QDesktopWidget, QWidget
 
-from core.constants import APP_ICON
+from core.constants import APP_ICON, rules_regions_generator
 from core.tools import decorate_audio, make_table, sql_request
 from ui import Ui_About, Ui_DeleteResult, Ui_ResultsTable, Ui_Rules
 
@@ -40,24 +40,11 @@ class GameRules(QWidget, Ui_Rules):
         return super().mouseMoveEvent(event)
 
     def response_to_event(self, x: int, y: int):
-        if 441 <= x <= 611 and 46 <= y <= 313:
-            state = 'safety_net'
-        elif 703 <= y <= 759 and 12 <= x <= 100:
-            state = 'ping1'
-        elif 703 <= y <= 759 and 140 <= x <= 228:
-            state = 'ping2'
-        elif 703 <= y <= 759 and 268 <= x <= 354:
-            state = 'ping3'
-        elif 703 <= y <= 759 and 395 <= x <= 483:
-            state = 'ping4'
-        elif 767 <= y <= 823 and 140 <= x <= 228:
-            state = 'ping5'
-        elif 767 <= y <= 823 and 268 <= x <= 354:
-            state = 'ping6'
-        elif 767 <= y <= 823 and 395 <= x <= 483:
-            state = 'ping7'
-        elif 767 <= y <= 823 and 523 <= x <= 612:
-            state = 'ping8'
+        rules_regions = rules_regions_generator(x, y)
+        for ping, region in rules_regions.items():
+            if region:
+                state = ping
+                break
         else:
             state = self.state = ''
 
