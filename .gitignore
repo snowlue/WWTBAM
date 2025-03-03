@@ -2,3 +2,4 @@ __pycache__/
 .qt_for_python/
 logs.txt
 .idea/
+database.sqlite3
