@@ -74,9 +74,17 @@ bold_font.setWeight(75)
 
 
 class Ui_StartDialog(object):
+    def add_buttons(self, btn_group, horizontal_layout, *buttons):
+        for button in buttons:
+            horizontal_layout.addWidget(button)
+            btn_group.addButton(button)
+        horizontal_layout.setContentsMargins(0, 5, 0, 5)
+        horizontal_layout.setSpacing(0)
+        self.verticalLayout.addLayout(horizontal_layout)
+
     def setupUi(self, Dialog):
         Dialog.setObjectName('Dialog')
-        Dialog.setFixedSize(361, 150)
+        Dialog.setFixedSize(420, 210)
         Dialog.setFont(font9)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(Dialog)
         self.horizontalLayout_2.setContentsMargins(5, 5, 5, 5)
@@ -86,10 +94,8 @@ class Ui_StartDialog(object):
         self.verticalLayout.setSpacing(2)
         self.verticalLayout.setObjectName('verticalLayout')
         self.formLayout = QtWidgets.QFormLayout()
-        self.formLayout.setFormAlignment(
-            Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
-        )
-        self.formLayout.setHorizontalSpacing(10)
+        self.formLayout.setFormAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignVCenter)
+        self.formLayout.setHorizontalSpacing(20)
         self.formLayout.setVerticalSpacing(0)
         self.formLayout.setObjectName('formLayout')
         self.label = QtWidgets.QLabel(Dialog)
@@ -99,6 +105,32 @@ class Ui_StartDialog(object):
         self.lineEdit.setObjectName('lineEdit')
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.ItemRole.FieldRole, self.lineEdit)
         self.verticalLayout.addLayout(self.formLayout)
+
+        self.buttonGroup = QtWidgets.QButtonGroup(Dialog)
+        self.buttonGroup.setObjectName('ButtonGroup')
+        self.radioButton = QtWidgets.QRadioButton(Dialog)
+        self.radioButton.setChecked(True)
+        self.radioButton.setObjectName('radioButton')
+        self.radioButton_2 = QtWidgets.QRadioButton(Dialog)
+        self.radioButton_2.setObjectName('radioButton_2')
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.add_buttons(self.buttonGroup, self.horizontalLayout_3, self.radioButton, self.radioButton_2)
+
+        self.buttonGroup_2 = QtWidgets.QButtonGroup(Dialog)
+        self.buttonGroup_2.setObjectName('ButtonGroup_2')
+        self.radioButton_3 = QtWidgets.QRadioButton(Dialog)
+        self.radioButton_3.setChecked(True)
+        self.radioButton_3.setObjectName('radioButton_3')
+        self.radioButton_4 = QtWidgets.QRadioButton(Dialog)
+        self.radioButton_4.setObjectName('radioButton_4')
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
+        self.add_buttons(self.buttonGroup_2, self.horizontalLayout_4, self.radioButton_3, self.radioButton_4)
+
+        self.verticalSpacer = QtWidgets.QSpacerItem(
+            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
+        self.verticalLayout.addItem(self.verticalSpacer)
+
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setSpacing(10)
         self.horizontalLayout.setObjectName('horizontalLayout')
@@ -108,30 +140,18 @@ class Ui_StartDialog(object):
         self.exit_button = QtWidgets.QPushButton(Dialog)
         self.exit_button.setObjectName('exit_button')
         self.horizontalLayout.addWidget(self.exit_button)
-
-        self.buttonGroup = QtWidgets.QButtonGroup(Dialog)
-        self.buttonGroup.setObjectName('ButtonGroup')
-        self.radioButton = QtWidgets.QRadioButton(Dialog)
-        self.radioButton.setChecked(True)
-        self.radioButton.setObjectName('radioButton')
-        self.buttonGroup.addButton(self.radioButton)
-        self.radioButton_2 = QtWidgets.QRadioButton(Dialog)
-        self.radioButton_2.setObjectName('radioButton_2')
-        self.buttonGroup.addButton(self.radioButton_2)
-        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3.addWidget(self.radioButton)
-        self.horizontalLayout_3.addWidget(self.radioButton_2)
-        self.verticalLayout.addLayout(self.horizontalLayout_3)
-        self.horizontalLayout_3.setContentsMargins(0, 5, 0, 5)
-        self.horizontalLayout_3.setSpacing(0)
-
         self.verticalLayout.addLayout(self.horizontalLayout)
+
         self.rulebook_button = QtWidgets.QPushButton(Dialog)
         self.rulebook_button.setObjectName('rulebook_button')
         self.verticalLayout.addWidget(self.rulebook_button)
+
         self.verticalLayout.setStretch(0, 2)
         self.verticalLayout.setStretch(1, 1)
         self.verticalLayout.setStretch(2, 1)
+        self.verticalLayout.setStretch(3, 1)
+        self.verticalLayout.setStretch(4, 1)
+        self.verticalLayout.setStretch(5, 1)
         self.horizontalLayout_2.addLayout(self.verticalLayout)
 
         self.setTextInUi(Dialog)
@@ -142,6 +162,8 @@ class Ui_StartDialog(object):
         self.label.setText('Введите ваше имя:')
         self.radioButton.setText('Обычный режим')
         self.radioButton_2.setText('Режим на время')
+        self.radioButton_3.setText('Удалённая база вопросов')
+        self.radioButton_4.setText('Локальная база вопросов')
         self.ok_button.setText('Начать игру')
         self.exit_button.setText('Выйти')
         self.rulebook_button.setText('Правила игры')
@@ -158,7 +180,7 @@ class Ui_Rules(object):
         label.setSizePolicy(sizePolicy)
         label.setFont(internal_font)
         label.setText(text)
-        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        label.setAlignment(Qt.AlignCenter)
         label.setObjectName(name)
         self.verticalLayout.addWidget(label)
 
@@ -174,7 +196,7 @@ class Ui_Rules(object):
         self.scrollArea.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.scrollArea.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
         self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.scrollArea.setAlignment(Qt.AlignCenter)
         self.scrollArea.setObjectName('scrollArea')
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 624, 1049))
@@ -264,7 +286,7 @@ class Ui_Rules(object):
         self.picture_ll.setMaximumSize(QtCore.QSize(602, 119))
         self.picture_ll.setPixmap(QtGui.QPixmap('images/rules/lifelines.png'))
         self.picture_ll.setScaledContents(True)
-        self.picture_ll.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.picture_ll.setAlignment(Qt.AlignCenter)
         self.picture_ll.setObjectName('picture_ll')
         self.aboutLifelines.addWidget(self.picture_ll)
 
@@ -291,7 +313,7 @@ class Ui_Rules(object):
         self.picture_ans.setMaximumSize(QtCore.QSize(602, 103))
         self.picture_ans.setPixmap(QtGui.QPixmap('images/rules/question_field.png'))
         self.picture_ans.setScaledContents(True)
-        self.picture_ans.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.picture_ans.setAlignment(Qt.AlignCenter)
         self.picture_ans.setObjectName('picture_ans')
         self.aboutAnswers.addWidget(self.picture_ans)
 
@@ -398,9 +420,7 @@ class Ui_MainWindow(object):
             label.setFont(local_font)
             label.setCursor(QtGui.QCursor(Qt.CursorShape.PointingHandCursor))
             label.setText('')
-            label.setAlignment(
-                Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
-            )
+            label.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignVCenter)
             label.setWordWrap(True)
             label.setObjectName(f'answer_{answer_letter}')
 
@@ -413,7 +433,7 @@ class Ui_MainWindow(object):
         self.question.setPalette(palette)
         self.question.setFont(local_font)
         self.question.setText('')
-        self.question.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.question.setAlignment(Qt.AlignCenter)
         self.question.setWordWrap(True)
         self.question.setObjectName('question')
 
@@ -446,7 +466,7 @@ class Ui_MainWindow(object):
         local_font.setPointSize(33)
         self.amount_q.setFont(local_font)
         self.amount_q.setText('')
-        self.amount_q.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.amount_q.setAlignment(Qt.AlignCenter)
         self.amount_q.setObjectName('amount_q')
 
         self.central_q = AnimationLabel(self.questionField)
@@ -547,7 +567,7 @@ class Ui_MainWindow(object):
         self.timer_view.setGeometry(QtCore.QRect(215, 419, 678, 64))
         self.timer_view.setText('')
         self.timer_view.setScaledContents(True)
-        self.timer_view.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.timer_view.setAlignment(Qt.AlignCenter)
         self.timer_view.setObjectName('timer')
 
         self.timer_text = AnimationLabel(self.central_widget)
@@ -558,7 +578,7 @@ class Ui_MainWindow(object):
         local_font.setWeight(75)
         self.timer_text.setFont(local_font)
         self.timer_text.setText('')
-        self.timer_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.timer_text.setAlignment(Qt.AlignCenter)
         self.timer_text.setObjectName('timer_text')
 
         verdana_font = QtGui.QFont()
@@ -583,7 +603,7 @@ class Ui_MainWindow(object):
             percent_label.setGeometry(QtCore.QRect(coord_x, 28, 49, 22))
             percent_label.setFont(verdana_font)
             percent_label.setPalette(palette)
-            percent_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            percent_label.setAlignment(Qt.AlignCenter)
             percent_label.setObjectName(f'ata_{answer_letter}_percents')
 
         score_column = QtGui.QPixmap('images/ata_score.png')
@@ -718,7 +738,7 @@ class EndGameDialog(object):
         self.verticalLayout.setObjectName('verticalLayout')
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setFont(bold_font)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setAlignment(Qt.AlignCenter)
         self.label.setObjectName('label')
         self.verticalLayout.addWidget(self.label)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
@@ -766,7 +786,7 @@ class ConfirmDialog(object):
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setGeometry(QtCore.QRect(24, 20, 351, 50))
         self.label.setFont(bold_font)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setAlignment(Qt.AlignCenter)
         self.label.setWordWrap(True)
         self.label.setObjectName('label')
 
@@ -887,7 +907,7 @@ class Ui_About(object):
         self.ruText = QtWidgets.QLabel(Form)
         self.ruText.setFont(font9)
         self.ruText.setScaledContents(False)
-        self.ruText.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
+        self.ruText.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
         self.ruText.setWordWrap(True)
         self.ruText.setObjectName('ruText')
         self.ruText.setOpenExternalLinks(True)
@@ -896,7 +916,7 @@ class Ui_About(object):
         self.enText.setEnabled(True)
         self.enText.setFont(font9)
         self.enText.setScaledContents(False)
-        self.enText.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
+        self.enText.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
         self.enText.setWordWrap(True)
         self.enText.setObjectName('enText')
         self.enText.setOpenExternalLinks(True)
