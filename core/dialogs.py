@@ -198,7 +198,9 @@ class ConfirmLeaveWindow(QDialog, Ui_ConfirmLeave):
         player_list = [parent_.player3] + [parent_.player1, parent_.player2, parent_.player4] * (not triggered)
         for player in player_list:
             player.stop()
-        lose_media = f'sounds/{"great_" if parent_.current_question_num >= 11 and parent_.mode == "clock" else ""}walk_away{"_clock" if parent_.mode == "clock" else ""}.mp3'
+        prefix = "great_" if parent_.current_question_num >= 11 and parent_.mode == "clock" else ""
+        suffix = "_clock" if parent_.mode == "clock" else ""
+        lose_media = f'sounds/{prefix}walk_away{suffix}.mp3'
         parent_.player2.set_media(decorate_audio(lose_media))
 
         if parent_.has_shown:
