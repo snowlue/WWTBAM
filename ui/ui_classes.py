@@ -74,6 +74,14 @@ bold_font.setWeight(75)
 
 
 class Ui_StartDialog(object):
+    def add_buttons(self, btn_group, horizontal_layout, *buttons):
+        for button in buttons:
+            horizontal_layout.addWidget(button)
+            btn_group.addButton(button)
+        horizontal_layout.setContentsMargins(0, 5, 0, 5)
+        horizontal_layout.setSpacing(0)
+        self.verticalLayout.addLayout(horizontal_layout)
+
     def setupUi(self, Dialog):
         Dialog.setObjectName('Dialog')
         Dialog.setFixedSize(420, 210)
@@ -103,32 +111,20 @@ class Ui_StartDialog(object):
         self.radioButton = QtWidgets.QRadioButton(Dialog)
         self.radioButton.setChecked(True)
         self.radioButton.setObjectName('radioButton')
-        self.buttonGroup.addButton(self.radioButton)
         self.radioButton_2 = QtWidgets.QRadioButton(Dialog)
         self.radioButton_2.setObjectName('radioButton_2')
-        self.buttonGroup.addButton(self.radioButton_2)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3.addWidget(self.radioButton)
-        self.horizontalLayout_3.addWidget(self.radioButton_2)
-        self.horizontalLayout_3.setContentsMargins(0, 5, 0, 5)
-        self.horizontalLayout_3.setSpacing(0)
-        self.verticalLayout.addLayout(self.horizontalLayout_3)
+        self.add_buttons(self.buttonGroup, self.horizontalLayout_3, self.radioButton, self.radioButton_2)
 
         self.buttonGroup_2 = QtWidgets.QButtonGroup(Dialog)
         self.buttonGroup_2.setObjectName('ButtonGroup_2')
         self.radioButton_3 = QtWidgets.QRadioButton(Dialog)
         self.radioButton_3.setChecked(True)
         self.radioButton_3.setObjectName('radioButton_3')
-        self.buttonGroup_2.addButton(self.radioButton_3)
         self.radioButton_4 = QtWidgets.QRadioButton(Dialog)
         self.radioButton_4.setObjectName('radioButton_4')
-        self.buttonGroup_2.addButton(self.radioButton_4)
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_4.addWidget(self.radioButton_3)
-        self.horizontalLayout_4.addWidget(self.radioButton_4)
-        self.horizontalLayout_4.setContentsMargins(0, 5, 0, 5)
-        self.horizontalLayout_4.setSpacing(0)
-        self.verticalLayout.addLayout(self.horizontalLayout_4)
+        self.add_buttons(self.buttonGroup_2, self.horizontalLayout_4, self.radioButton_3, self.radioButton_4)
 
         self.verticalSpacer = QtWidgets.QSpacerItem(
             20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
