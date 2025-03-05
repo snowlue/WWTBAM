@@ -34,7 +34,7 @@ from core.tools import (
     convert_amount_to_str,
     decorate_audio,
     empty_timer,
-    hide_timer,
+    get_local_questions, hide_timer,
     refill_timer,
     show_prize,
     show_timer,
@@ -47,7 +47,7 @@ from ui import AnimationLabel, Ui_MainWindow
 class GameWindow(QMainWindow, Ui_MainWindow):
     """Окно, отображающее основной игровой контент"""
 
-    def __init__(self, name: str, mode: str):
+    def __init__(self, name: str, mode: str, question_sources: str):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(APP_ICON)
@@ -55,6 +55,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.name = name
         self.mode = mode
         self.token = get_token()
+        self.question_sources = question_sources
 
         self.hovered_answer = ''
         self.hovered_lifeline = ''
@@ -88,7 +89,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
     def start_game(self, is_repeat: bool = False, is_restarted: bool = False):
         """Запускает анимацию начала игры и показывает первый вопрос"""
 
-        self.questions = get_questions(self.token)
+        self.questions = get_questions(self.token) if self.question_sources == 'cloud' else get_local_questions()
         self.current_question_num = 1  # HACK God mode
 
         logo_and_bg_selector = {i: '1-5' for i in range(1, 6)}

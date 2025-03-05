@@ -13,7 +13,7 @@ def get_questions(token: str) -> list[list[tuple[int, str, list[str]]]]:
 
 
 def get_token():
-    """Sorry, but I need to hide the realisation of this function. However, if you cheat it and use the token for nasty things, I will change it"""
+    """Sorry, but I need to hide the realisation of this function. However, if you cheat it and use the token for nasty things, I will change the token"""
     __pyarmor__(
         __name__,
         __file__,

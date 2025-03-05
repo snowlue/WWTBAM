@@ -47,13 +47,27 @@ class StartWindow(QDialog, Ui_StartDialog):
         self.move(qr.topLeft())
 
         self.setWindowIcon(APP_ICON)
+        self.radioButton_4.toggled.connect(self.check_db_is_ok)
         self.ok_button.clicked.connect(self.get_name)
-        self.rulebook_button.clicked.connect(self.show_rules)
         self.exit_button.clicked.connect(sys.exit)
+        self.rulebook_button.clicked.connect(self.show_rules)
         self.msg = QMessageBox()
-        self.msg.setWindowTitle('Некорректное имя')
         self.msg.setWindowIcon(APP_ICON)
         self.msg.setIcon(QMessageBox.Warning)
+
+    def check_db_is_ok(self):
+        """Проверяет, готова ли локальная база вопросов к игре"""
+        for i in range(1, 16):
+            _, question_data = sql_request(f'SELECT * FROM "{i}_questions"')
+            if question_data:
+                continue
+            self.msg.setWindowTitle('Локальная база не наполнена вопросами')
+            self.msg.setText(
+                f'В локальной базе вопросов нет вопросов для {i}-го шага денежного дерева. Пожалуйста, добавьте вопросы для игры или воспользуйтесь удалённой базой вопросов.'
+            )
+            self.msg.show()
+            self.radioButton_3.setChecked(True)
+            break
 
     def get_name(self) -> None:
         """Получает имя игрока"""
@@ -62,6 +76,7 @@ class StartWindow(QDialog, Ui_StartDialog):
             self.msg.setText('Введите имя, чтобы учитываться в таблице рекордов.\nНе оставляйте поле пустым.')
             self.msg.show()
         elif any([(le in name) for le in '`~!@#$%^&*()_+{}|:"<>?[]\\;\',./№0123456789']):
+            self.msg.setWindowTitle('Некорректное имя')
             self.msg.setText(
                 'Введите корректное имя, состоящее только из букв и пробелов. Не используйте цифры или спецсимволы.'
             )
@@ -85,7 +100,9 @@ class StartWindow(QDialog, Ui_StartDialog):
 
         mode = self.buttonGroup.checkedButton().text()
         mode = 'classic' if mode == 'Обычный режим' else 'clock'
-        self.game = GameWindow(name, mode)
+        question_sources = self.buttonGroup_2.checkedButton().text()
+        question_sources = 'cloud' if question_sources == 'Удалённая база вопросов' else 'local'
+        self.game = GameWindow(name, mode, question_sources)
         self.game.show()
         self.close()
 
