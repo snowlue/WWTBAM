@@ -70,7 +70,8 @@ class AnimationScheduler(QObject):
 
 
 class LoopingMediaPlayer(QMediaPlayer):
-    """Реализация `QMediaPlayer`, зацикливающая фоновую музыку, для которой прописан момент зацикливания в `LOOP_POINTS`"""
+    """Реализация `QMediaPlayer`, зацикливающая фоновую музыку, для которой прописан момент зацикливания в
+    `LOOP_POINTS`"""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -173,7 +174,6 @@ def ask_audience(question_number: int, available_count: int) -> tuple[int, list[
 
 def sql_request(request: str) -> tuple[str, list]:
     """Отправляет запрос к базе данных database.sqlite3 и возвращает "OK" или "ERROR" с описанием ошибки"""
-
     with sqlite3.connect('database.sqlite3') as con:
         cur = con.cursor()
         try:
@@ -190,10 +190,8 @@ def sql_request(request: str) -> tuple[str, list]:
 def get_local_questions():
     """Получает из базы данных database.sqlite3 вопросы и подготавливает их для игры"""
 
-    questions_data, questions = (
-        [sql_request('SELECT * FROM "{}_questions"'.format(i))[1] for i in range(1, 16)],
-        [],
-    )
+    questions_data = [sql_request('SELECT * FROM "{}_questions"'.format(i))[1] for i in range(1, 16)]
+    questions = []
 
     for q_unmixed in questions_data:
         questions_set = []
