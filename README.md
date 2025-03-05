@@ -1,11 +1,12 @@
 # Кто хочет стать Миллионером?
 [![en](https://img.shields.io/badge/lang-EN-red?style=flat-square)](https://github.com/snowlue/wwtbam/blob/main/README.en.md)
-
-[![Made with Python 3.9](https://img.shields.io/badge/Made_with-Python_3.9-336E9E?style=flat-square)](https://www.python.org/downloads/release/python-3913)
+    
+[![Made with Python 3.9](https://img.shields.io/badge/Made_with-Python_3.9-3776AB?style=flat-square&logo=python&logoColor=fff)](https://www.python.org/downloads/release/python-3913)
 [![Using QT Designer](https://img.shields.io/badge/Using-QT_Designer-25AF37?style=flat-square)](https://doc.qt.io/qt-5/qtdesigner-manual.html)
 [![Using SQLiteStudio](https://img.shields.io/badge/Using-SQLiteStudio-337CCF?style=flat-square)](https://sqlitestudio.pl)  
-[![PyQt5](https://img.shields.io/badge/PyQt5-40CD52?style=flat-square)](https://pypi.org/project/PyQt5)
-[![SQLite3](https://img.shields.io/badge/SQLite3-107FCB?style=flat-square)](https://www.sqlite.org)
+[![PyQt5](https://img.shields.io/badge/PyQt5-41CD52?style=flat-square&logo=qt&logoColor=fff)](https://pypi.org/project/PyQt5)
+[![SQLite3](https://img.shields.io/badge/SQLite3-003B57?style=flat-square&logo=sqlite&logoColor=fff)](https://www.sqlite.org)
+[![Yandex Cloud](https://img.shields.io/badge/Yandex_Cloud-5282FF?style=flat-square&logo=yandexcloud&logoColor=fff)](https://yandex.cloud/ru)
 [![PyInstaller](https://img.shields.io/badge/PyInstaller-FFEB5E?style=flat-square)](https://www.pyinstaller.org)
 
 Популярное ТВ-шоу «Кто хочет стать Миллионером?» теперь доступно на вашем ПК! 💙  
