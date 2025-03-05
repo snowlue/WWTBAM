@@ -187,7 +187,7 @@ def sql_request(request: str) -> tuple[str, list]:
             return 'ERROR: ' + str(ex), []
 
 
-def get_questions():
+def get_local_questions():
     """Получает из базы данных database.sqlite3 вопросы и подготавливает их для игры"""
 
     questions_data, questions = (

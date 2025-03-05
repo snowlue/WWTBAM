@@ -8,6 +8,7 @@ from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent, QMovie, QPixmap
 from PyQt5.QtWidgets import QMainWindow
 
+from core.cloud_integration import get_questions, get_token
 from core.constants import (
     APP_ICON,
     COORDS,
@@ -33,7 +34,6 @@ from core.tools import (
     convert_amount_to_str,
     decorate_audio,
     empty_timer,
-    get_questions,
     hide_timer,
     refill_timer,
     show_prize,
@@ -54,6 +54,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
         self.user_control = False  # реагирует ли игра на действия игрока
         self.name = name
         self.mode = mode
+        self.token = get_token()
 
         self.hovered_answer = ''
         self.hovered_lifeline = ''
@@ -87,7 +88,7 @@ class GameWindow(QMainWindow, Ui_MainWindow):
     def start_game(self, is_repeat: bool = False, is_restarted: bool = False):
         """Запускает анимацию начала игры и показывает первый вопрос"""
 
-        self.questions = get_questions()
+        self.questions = get_questions(self.token)
         self.current_question_num = 1  # HACK God mode
 
         logo_and_bg_selector = {i: '1-5' for i in range(1, 6)}
@@ -438,8 +439,8 @@ class GameWindow(QMainWindow, Ui_MainWindow):
 
         self.non_active_answers = []
         text = self.questions[self.current_question_num - 1][changer][0]
-        self.answers = list(map(str, self.questions[self.current_question_num - 1][changer][2]))
         self.correct_answer = str(self.questions[self.current_question_num - 1][changer][1])
+        self.answers = list(map(str, self.questions[self.current_question_num - 1][changer][2]))
         # print(self.correct_answer)  # HACK God mode
         self.got_amount = MONEY_TREE_AMOUNTS[self.current_question_num - 1]
 
