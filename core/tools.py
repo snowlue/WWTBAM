@@ -172,6 +172,16 @@ def ask_audience(question_number: int, available_count: int) -> tuple[int, list[
     return correct_percentage, other_percentages
 
 
+def create_database_if_not_exists():
+    with sqlite3.connect('database.sqlite3') as con:
+        cur = con.cursor()
+        cur.execute('CREATE TABLE IF NOT EXISTS results '
+                    '(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, result TEXT, date TEXT);')
+        for i in range(1, 16):
+            cur.execute(f'CREATE TABLE IF NOT EXISTS "{i}_questions" (id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT, '
+                        'answer_c TEXT, answer_2 TEXT, answer_3 TEXT, answer_4 TEXT);')
+
+
 def sql_request(request: str) -> tuple[str, list]:
     """Отправляет запрос к базе данных database.sqlite3 и возвращает "OK" или "ERROR" с описанием ошибки"""
     with sqlite3.connect('database.sqlite3') as con:
@@ -190,7 +200,7 @@ def sql_request(request: str) -> tuple[str, list]:
 def get_local_questions():
     """Получает из базы данных database.sqlite3 вопросы и подготавливает их для игры"""
 
-    questions_data = [sql_request('SELECT * FROM "{}_questions"'.format(i))[1] for i in range(1, 16)]
+    questions_data = [sql_request(f'SELECT * FROM "{i}_questions"')[1] for i in range(1, 16)]
     questions = []
 
     for q_unmixed in questions_data:
