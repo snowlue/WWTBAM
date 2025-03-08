@@ -24,17 +24,12 @@ Get smarter and test your knowledge! 📚
 
 ## How to Run:
 
-0. Install [Python 3.9](https://www.python.org/downloads/release/python-3913) on your computer.
+0. Install [Python 3.9](https://www.python.org/downloads/release/python-3913) (or upper) on your computer.
 1. Open a terminal in the repository folder.
 2. Enter the following commands:
     ```bash
     pip install -r requirements.txt
     python main.py
-    ```
-    OR (if Python is not installed, for Windows only)
-    ```bash
-    cd bin
-    main.exe
     ```
 3. Enjoy the game! ^_^
 

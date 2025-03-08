@@ -1,7 +1,7 @@
 # Кто хочет стать Миллионером?
 [![en](https://img.shields.io/badge/lang-EN-red?style=flat-square)](https://github.com/snowlue/wwtbam/blob/main/README.en.md)
     
-[![Made with Python 3.9](https://img.shields.io/badge/Made_with-Python_3.9-3776AB?style=flat-square&logo=python&logoColor=fff)](https://www.python.org/downloads/release/python-3913)
+[![Made with Python 3.9](https://img.shields.io/badge/Made_with-Python_3.12-3776AB?style=flat-square&logo=python&logoColor=fff)](https://www.python.org/downloads/release/python-3913)
 [![Using QT Designer](https://img.shields.io/badge/Using-QT_Designer-25AF37?style=flat-square)](https://doc.qt.io/qt-5/qtdesigner-manual.html)
 [![Using SQLiteStudio](https://img.shields.io/badge/Using-SQLiteStudio-337CCF?style=flat-square)](https://sqlitestudio.pl)  
 [![PyQt5](https://img.shields.io/badge/PyQt5-41CD52?style=flat-square&logo=qt&logoColor=fff)](https://pypi.org/project/PyQt5)
@@ -24,17 +24,12 @@
 
 ## Как запустить:
 
-0. Установите [Python 3.9](https://www.python.org/downloads/release/python-3913) на свой компьютер
+0. Установите [Python 3.9](https://www.python.org/downloads/release/python-3913) (или выше) на свой компьютер
 1. Откройте терминал в папке репозитория
 2. Введите следующие команды:
     ```bash
     pip install -r requirements.txt
     python3 main.py
-    ```
-    ИЛИ (если не установлен Python, только для Windows)
-    ```bash
-    cd bin
-    main.exe
     ```
 3. Наслаждайтесь игрой ^_^
 
