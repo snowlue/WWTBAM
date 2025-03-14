@@ -33,8 +33,6 @@ Get smarter and test your knowledge! 📚
     ```
 3. Enjoy the game! ^_^
 
-⠀(4.) Additionally, the "bin" folder is standalone and can be used on any Windows 7+ system, even if Python is not installed.
-
 ## Game Controls:
 
 - At the start of the game, you can choose a timed mode (similar to the Clock Format introduced in the U.S. in 2008).
